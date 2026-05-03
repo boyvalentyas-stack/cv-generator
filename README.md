@@ -1,2 +1,2 @@
-# cv-generator
+# ATS Friendly CV Generator
 A simple ATS-friendly CV generator that allows users to input their information and export a professional resume in PDF format.
