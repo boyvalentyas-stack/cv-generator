@@ -1,0 +1,1578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CraftCV — Build Your CV</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #F5F0E8;
+  --cream-dark: #EDE7D9;
+  --cream-border: #DDD7CC;
+  --ink: #1A1714;
+  --ink-mid: #3D3830;
+  --ink-light: #7A7268;
+  --ink-faint: #B0A99E;
+  --sage: #3B6D11;
+  --sage-light: #EAF3DE;
+  --sage-mid: #639922;
+  --sage-dark: #27500A;
+  --amber: #BA7517;
+  --amber-light: #FAEEDA;
+  --coral: #993C1D;
+  --coral-light: #FAECE7;
+  --white: #FFFFFF;
+  --border: rgba(26,23,20,0.11);
+  --border-mid: rgba(26,23,20,0.18);
+  --border-strong: rgba(26,23,20,0.26);
+  --radius: 10px;
+  --radius-lg: 16px;
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --sidebar-w: 260px;
+  --transition: 0.22s ease;
+}
+
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--cream);
+  color: var(--ink);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0.9rem 2rem;
+  background: rgba(245,240,232,0.9);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo { font-family: var(--font-display); font-size: 1.4rem; color: var(--ink); text-decoration: none; }
+.nav-logo span { color: var(--sage); }
+.nav-right { display: flex; align-items: center; gap: 0.9rem; }
+.lang-toggle { display: flex; align-items: center; background: var(--white); border: 1px solid var(--border-strong); border-radius: 999px; padding: 3px; gap: 2px; }
+.lang-btn { font-family: var(--font-body); font-size: 0.72rem; font-weight: 500; padding: 3px 11px; border-radius: 999px; border: none; background: transparent; color: var(--ink-light); cursor: pointer; transition: all var(--transition); letter-spacing: 0.04em; }
+.lang-btn.active { background: var(--ink); color: var(--cream); }
+.nav-back { font-family: var(--font-body); font-size: 0.82rem; color: var(--ink-light); text-decoration: none; display: flex; align-items: center; gap: 5px; transition: color var(--transition); }
+.nav-back:hover { color: var(--ink); }
+
+/* ── LAYOUT ── */
+.page-wrapper {
+  display: grid;
+  grid-template-columns: var(--sidebar-w) 1fr;
+  min-height: 100vh;
+  padding-top: 58px;
+}
+
+/* ── SIDEBAR ── */
+.sidebar {
+  position: sticky;
+  top: 58px;
+  height: calc(100vh - 58px);
+  overflow-y: auto;
+  border-right: 1px solid var(--border);
+  background: var(--white);
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.sidebar-title {
+  font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-faint); margin-bottom: 0.75rem; padding-left: 0.75rem;
+}
+.sidebar-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0.6rem 0.75rem; border-radius: 8px;
+  cursor: pointer; transition: all var(--transition);
+  text-decoration: none; border: none; background: none; width: 100%; text-align: left;
+}
+.sidebar-item:hover { background: var(--cream); }
+.sidebar-item.active { background: var(--sage-light); }
+.sidebar-dot {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--cream-dark); border: 1.5px solid var(--border-mid);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 600; color: var(--ink-light);
+  flex-shrink: 0; transition: all var(--transition);
+}
+.sidebar-item.active .sidebar-dot { background: var(--sage); border-color: var(--sage); color: var(--white); }
+.sidebar-item.completed .sidebar-dot { background: var(--sage-light); border-color: var(--sage); color: var(--sage); }
+.sidebar-item.completed .sidebar-dot::after { content: '✓'; font-size: 0.6rem; }
+.sidebar-label { font-size: 0.82rem; font-weight: 400; color: var(--ink-mid); }
+.sidebar-item.active .sidebar-label { color: var(--sage-dark); font-weight: 500; }
+.sidebar-divider { height: 1px; background: var(--border); margin: 0.75rem 0; }
+.sidebar-progress { margin-top: auto; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+.progress-label { font-size: 0.72rem; color: var(--ink-light); margin-bottom: 0.5rem; display: flex; justify-content: space-between; }
+.progress-bar { height: 4px; background: var(--cream-dark); border-radius: 999px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--sage); border-radius: 999px; transition: width 0.4s ease; }
+
+/* ── MAIN CONTENT ── */
+.main-content { padding: 3rem 3rem 6rem; max-width: 800px; }
+
+/* ── SECTION HEADER ── */
+.form-section { margin-bottom: 3.5rem; scroll-margin-top: 80px; }
+.section-header { margin-bottom: 1.75rem; padding-bottom: 1.25rem; border-bottom: 1px solid var(--border); }
+.section-eyebrow { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--sage); margin-bottom: 0.4rem; }
+.section-heading { font-family: var(--font-display); font-size: 1.6rem; color: var(--ink); line-height: 1.15; }
+.section-sub { font-size: 0.85rem; color: var(--ink-light); font-weight: 300; margin-top: 0.4rem; }
+
+/* ── FORM GRID ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.1rem; }
+.form-grid.full { grid-template-columns: 1fr; }
+.col-span-2 { grid-column: 1 / -1; }
+
+/* ── FIELD ── */
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 0.8rem; font-weight: 500; color: var(--ink-mid); display: flex; align-items: center; gap: 5px; }
+.field label .req { color: var(--coral); font-size: 0.75rem; }
+.field label .opt { color: var(--ink-faint); font-size: 0.7rem; font-weight: 300; }
+.field input, .field textarea, .field select {
+  font-family: var(--font-body); font-size: 0.9rem; font-weight: 400;
+  color: var(--ink); background: var(--white);
+  border: 1.5px solid var(--border-mid); border-radius: var(--radius);
+  padding: 10px 14px; transition: border-color var(--transition), box-shadow var(--transition);
+  outline: none; width: 100%;
+  -webkit-appearance: none; appearance: none;
+}
+.field input:hover, .field textarea:hover, .field select:hover { border-color: var(--border-strong); }
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(59,109,17,0.12); }
+.field input.error, .field textarea.error, .field select.error { border-color: var(--coral); box-shadow: 0 0 0 3px rgba(153,60,29,0.1); }
+.field textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+.field select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237A7268' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+.field-hint { font-size: 0.72rem; color: var(--ink-faint); margin-top: 2px; }
+.field-error { font-size: 0.72rem; color: var(--coral); margin-top: 2px; display: none; }
+.field-error.show { display: block; }
+
+/* ── CHAR COUNTER ── */
+.field-top { display: flex; justify-content: space-between; align-items: center; }
+.char-count { font-size: 0.68rem; color: var(--ink-faint); }
+.char-count.warn { color: var(--amber); }
+.char-count.over { color: var(--coral); }
+
+/* ── DYNAMIC ENTRY CARD ── */
+.entry-card {
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 1.5rem;
+  margin-bottom: 1rem; position: relative;
+  transition: box-shadow var(--transition);
+  animation: slideIn 0.25s ease both;
+}
+.entry-card:hover { box-shadow: 0 4px 16px rgba(26,23,20,0.07); }
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.entry-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+  cursor: pointer; user-select: none;
+}
+.entry-card-title { font-size: 0.85rem; font-weight: 500; color: var(--ink-mid); display: flex; align-items: center; gap: 8px; }
+.entry-card-title .entry-num { font-family: var(--font-display); font-size: 1rem; color: var(--sage); }
+.entry-card-title .entry-preview { font-size: 0.78rem; font-weight: 300; color: var(--ink-light); max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.entry-header-actions { display: flex; align-items: center; gap: 8px; }
+.entry-collapse-btn {
+  width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border);
+  background: var(--cream); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--transition); color: var(--ink-light); font-size: 0.7rem;
+}
+.entry-collapse-btn:hover { background: var(--cream-dark); border-color: var(--border-strong); }
+.entry-collapse-btn svg { width: 14px; height: 14px; stroke: var(--ink-light); transition: transform var(--transition); }
+.entry-card.collapsed .entry-collapse-btn svg { transform: rotate(-90deg); }
+.entry-remove {
+  width: 28px; height: 28px; border-radius: 6px; border: 1px solid rgba(153,60,29,0.2);
+  background: var(--coral-light); display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all var(--transition);
+}
+.entry-remove:hover { background: #F5C4B3; border-color: rgba(153,60,29,0.4); }
+.entry-remove svg { width: 14px; height: 14px; stroke: var(--coral); }
+.entry-body { overflow: hidden; transition: max-height 0.3s ease, opacity 0.3s ease; }
+.entry-card.collapsed .entry-body { max-height: 0 !important; opacity: 0; pointer-events: none; }
+.drag-handle {
+  position: absolute; left: -2px; top: 50%; transform: translateY(-50%);
+  width: 14px; height: 32px; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; gap: 3px; cursor: grab; opacity: 0; transition: opacity var(--transition);
+}
+.entry-card:hover .drag-handle { opacity: 0.4; }
+.drag-handle:hover { opacity: 0.8 !important; }
+.drag-handle span { display: block; width: 4px; height: 4px; background: var(--ink-light); border-radius: 50%; }
+
+/* ── ADD ENTRY BUTTON ── */
+.add-entry-btn {
+  display: flex; align-items: center; gap: 8px; width: 100%;
+  padding: 12px 16px; border-radius: var(--radius);
+  border: 1.5px dashed var(--border-mid); background: transparent;
+  font-family: var(--font-body); font-size: 0.85rem; font-weight: 400; color: var(--ink-light);
+  cursor: pointer; transition: all var(--transition); justify-content: center;
+  margin-top: 0.5rem;
+}
+.add-entry-btn:hover { border-color: var(--sage); color: var(--sage); background: var(--sage-light); }
+.add-entry-btn svg { width: 16px; height: 16px; stroke: currentColor; flex-shrink: 0; }
+
+/* ── DATE RANGE ── */
+.date-range { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; align-items: end; }
+.current-toggle { display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 14px; border: 1.5px solid var(--border-mid); border-radius: var(--radius); background: var(--white); transition: all var(--transition); }
+.current-toggle:hover { border-color: var(--border-strong); }
+.current-toggle input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--sage); cursor: pointer; }
+.current-toggle span { font-size: 0.82rem; color: var(--ink-mid); }
+
+/* ── SKILLS CHIPS ── */
+.skills-input-wrapper { position: relative; }
+.skills-chips { display: flex; flex-wrap: wrap; gap: 6px; min-height: 44px; padding: 8px 10px; border: 1.5px solid var(--border-mid); border-radius: var(--radius); background: var(--white); cursor: text; transition: border-color var(--transition), box-shadow var(--transition); }
+.skills-chips:focus-within { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(59,109,17,0.12); }
+.skill-chip { display: flex; align-items: center; gap: 5px; background: var(--sage-light); border: 1px solid rgba(59,109,17,0.2); border-radius: 999px; padding: 3px 10px; font-size: 0.75rem; font-weight: 500; color: var(--sage-dark); animation: chipIn 0.15s ease; }
+@keyframes chipIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+.skill-chip button { background: none; border: none; cursor: pointer; color: var(--sage); line-height: 1; padding: 0; font-size: 0.85rem; opacity: 0.6; transition: opacity var(--transition); }
+.skill-chip button:hover { opacity: 1; }
+.skills-text-input { border: none; outline: none; font-family: var(--font-body); font-size: 0.85rem; color: var(--ink); background: transparent; min-width: 120px; flex: 1; padding: 2px 4px; }
+.skills-hint { font-size: 0.7rem; color: var(--ink-faint); margin-top: 4px; }
+
+/* ── STEP NAVIGATION ── */
+.form-nav {
+  position: fixed; bottom: 0; left: var(--sidebar-w); right: 0; z-index: 150;
+  background: rgba(245,240,232,0.95); backdrop-filter: blur(14px);
+  border-top: 1px solid var(--border); padding: 1rem 3rem;
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+}
+.form-nav-left { display: flex; align-items: center; gap: 0.75rem; }
+.btn-prev {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-body); font-size: 0.9rem; padding: 10px 22px;
+  border-radius: 999px; border: 1.5px solid var(--border-strong);
+  background: transparent; color: var(--ink-mid); cursor: pointer; transition: all var(--transition);
+  text-decoration: none;
+}
+.btn-prev:hover { background: var(--cream-dark); }
+.btn-next {
+  display: flex; align-items: center; gap: 6px;
+  font-family: var(--font-body); font-size: 0.9rem; font-weight: 500; padding: 10px 28px;
+  border-radius: 999px; border: none; background: var(--ink); color: var(--cream);
+  cursor: pointer; transition: all var(--transition); box-shadow: 0 2px 12px rgba(26,23,20,0.18);
+}
+.btn-next:hover { background: var(--ink-mid); transform: translateY(-1px); box-shadow: 0 4px 18px rgba(26,23,20,0.24); }
+.btn-next svg, .btn-prev svg { width: 16px; height: 16px; stroke: currentColor; }
+.step-indicator { font-size: 0.78rem; color: var(--ink-light); }
+.step-indicator strong { color: var(--ink); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; top: 76px; right: 1.5rem; z-index: 9999;
+  background: var(--ink); color: var(--cream); padding: 12px 20px;
+  border-radius: var(--radius); font-size: 0.82rem; font-weight: 400;
+  display: flex; align-items: center; gap: 8px;
+  transform: translateY(-20px); opacity: 0; pointer-events: none;
+  transition: all 0.3s ease; max-width: 320px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.error { background: var(--coral); }
+.toast-icon { font-size: 0.9rem; flex-shrink: 0; }
+
+/* ── SECTION TABS (mobile steps) ── */
+.mobile-steps {
+  display: none; overflow-x: auto; padding: 0 1.25rem;
+  gap: 0.5rem; border-bottom: 1px solid var(--border);
+  background: var(--white); scrollbar-width: none;
+}
+.mobile-steps::-webkit-scrollbar { display: none; }
+.mobile-step-btn {
+  flex-shrink: 0; padding: 0.75rem 1rem; border: none; background: none;
+  font-family: var(--font-body); font-size: 0.78rem; color: var(--ink-light);
+  border-bottom: 2px solid transparent; cursor: pointer; transition: all var(--transition); white-space: nowrap;
+}
+.mobile-step-btn.active { color: var(--sage); border-color: var(--sage); font-weight: 500; }
+
+/* ── NOTICE ── */
+.notice {
+  background: var(--amber-light); border: 1px solid rgba(186,117,23,0.22);
+  border-radius: var(--radius); padding: 0.9rem 1.1rem;
+  display: flex; align-items: flex-start; gap: 10px; margin-bottom: 1.5rem;
+}
+.notice-icon { color: var(--amber); font-size: 0.9rem; flex-shrink: 0; margin-top: 1px; }
+.notice-text { font-size: 0.8rem; color: var(--ink-mid); line-height: 1.7; font-weight: 300; }
+.notice-text strong { font-weight: 500; color: var(--ink); }
+
+/* ── DIVIDER ── */
+.field-divider { height: 1px; background: var(--border); margin: 0.5rem 0; grid-column: 1/-1; }
+
+/* ── SECTION VISIBILITY ── */
+.form-section { display: block; }
+.form-section.hidden { display: none; }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 900px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display: none; }
+  .page-wrapper { grid-template-columns: 1fr; }
+  .main-content { padding: 2rem 1.5rem 8rem; max-width: 100%; }
+  .form-nav { left: 0; padding: 0.875rem 1.5rem; }
+  .mobile-steps { display: flex; position: sticky; top: 57px; z-index: 100; }
+}
+@media (max-width: 600px) {
+  .form-grid { grid-template-columns: 1fr; }
+  .col-span-2 { grid-column: 1; }
+  .date-range { grid-template-columns: 1fr; }
+  .main-content { padding: 1.5rem 1.25rem 8rem; }
+  nav { padding: 0.875rem 1.25rem; }
+  .form-nav { padding: 0.875rem 1.25rem; flex-wrap: wrap; }
+  .form-nav-left { flex: 1; }
+  .btn-next { flex: 1; justify-content: center; }
+  .entry-card { padding: 1.25rem; }
+  .section-heading { font-size: 1.3rem; }
+}
+@media (max-width: 380px) {
+  .step-indicator { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast" role="alert" aria-live="polite">
+  <span class="toast-icon" id="toast-icon">⚠</span>
+  <span id="toast-msg"></span>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Craft<span>CV</span></a>
+  <div class="nav-right">
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" id="btn-id" onclick="setLang('id')">ID</button>
+    </div>
+    <a href="index.html" class="nav-back">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span data-i18n="nav_back">Back</span>
+    </a>
+  </div>
+</nav>
+
+<!-- MOBILE STEPS -->
+<div class="mobile-steps" id="mobile-steps">
+  <button class="mobile-step-btn active" onclick="goToStep(0)" data-i18n="step_personal">Personal</button>
+  <button class="mobile-step-btn" onclick="goToStep(1)" data-i18n="step_summary">Summary</button>
+  <button class="mobile-step-btn" onclick="goToStep(2)" data-i18n="step_experience">Experience</button>
+  <button class="mobile-step-btn" onclick="goToStep(3)" data-i18n="step_education">Education</button>
+  <button class="mobile-step-btn" onclick="goToStep(4)" data-i18n="step_skills">Skills</button>
+  <button class="mobile-step-btn" onclick="goToStep(5)" data-i18n="step_extras">Extras</button>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="page-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" aria-label="Form sections">
+    <p class="sidebar-title" data-i18n="sidebar_sections">Sections</p>
+
+    <button class="sidebar-item active" id="nav-0" onclick="goToStep(0)">
+      <span class="sidebar-dot" aria-hidden="true">1</span>
+      <span class="sidebar-label" data-i18n="step_personal">Personal Info</span>
+    </button>
+    <button class="sidebar-item" id="nav-1" onclick="goToStep(1)">
+      <span class="sidebar-dot" aria-hidden="true">2</span>
+      <span class="sidebar-label" data-i18n="step_summary">Professional Summary</span>
+    </button>
+    <button class="sidebar-item" id="nav-2" onclick="goToStep(2)">
+      <span class="sidebar-dot" aria-hidden="true">3</span>
+      <span class="sidebar-label" data-i18n="step_experience">Work Experience</span>
+    </button>
+    <button class="sidebar-item" id="nav-3" onclick="goToStep(3)">
+      <span class="sidebar-dot" aria-hidden="true">4</span>
+      <span class="sidebar-label" data-i18n="step_education">Education</span>
+    </button>
+    <button class="sidebar-item" id="nav-4" onclick="goToStep(4)">
+      <span class="sidebar-dot" aria-hidden="true">5</span>
+      <span class="sidebar-label" data-i18n="step_skills">Skills</span>
+    </button>
+    <button class="sidebar-item" id="nav-5" onclick="goToStep(5)">
+      <span class="sidebar-dot" aria-hidden="true">6</span>
+      <span class="sidebar-label" data-i18n="step_extras">Extras & Email</span>
+    </button>
+
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-progress">
+      <div class="progress-label">
+        <span data-i18n="progress_label">Completion</span>
+        <span id="progress-pct">0%</span>
+      </div>
+      <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content" id="main-content">
+
+    <!-- ══ STEP 0: PERSONAL INFO ══ -->
+    <section class="form-section" id="section-0" aria-label="Personal Information">
+      <div class="section-header">
+        <p class="section-eyebrow" data-i18n="step_personal_eyebrow">Step 1 of 6</p>
+        <h1 class="section-heading" data-i18n="personal_heading">Personal Information</h1>
+        <p class="section-sub" data-i18n="personal_sub">This appears at the top of your CV — make sure it's accurate and professional.</p>
+      </div>
+
+      <div class="notice">
+        <span class="notice-icon">🔒</span>
+        <p class="notice-text" data-i18n="privacy_notice"><strong>Privacy reminder:</strong> Your information is never stored on any server. It lives only in your browser for this session.</p>
+      </div>
+
+      <div class="form-grid">
+        <div class="field">
+          <label for="firstName">
+            <span data-i18n="label_firstname">First Name</span>
+            <span class="req" aria-label="required">*</span>
+          </label>
+          <input type="text" id="firstName" name="firstName" autocomplete="given-name" placeholder="e.g. Alexandra" data-required="true">
+          <span class="field-error" id="err-firstName" data-i18n="err_required">This field is required</span>
+        </div>
+        <div class="field">
+          <label for="lastName">
+            <span data-i18n="label_lastname">Last Name</span>
+            <span class="req" aria-label="required">*</span>
+          </label>
+          <input type="text" id="lastName" name="lastName" autocomplete="family-name" placeholder="e.g. Chen" data-required="true">
+          <span class="field-error" id="err-lastName" data-i18n="err_required">This field is required</span>
+        </div>
+        <div class="field col-span-2">
+          <label for="jobTitle">
+            <span data-i18n="label_jobtitle">Professional Title / Desired Role</span>
+            <span class="req" aria-label="required">*</span>
+          </label>
+          <input type="text" id="jobTitle" name="jobTitle" placeholder="e.g. Senior Product Designer" data-required="true">
+          <span class="field-hint" data-i18n="hint_jobtitle">This shows under your name. Match it to the role you're applying for.</span>
+          <span class="field-error" id="err-jobTitle" data-i18n="err_required">This field is required</span>
+        </div>
+        <div class="field">
+          <label for="email">
+            <span data-i18n="label_email">Email Address</span>
+            <span class="req" aria-label="required">*</span>
+          </label>
+          <input type="email" id="email" name="email" autocomplete="email" placeholder="you@email.com" data-required="true" data-type="email">
+          <span class="field-error" id="err-email" data-i18n="err_email">Please enter a valid email</span>
+        </div>
+        <div class="field">
+          <label for="phone">
+            <span data-i18n="label_phone">Phone Number</span>
+            <span class="req" aria-label="required">*</span>
+          </label>
+          <input type="tel" id="phone" name="phone" autocomplete="tel" placeholder="+62 812-3456-7890" data-required="true">
+          <span class="field-error" id="err-phone" data-i18n="err_required">This field is required</span>
+        </div>
+        <div class="field">
+          <label for="city">
+            <span data-i18n="label_city">City</span>
+            <span class="req" aria-label="required">*</span>
+          </label>
+          <input type="text" id="city" name="city" placeholder="Jakarta" data-required="true">
+          <span class="field-error" id="err-city" data-i18n="err_required">This field is required</span>
+        </div>
+        <div class="field">
+          <label for="country">
+            <span data-i18n="label_country">Country</span>
+            <span class="req" aria-label="required">*</span>
+          </label>
+          <input type="text" id="country" name="country" placeholder="Indonesia" data-required="true">
+          <span class="field-error" id="err-country" data-i18n="err_required">This field is required</span>
+        </div>
+        <div class="field">
+          <label for="linkedin">
+            <span data-i18n="label_linkedin">LinkedIn URL</span>
+            <span class="opt" data-i18n="optional">(optional)</span>
+          </label>
+          <input type="url" id="linkedin" name="linkedin" placeholder="linkedin.com/in/yourname">
+        </div>
+        <div class="field">
+          <label for="website">
+            <span data-i18n="label_website">Website / Portfolio</span>
+            <span class="opt" data-i18n="optional">(optional)</span>
+          </label>
+          <input type="url" id="website" name="website" placeholder="yourportfolio.com">
+        </div>
+        <div class="field">
+          <label for="github">
+            <span data-i18n="label_github">GitHub</span>
+            <span class="opt" data-i18n="optional">(optional)</span>
+          </label>
+          <input type="text" id="github" name="github" placeholder="github.com/yourusername">
+        </div>
+        <div class="field">
+          <label for="nationality">
+            <span data-i18n="label_nationality">Nationality</span>
+            <span class="opt" data-i18n="optional">(optional)</span>
+          </label>
+          <input type="text" id="nationality" name="nationality" placeholder="Indonesian">
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ STEP 1: SUMMARY ══ -->
+    <section class="form-section hidden" id="section-1" aria-label="Professional Summary">
+      <div class="section-header">
+        <p class="section-eyebrow" data-i18n="step_summary_eyebrow">Step 2 of 6</p>
+        <h2 class="section-heading" data-i18n="summary_heading">Professional Summary</h2>
+        <p class="section-sub" data-i18n="summary_sub">A concise 2–4 sentence paragraph that highlights your value. This is often the first thing recruiters read.</p>
+      </div>
+      <div class="form-grid full">
+        <div class="field">
+          <div class="field-top">
+            <label for="summary">
+              <span data-i18n="label_summary">Summary</span>
+              <span class="req" aria-label="required">*</span>
+            </label>
+            <span class="char-count" id="summary-count">0 / 600</span>
+          </div>
+          <textarea id="summary" name="summary" rows="6" placeholder="e.g. Results-driven Product Designer with 5+ years of experience crafting intuitive digital products for millions of users across Southeast Asia. Proven ability to lead cross-functional teams and deliver measurable UX improvements. Passionate about bridging business goals and user needs." data-required="true" data-maxlen="600" style="min-height:140px;"></textarea>
+          <span class="field-hint" data-i18n="hint_summary">Tip: Include your years of experience, key skills, and what you bring to the role. Use keywords from job postings.</span>
+          <span class="field-error" id="err-summary" data-i18n="err_required">This field is required</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ STEP 2: EXPERIENCE ══ -->
+    <section class="form-section hidden" id="section-2" aria-label="Work Experience">
+      <div class="section-header">
+        <p class="section-eyebrow" data-i18n="step_exp_eyebrow">Step 3 of 6</p>
+        <h2 class="section-heading" data-i18n="exp_heading">Work Experience</h2>
+        <p class="section-sub" data-i18n="exp_sub">Add your work history starting with the most recent. Use bullet points in the description for ATS best results.</p>
+      </div>
+
+      <div id="experience-list"></div>
+
+      <button class="add-entry-btn" onclick="addExperience()" id="add-exp-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        <span data-i18n="add_experience">Add Work Experience</span>
+      </button>
+    </section>
+
+    <!-- ══ STEP 3: EDUCATION ══ -->
+    <section class="form-section hidden" id="section-3" aria-label="Education">
+      <div class="section-header">
+        <p class="section-eyebrow" data-i18n="step_edu_eyebrow">Step 4 of 6</p>
+        <h2 class="section-heading" data-i18n="edu_heading">Education</h2>
+        <p class="section-sub" data-i18n="edu_sub">List your academic qualifications. Most recent first. Include GPA if above 3.5 / 3.0.</p>
+      </div>
+
+      <div id="education-list"></div>
+
+      <button class="add-entry-btn" onclick="addEducation()" id="add-edu-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+        </svg>
+        <span data-i18n="add_education">Add Education</span>
+      </button>
+    </section>
+
+    <!-- ══ STEP 4: SKILLS ══ -->
+    <section class="form-section hidden" id="section-4" aria-label="Skills">
+      <div class="section-header">
+        <p class="section-eyebrow" data-i18n="step_skills_eyebrow">Step 5 of 6</p>
+        <h2 class="section-heading" data-i18n="skills_heading">Skills</h2>
+        <p class="section-sub" data-i18n="skills_sub">Add your technical and soft skills. These are critical for ATS keyword matching.</p>
+      </div>
+
+      <div class="form-grid" style="gap:1.5rem;">
+        <div class="field col-span-2">
+          <label data-i18n="label_tech_skills">Technical Skills</label>
+          <div class="skills-chips" id="tech-chips" onclick="document.getElementById('tech-input').focus()">
+            <input class="skills-text-input" id="tech-input" type="text" data-i18n-placeholder="skills_placeholder" placeholder="Type a skill, press Enter or comma...">
+          </div>
+          <p class="skills-hint" data-i18n="skills_hint">Press Enter or comma to add. Click × to remove.</p>
+        </div>
+        <div class="field col-span-2">
+          <label data-i18n="label_soft_skills">Soft Skills</label>
+          <div class="skills-chips" id="soft-chips" onclick="document.getElementById('soft-input').focus()">
+            <input class="skills-text-input" id="soft-input" type="text" data-i18n-placeholder="skills_placeholder" placeholder="Type a skill, press Enter or comma...">
+          </div>
+          <p class="skills-hint" data-i18n="skills_hint">Press Enter or comma to add. Click × to remove.</p>
+        </div>
+        <div class="field col-span-2">
+          <label for="languages">
+            <span data-i18n="label_languages">Languages</span>
+            <span class="opt" data-i18n="optional">(optional)</span>
+          </label>
+          <div class="skills-chips" id="lang-chips" onclick="document.getElementById('lang-input').focus()">
+            <input class="skills-text-input" id="lang-input" type="text" placeholder="English (Native), Indonesian (Native)...">
+          </div>
+          <p class="skills-hint" data-i18n="lang_hint">e.g. English (Native), Mandarin (Conversational)</p>
+        </div>
+        <div class="field col-span-2">
+          <label for="certifications">
+            <span data-i18n="label_certs">Certifications</span>
+            <span class="opt" data-i18n="optional">(optional)</span>
+          </label>
+          <div class="skills-chips" id="cert-chips" onclick="document.getElementById('cert-input').focus()">
+            <input class="skills-text-input" id="cert-input" type="text" placeholder="Google UX Design, AWS Solutions Architect...">
+          </div>
+          <p class="skills-hint" data-i18n="cert_hint">Each certification as a separate chip.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ STEP 5: EXTRAS & EMAIL ══ -->
+    <section class="form-section hidden" id="section-5" aria-label="Extras and Email">
+      <div class="section-header">
+        <p class="section-eyebrow" data-i18n="step_extras_eyebrow">Step 6 of 6</p>
+        <h2 class="section-heading" data-i18n="extras_heading">Extras & Email Copy</h2>
+        <p class="section-sub" data-i18n="extras_sub">Optional finishing touches and your email copy preferences.</p>
+      </div>
+
+      <div class="form-grid" style="gap:1.5rem;">
+        <div class="field col-span-2">
+          <label for="achievements">
+            <span data-i18n="label_achievements">Key Achievements</span>
+            <span class="opt" data-i18n="optional">(optional)</span>
+          </label>
+          <div class="field-top" style="margin-bottom:6px;">
+            <span style="font-size:0.72rem;color:var(--ink-faint);" data-i18n="hint_achievements">Bullet-pointed standout wins that don't fit elsewhere.</span>
+            <span class="char-count" id="achievements-count">0 / 500</span>
+          </div>
+          <textarea id="achievements" name="achievements" rows="4" data-maxlen="500" placeholder="• Grew user retention by 40% through redesigning onboarding flow&#10;• Reduced page load time by 60% via asset optimisation&#10;• Led a team of 8 across 3 time zones"></textarea>
+        </div>
+
+        <div class="field col-span-2">
+          <label for="references">
+            <span data-i18n="label_references">References</span>
+            <span class="opt" data-i18n="optional">(optional)</span>
+          </label>
+          <textarea id="references" name="references" rows="3" placeholder="Available upon request — or list name, title, company, contact."></textarea>
+        </div>
+
+        <div class="field-divider" style="height:1px;background:var(--border);grid-column:1/-1;margin:0.5rem 0;"></div>
+
+        <!-- EMAIL SECTION -->
+        <div class="col-span-2">
+          <div style="background:var(--sage-light);border:1px solid rgba(59,109,17,0.18);border-radius:var(--radius-lg);padding:1.5rem;">
+            <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:1.25rem;">
+              <div style="width:38px;height:38px;border-radius:9px;background:var(--white);border:1px solid rgba(59,109,17,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--sage)" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              </div>
+              <div>
+                <p style="font-weight:500;font-size:0.9rem;color:var(--sage-dark);" data-i18n="email_section_title">Receive an email copy</p>
+                <p style="font-size:0.78rem;color:var(--ink-light);font-weight:300;margin-top:3px;" data-i18n="email_section_sub">We'll send a formatted summary of your CV details to your email — sent directly, never stored.</p>
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;">
+              <input type="checkbox" id="sendEmail" style="width:18px;height:18px;accent-color:var(--sage);cursor:pointer;" onchange="toggleEmailField()">
+              <label for="sendEmail" style="font-size:0.85rem;font-weight:400;color:var(--ink-mid);cursor:pointer;" data-i18n="email_checkbox">Yes, send me a copy of my inputs</label>
+            </div>
+
+            <div id="email-copy-field" style="display:none;">
+              <div class="field">
+                <label for="copyEmail">
+                  <span data-i18n="label_copy_email">Your Email Address</span>
+                  <span class="req">*</span>
+                </label>
+                <input type="email" id="copyEmail" name="copyEmail" placeholder="you@email.com" autocomplete="email" data-type="email" style="background:var(--white);">
+                <span class="field-error" id="err-copyEmail" data-i18n="err_email">Please enter a valid email</span>
+                <span class="field-hint" data-i18n="hint_copy_email">This should be the same email you entered in Step 1, or any inbox you can access.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Final privacy reminder -->
+      <div class="notice" style="margin-top:2rem;">
+        <span class="notice-icon">ℹ️</span>
+        <p class="notice-text" data-i18n="final_disclaimer">
+          <strong>Portfolio project reminder:</strong> This CV builder is a personal portfolio demonstration. No data is saved to any database. Your information is processed entirely in your browser. The email feature uses EmailJS to send directly to your address — the sender is a project email, not a personal server. By proceeding to preview, you confirm you understand this.
+        </p>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="form-nav" role="navigation" aria-label="Form navigation">
+  <div class="form-nav-left">
+    <button class="btn-prev" id="btn-prev" onclick="prevStep()" style="display:none;">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span data-i18n="btn_prev">Previous</span>
+    </button>
+    <span class="step-indicator">
+      <span data-i18n="step_of">Step</span>
+      <strong id="step-current">1</strong>
+      <span data-i18n="of">of</span>
+      <strong>6</strong>
+    </span>
+  </div>
+  <button class="btn-next" id="btn-next" onclick="nextStep()">
+    <span id="btn-next-label" data-i18n="btn_next">Next</span>
+    <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   TRANSLATIONS
+═══════════════════════════════════════════ */
+const i18n = {
+  en: {
+    nav_back: "Back",
+    sidebar_sections: "Sections",
+    step_personal: "Personal Info",
+    step_summary: "Professional Summary",
+    step_experience: "Work Experience",
+    step_education: "Education",
+    step_skills: "Skills",
+    step_extras: "Extras & Email",
+    progress_label: "Completion",
+    step_personal_eyebrow: "Step 1 of 6",
+    personal_heading: "Personal Information",
+    personal_sub: "This appears at the top of your CV — make sure it's accurate and professional.",
+    privacy_notice: "<strong>Privacy reminder:</strong> Your information is never stored on any server. It lives only in your browser for this session.",
+    label_firstname: "First Name",
+    label_lastname: "Last Name",
+    label_jobtitle: "Professional Title / Desired Role",
+    hint_jobtitle: "This shows under your name. Match it to the role you're applying for.",
+    label_email: "Email Address",
+    label_phone: "Phone Number",
+    label_city: "City",
+    label_country: "Country",
+    label_linkedin: "LinkedIn URL",
+    label_website: "Website / Portfolio",
+    label_github: "GitHub",
+    label_nationality: "Nationality",
+    optional: "(optional)",
+    step_summary_eyebrow: "Step 2 of 6",
+    summary_heading: "Professional Summary",
+    summary_sub: "A concise 2–4 sentence paragraph that highlights your value. This is often the first thing recruiters read.",
+    label_summary: "Summary",
+    hint_summary: "Tip: Include your years of experience, key skills, and what you bring to the role. Use keywords from job postings.",
+    step_exp_eyebrow: "Step 3 of 6",
+    exp_heading: "Work Experience",
+    exp_sub: "Add your work history starting with the most recent. Use bullet points in the description for ATS best results.",
+    add_experience: "Add Work Experience",
+    label_exp_title: "Job Title",
+    label_exp_company: "Company / Organisation",
+    label_exp_location: "Location",
+    label_exp_start: "Start Date",
+    label_exp_end: "End Date",
+    label_exp_current: "I currently work here",
+    label_exp_desc: "Description & Responsibilities",
+    hint_exp_desc: "Use • bullet points to list responsibilities and achievements. Include metrics where possible.",
+    label_exp_type: "Employment Type",
+    exp_type_ft: "Full-time",
+    exp_type_pt: "Part-time",
+    exp_type_contract: "Contract",
+    exp_type_intern: "Internship",
+    exp_type_freelance: "Freelance",
+    step_edu_eyebrow: "Step 4 of 6",
+    edu_heading: "Education",
+    edu_sub: "List your academic qualifications. Most recent first. Include GPA if above 3.5 / 3.0.",
+    add_education: "Add Education",
+    label_edu_degree: "Degree / Qualification",
+    label_edu_field: "Field of Study",
+    label_edu_school: "Institution Name",
+    label_edu_location: "Location",
+    label_edu_start: "Start Year",
+    label_edu_end: "End Year",
+    label_edu_current: "Currently studying here",
+    label_edu_gpa: "GPA / Grade",
+    label_edu_achievements: "Honours / Achievements",
+    hint_edu_achievements: "Dean's list, scholarship, thesis title, etc.",
+    step_skills_eyebrow: "Step 5 of 6",
+    skills_heading: "Skills",
+    skills_sub: "Add your technical and soft skills. These are critical for ATS keyword matching.",
+    label_tech_skills: "Technical Skills",
+    label_soft_skills: "Soft Skills",
+    label_languages: "Languages",
+    label_certs: "Certifications",
+    skills_placeholder: "Type a skill, press Enter or comma...",
+    skills_hint: "Press Enter or comma to add. Click × to remove.",
+    lang_hint: "e.g. English (Native), Mandarin (Conversational)",
+    cert_hint: "Each certification as a separate chip.",
+    step_extras_eyebrow: "Step 6 of 6",
+    extras_heading: "Extras & Email Copy",
+    extras_sub: "Optional finishing touches and your email copy preferences.",
+    label_achievements: "Key Achievements",
+    hint_achievements: "Bullet-pointed standout wins that don't fit elsewhere.",
+    label_references: "References",
+    email_section_title: "Receive an email copy",
+    email_section_sub: "We'll send a formatted summary of your CV details to your email — sent directly, never stored.",
+    email_checkbox: "Yes, send me a copy of my inputs",
+    label_copy_email: "Your Email Address",
+    hint_copy_email: "This should be the same email you entered in Step 1, or any inbox you can access.",
+    final_disclaimer: "<strong>Portfolio project reminder:</strong> This CV builder is a personal portfolio demonstration. No data is saved to any database. Your information is processed entirely in your browser. The email feature uses EmailJS to send directly to your address — the sender is a project email, not a personal server. By proceeding to preview, you confirm you understand this.",
+    btn_prev: "Previous",
+    btn_next: "Next",
+    btn_preview: "Preview My CV →",
+    step_of: "Step",
+    of: "of",
+    err_required: "This field is required",
+    err_email: "Please enter a valid email",
+    experience_label: "Experience",
+    education_label: "Education",
+    entry_num: "Entry",
+    untitled_exp: "New Experience",
+    untitled_edu: "New Education",
+    collapse: "Collapse",
+    expand: "Expand",
+    remove: "Remove",
+    toast_saved: "Progress auto-saved",
+    toast_validation: "Please fill in all required fields",
+    toast_exp_required: "Add at least one work experience entry",
+    toast_edu_required: "Add at least one education entry",
+    toast_skills_required: "Add at least one technical skill",
+  },
+  id: {
+    nav_back: "Kembali",
+    sidebar_sections: "Bagian",
+    step_personal: "Info Pribadi",
+    step_summary: "Ringkasan Profesional",
+    step_experience: "Pengalaman Kerja",
+    step_education: "Pendidikan",
+    step_skills: "Keahlian",
+    step_extras: "Tambahan & Email",
+    progress_label: "Progres",
+    step_personal_eyebrow: "Langkah 1 dari 6",
+    personal_heading: "Informasi Pribadi",
+    personal_sub: "Ini muncul di bagian atas CV — pastikan akurat dan profesional.",
+    privacy_notice: "<strong>Pengingat privasi:</strong> Informasi Anda tidak pernah disimpan di server mana pun. Hanya ada di browser Anda selama sesi ini.",
+    label_firstname: "Nama Depan",
+    label_lastname: "Nama Belakang",
+    label_jobtitle: "Jabatan Profesional / Posisi yang Dilamar",
+    hint_jobtitle: "Ini tampil di bawah nama Anda. Sesuaikan dengan posisi yang dilamar.",
+    label_email: "Alamat Email",
+    label_phone: "Nomor Telepon",
+    label_city: "Kota",
+    label_country: "Negara",
+    label_linkedin: "URL LinkedIn",
+    label_website: "Website / Portofolio",
+    label_github: "GitHub",
+    label_nationality: "Kewarganegaraan",
+    optional: "(opsional)",
+    step_summary_eyebrow: "Langkah 2 dari 6",
+    summary_heading: "Ringkasan Profesional",
+    summary_sub: "Paragraf singkat 2–4 kalimat yang menonjolkan nilai Anda. Ini sering kali hal pertama yang dibaca recruiter.",
+    label_summary: "Ringkasan",
+    hint_summary: "Tips: Sertakan tahun pengalaman, keahlian utama, dan kontribusi Anda. Gunakan kata kunci dari lowongan.",
+    step_exp_eyebrow: "Langkah 3 dari 6",
+    exp_heading: "Pengalaman Kerja",
+    exp_sub: "Tambahkan riwayat kerja mulai dari yang terbaru. Gunakan poin-poin untuk deskripsi agar optimal di ATS.",
+    add_experience: "Tambah Pengalaman Kerja",
+    label_exp_title: "Jabatan",
+    label_exp_company: "Perusahaan / Organisasi",
+    label_exp_location: "Lokasi",
+    label_exp_start: "Tanggal Mulai",
+    label_exp_end: "Tanggal Selesai",
+    label_exp_current: "Saya masih bekerja di sini",
+    label_exp_desc: "Deskripsi & Tanggung Jawab",
+    hint_exp_desc: "Gunakan poin • untuk daftar tanggung jawab dan pencapaian. Sertakan angka jika memungkinkan.",
+    label_exp_type: "Tipe Pekerjaan",
+    exp_type_ft: "Penuh Waktu",
+    exp_type_pt: "Paruh Waktu",
+    exp_type_contract: "Kontrak",
+    exp_type_intern: "Magang",
+    exp_type_freelance: "Freelance",
+    step_edu_eyebrow: "Langkah 4 dari 6",
+    edu_heading: "Pendidikan",
+    edu_sub: "Daftar kualifikasi akademik, terbaru terlebih dahulu. Cantumkan IPK jika di atas 3,5.",
+    add_education: "Tambah Pendidikan",
+    label_edu_degree: "Gelar / Kualifikasi",
+    label_edu_field: "Bidang Studi",
+    label_edu_school: "Nama Institusi",
+    label_edu_location: "Lokasi",
+    label_edu_start: "Tahun Mulai",
+    label_edu_end: "Tahun Selesai",
+    label_edu_current: "Masih belajar di sini",
+    label_edu_gpa: "IPK / Nilai",
+    label_edu_achievements: "Penghargaan / Pencapaian",
+    hint_edu_achievements: "Cumlaude, beasiswa, judul skripsi, dll.",
+    step_skills_eyebrow: "Langkah 5 dari 6",
+    skills_heading: "Keahlian",
+    skills_sub: "Tambahkan keahlian teknis dan soft skill. Kritis untuk pencocokan kata kunci ATS.",
+    label_tech_skills: "Keahlian Teknis",
+    label_soft_skills: "Soft Skills",
+    label_languages: "Bahasa",
+    label_certs: "Sertifikasi",
+    skills_placeholder: "Ketik keahlian, tekan Enter atau koma...",
+    skills_hint: "Tekan Enter atau koma untuk menambah. Klik × untuk menghapus.",
+    lang_hint: "contoh: Bahasa Indonesia (Asli), Inggris (Fasih)",
+    cert_hint: "Setiap sertifikasi sebagai chip terpisah.",
+    step_extras_eyebrow: "Langkah 6 dari 6",
+    extras_heading: "Tambahan & Salinan Email",
+    extras_sub: "Sentuhan akhir opsional dan preferensi salinan email Anda.",
+    label_achievements: "Pencapaian Utama",
+    hint_achievements: "Poin-poin pencapaian menonjol yang tidak masuk bagian lain.",
+    label_references: "Referensi",
+    email_section_title: "Terima salinan email",
+    email_section_sub: "Kami akan mengirim ringkasan terformat dari detail CV Anda ke email — dikirim langsung, tidak pernah disimpan.",
+    email_checkbox: "Ya, kirim salinan input saya",
+    label_copy_email: "Alamat Email Anda",
+    hint_copy_email: "Bisa email yang sama dengan di Langkah 1, atau kotak masuk manapun yang bisa Anda akses.",
+    final_disclaimer: "<strong>Pengingat proyek portofolio:</strong> CV builder ini adalah demonstrasi portofolio pribadi. Tidak ada data yang disimpan ke database mana pun. Informasi Anda diproses sepenuhnya di browser Anda. Fitur email menggunakan EmailJS untuk mengirim langsung ke alamat Anda — pengirim adalah email proyek, bukan server pribadi. Dengan melanjutkan ke pratinjau, Anda mengonfirmasi bahwa Anda memahami hal ini.",
+    btn_prev: "Sebelumnya",
+    btn_next: "Berikutnya",
+    btn_preview: "Pratinjau CV Saya →",
+    step_of: "Langkah",
+    of: "dari",
+    err_required: "Kolom ini wajib diisi",
+    err_email: "Masukkan alamat email yang valid",
+    experience_label: "Pengalaman",
+    education_label: "Pendidikan",
+    entry_num: "Entri",
+    untitled_exp: "Pengalaman Baru",
+    untitled_edu: "Pendidikan Baru",
+    collapse: "Ciutkan",
+    expand: "Perluas",
+    remove: "Hapus",
+    toast_saved: "Progres tersimpan otomatis",
+    toast_validation: "Harap isi semua kolom yang wajib diisi",
+    toast_exp_required: "Tambahkan setidaknya satu pengalaman kerja",
+    toast_edu_required: "Tambahkan setidaknya satu pendidikan",
+    toast_skills_required: "Tambahkan setidaknya satu keahlian teknis",
+  }
+};
+
+let currentLang = localStorage.getItem('craftcv_lang') || 'en';
+let currentStep = 0;
+const TOTAL_STEPS = 6;
+let expCount = 0;
+let eduCount = 0;
+const techSkills = [], softSkills = [], langSkills = [], certSkills = [];
+
+/* ═══════════════ LANG ═══════════════ */
+function t(key) { return i18n[currentLang][key] || i18n.en[key] || key; }
+
+function setLang(lang) {
+  currentLang = lang;
+  localStorage.setItem('craftcv_lang', lang);
+  document.documentElement.lang = lang;
+  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+  document.getElementById('btn-id').classList.toggle('active', lang === 'id');
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    if (i18n[lang][key] !== undefined) el.placeholder = i18n[lang][key];
+  });
+  // update dynamic entry labels
+  document.querySelectorAll('.exp-type-select').forEach(sel => updateExpTypeOptions(sel));
+  updateNavButton();
+}
+
+/* ═══════════════ STEPS ═══════════════ */
+function goToStep(step) {
+  document.getElementById(`section-${currentStep}`).classList.add('hidden');
+  document.getElementById(`nav-${currentStep}`).classList.remove('active');
+  const mBtns = document.querySelectorAll('.mobile-step-btn');
+  if (mBtns[currentStep]) mBtns[currentStep].classList.remove('active');
+
+  currentStep = step;
+
+  document.getElementById(`section-${currentStep}`).classList.remove('hidden');
+  document.getElementById(`nav-${currentStep}`).classList.add('active');
+  if (mBtns[currentStep]) mBtns[currentStep].classList.add('active');
+
+  document.getElementById('step-current').textContent = currentStep + 1;
+  document.getElementById('btn-prev').style.display = currentStep > 0 ? 'flex' : 'none';
+  updateNavButton();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  saveProgress();
+}
+
+function updateNavButton() {
+  const btn = document.getElementById('btn-next');
+  const label = document.getElementById('btn-next-label');
+  if (currentStep === TOTAL_STEPS - 1) {
+    label.textContent = t('btn_preview');
+    btn.style.background = 'var(--sage)';
+  } else {
+    label.textContent = t('btn_next');
+    btn.style.background = 'var(--ink)';
+  }
+}
+
+function nextStep() {
+  if (!validateStep(currentStep)) return;
+  if (currentStep === TOTAL_STEPS - 1) {
+    saveProgress();
+    window.location.href = 'preview.html';
+    return;
+  }
+  markCompleted(currentStep);
+  goToStep(currentStep + 1);
+}
+
+function prevStep() {
+  if (currentStep > 0) goToStep(currentStep - 1);
+}
+
+function markCompleted(step) {
+  const nav = document.getElementById(`nav-${step}`);
+  nav.classList.remove('active');
+  nav.classList.add('completed');
+  const dot = nav.querySelector('.sidebar-dot');
+  dot.textContent = '';
+  updateProgressBar();
+}
+
+function updateProgressBar() {
+  const completed = document.querySelectorAll('.sidebar-item.completed').length;
+  const pct = Math.round((completed / TOTAL_STEPS) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('progress-pct').textContent = pct + '%';
+  document.querySelector('.progress-bar').setAttribute('aria-valuenow', pct);
+}
+
+/* ═══════════════ VALIDATION ═══════════════ */
+function validateStep(step) {
+  let valid = true;
+
+  if (step === 0) {
+    ['firstName','lastName','jobTitle','email','phone','city','country'].forEach(id => {
+      const el = document.getElementById(id);
+      const err = document.getElementById('err-' + id);
+      if (!el.value.trim()) {
+        el.classList.add('error'); err && err.classList.add('show'); valid = false;
+      } else if (el.dataset.type === 'email' && !isValidEmail(el.value)) {
+        el.classList.add('error'); err && err.classList.add('show'); valid = false;
+      } else {
+        el.classList.remove('error'); err && err.classList.remove('show');
+      }
+    });
+  }
+
+  if (step === 1) {
+    const el = document.getElementById('summary');
+    const err = document.getElementById('err-summary');
+    if (!el.value.trim()) {
+      el.classList.add('error'); err.classList.add('show'); valid = false;
+    } else { el.classList.remove('error'); err.classList.remove('show'); }
+  }
+
+  if (step === 2) {
+    const cards = document.querySelectorAll('#experience-list .entry-card');
+    if (cards.length === 0) { showToast(t('toast_exp_required'), true); return false; }
+    cards.forEach(card => {
+      const id = card.dataset.id;
+      ['exp-title-'+id, 'exp-company-'+id, 'exp-start-'+id].forEach(fid => {
+        const el = document.getElementById(fid);
+        if (el && !el.value.trim()) { el.classList.add('error'); valid = false; }
+        else if (el) el.classList.remove('error');
+      });
+    });
+  }
+
+  if (step === 3) {
+    const cards = document.querySelectorAll('#education-list .entry-card');
+    if (cards.length === 0) { showToast(t('toast_edu_required'), true); return false; }
+    cards.forEach(card => {
+      const id = card.dataset.id;
+      ['edu-degree-'+id, 'edu-school-'+id].forEach(fid => {
+        const el = document.getElementById(fid);
+        if (el && !el.value.trim()) { el.classList.add('error'); valid = false; }
+        else if (el) el.classList.remove('error');
+      });
+    });
+  }
+
+  if (step === 4) {
+    if (techSkills.length === 0) { showToast(t('toast_skills_required'), true); return false; }
+  }
+
+  if (step === 5) {
+    const sendEmail = document.getElementById('sendEmail').checked;
+    if (sendEmail) {
+      const el = document.getElementById('copyEmail');
+      const err = document.getElementById('err-copyEmail');
+      if (!el.value.trim() || !isValidEmail(el.value)) {
+        el.classList.add('error'); err.classList.add('show'); valid = false;
+      } else { el.classList.remove('error'); err.classList.remove('show'); }
+    }
+  }
+
+  if (!valid) showToast(t('toast_validation'), true);
+  return valid;
+}
+
+function isValidEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+/* ═══════════════ EXPERIENCE ENTRIES ═══════════════ */
+function addExperience(data = {}) {
+  expCount++;
+  const id = expCount;
+  const list = document.getElementById('experience-list');
+  const card = document.createElement('div');
+  card.className = 'entry-card';
+  card.dataset.id = id;
+  card.dataset.type = 'exp';
+
+  card.innerHTML = `
+    <div class="drag-handle" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="entry-card-header" onclick="toggleCollapse(this.closest('.entry-card'))">
+      <div class="entry-card-title">
+        <span class="entry-num">#${id}</span>
+        <span class="entry-preview" id="exp-preview-${id}">${t('untitled_exp')}</span>
+      </div>
+      <div class="entry-header-actions" onclick="event.stopPropagation()">
+        <button class="entry-collapse-btn" onclick="toggleCollapse(this.closest('.entry-card'))" title="${t('collapse')}" aria-label="${t('collapse')}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+        <button class="entry-remove" onclick="removeEntry(this.closest('.entry-card'),'exp')" title="${t('remove')}" aria-label="${t('remove')}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="entry-body" style="max-height:2000px;opacity:1;">
+      <div class="form-grid">
+        <div class="field">
+          <label for="exp-title-${id}">${t('label_exp_title')} <span class="req">*</span></label>
+          <input type="text" id="exp-title-${id}" placeholder="Senior Product Designer" value="${data.title||''}" oninput="updateExpPreview(${id})">
+        </div>
+        <div class="field">
+          <label for="exp-company-${id}">${t('label_exp_company')} <span class="req">*</span></label>
+          <input type="text" id="exp-company-${id}" placeholder="Tokopedia" value="${data.company||''}" oninput="updateExpPreview(${id})">
+        </div>
+        <div class="field">
+          <label for="exp-location-${id}">${t('label_exp_location')} <span class="opt">${t('optional')}</span></label>
+          <input type="text" id="exp-location-${id}" placeholder="Jakarta, Indonesia" value="${data.location||''}">
+        </div>
+        <div class="field">
+          <label for="exp-type-${id}">${t('label_exp_type')}</label>
+          <select id="exp-type-${id}" class="exp-type-select">
+            <option value="Full-time" ${data.type==='Full-time'?'selected':''}>${t('exp_type_ft')}</option>
+            <option value="Part-time" ${data.type==='Part-time'?'selected':''}>${t('exp_type_pt')}</option>
+            <option value="Contract" ${data.type==='Contract'?'selected':''}>${t('exp_type_contract')}</option>
+            <option value="Internship" ${data.type==='Internship'?'selected':''}>${t('exp_type_intern')}</option>
+            <option value="Freelance" ${data.type==='Freelance'?'selected':''}>${t('exp_type_freelance')}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="exp-start-${id}">${t('label_exp_start')} <span class="req">*</span></label>
+          <input type="month" id="exp-start-${id}" value="${data.start||''}">
+        </div>
+        <div class="field">
+          <label for="exp-end-${id}">${t('label_exp_end')}</label>
+          <div>
+            <input type="month" id="exp-end-${id}" value="${data.end||''}" ${data.current?'disabled':''} style="margin-bottom:8px;">
+            <label class="current-toggle">
+              <input type="checkbox" id="exp-current-${id}" ${data.current?'checked':''} onchange="toggleCurrentExp(${id})">
+              <span>${t('label_exp_current')}</span>
+            </label>
+          </div>
+        </div>
+        <div class="field col-span-2">
+          <div class="field-top">
+            <label for="exp-desc-${id}">${t('label_exp_desc')}</label>
+            <span class="char-count" id="exp-desc-count-${id}">0 / 800</span>
+          </div>
+          <textarea id="exp-desc-${id}" rows="5" placeholder="• Designed end-to-end checkout flows for 20M+ users&#10;• Led a team of 4 designers across web and mobile platforms&#10;• Increased conversion rate by 18% through data-driven UX improvements" data-maxlen="800" style="min-height:120px;" oninput="updateCharCount(this,'exp-desc-count-${id}',800)">${data.desc||''}</textarea>
+          <span class="field-hint">${t('hint_exp_desc')}</span>
+        </div>
+      </div>
+    </div>`;
+
+  list.appendChild(card);
+  if (data.title) updateExpPreview(id);
+  saveProgress();
+  return id;
+}
+
+function updateExpPreview(id) {
+  const title = document.getElementById(`exp-title-${id}`)?.value || '';
+  const company = document.getElementById(`exp-company-${id}`)?.value || '';
+  const preview = document.getElementById(`exp-preview-${id}`);
+  if (preview) preview.textContent = [title, company].filter(Boolean).join(' @ ') || t('untitled_exp');
+}
+
+function updateExpTypeOptions(sel) {
+  const types = ['exp_type_ft','exp_type_pt','exp_type_contract','exp_type_intern','exp_type_freelance'];
+  const vals = ['Full-time','Part-time','Contract','Internship','Freelance'];
+  Array.from(sel.options).forEach((opt,i) => { opt.text = t(types[i]); });
+}
+
+function toggleCurrentExp(id) {
+  const cb = document.getElementById(`exp-current-${id}`);
+  const endField = document.getElementById(`exp-end-${id}`);
+  endField.disabled = cb.checked;
+  if (cb.checked) endField.value = '';
+}
+
+/* ═══════════════ EDUCATION ENTRIES ═══════════════ */
+function addEducation(data = {}) {
+  eduCount++;
+  const id = eduCount;
+  const list = document.getElementById('education-list');
+  const card = document.createElement('div');
+  card.className = 'entry-card';
+  card.dataset.id = id;
+  card.dataset.type = 'edu';
+
+  card.innerHTML = `
+    <div class="drag-handle" aria-hidden="true"><span></span><span></span><span></span></div>
+    <div class="entry-card-header" onclick="toggleCollapse(this.closest('.entry-card'))">
+      <div class="entry-card-title">
+        <span class="entry-num">#${id}</span>
+        <span class="entry-preview" id="edu-preview-${id}">${t('untitled_edu')}</span>
+      </div>
+      <div class="entry-header-actions" onclick="event.stopPropagation()">
+        <button class="entry-collapse-btn" onclick="toggleCollapse(this.closest('.entry-card'))" title="${t('collapse')}" aria-label="${t('collapse')}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+        </button>
+        <button class="entry-remove" onclick="removeEntry(this.closest('.entry-card'),'edu')" title="${t('remove')}" aria-label="${t('remove')}">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="entry-body" style="max-height:2000px;opacity:1;">
+      <div class="form-grid">
+        <div class="field">
+          <label for="edu-degree-${id}">${t('label_edu_degree')} <span class="req">*</span></label>
+          <input type="text" id="edu-degree-${id}" placeholder="Bachelor of Science" value="${data.degree||''}" oninput="updateEduPreview(${id})">
+        </div>
+        <div class="field">
+          <label for="edu-field-${id}">${t('label_edu_field')} <span class="opt">${t('optional')}</span></label>
+          <input type="text" id="edu-field-${id}" placeholder="Informatics / Computer Science" value="${data.field||''}" oninput="updateEduPreview(${id})">
+        </div>
+        <div class="field col-span-2">
+          <label for="edu-school-${id}">${t('label_edu_school')} <span class="req">*</span></label>
+          <input type="text" id="edu-school-${id}" placeholder="Universitas Indonesia" value="${data.school||''}" oninput="updateEduPreview(${id})">
+        </div>
+        <div class="field">
+          <label for="edu-location-${id}">${t('label_edu_location')} <span class="opt">${t('optional')}</span></label>
+          <input type="text" id="edu-location-${id}" placeholder="Depok, Indonesia" value="${data.location||''}">
+        </div>
+        <div class="field">
+          <label for="edu-gpa-${id}">${t('label_edu_gpa')} <span class="opt">${t('optional')}</span></label>
+          <input type="text" id="edu-gpa-${id}" placeholder="3.78 / 4.00" value="${data.gpa||''}">
+        </div>
+        <div class="field">
+          <label for="edu-start-${id}">${t('label_edu_start')}</label>
+          <input type="number" id="edu-start-${id}" min="1960" max="2030" placeholder="2015" value="${data.start||''}">
+        </div>
+        <div class="field">
+          <label for="edu-end-${id}">${t('label_edu_end')}</label>
+          <div>
+            <input type="number" id="edu-end-${id}" min="1960" max="2035" placeholder="2019" value="${data.end||''}" ${data.current?'disabled':''} style="margin-bottom:8px;">
+            <label class="current-toggle">
+              <input type="checkbox" id="edu-current-${id}" ${data.current?'checked':''} onchange="toggleCurrentEdu(${id})">
+              <span>${t('label_edu_current')}</span>
+            </label>
+          </div>
+        </div>
+        <div class="field col-span-2">
+          <label for="edu-ach-${id}">${t('label_edu_achievements')} <span class="opt">${t('optional')}</span></label>
+          <textarea id="edu-ach-${id}" rows="3" placeholder="Dean's List 2017–2019&#10;Best Thesis Award" style="min-height:80px;">${data.achievements||''}</textarea>
+          <span class="field-hint">${t('hint_edu_achievements')}</span>
+        </div>
+      </div>
+    </div>`;
+
+  list.appendChild(card);
+  if (data.degree) updateEduPreview(id);
+  saveProgress();
+  return id;
+}
+
+function updateEduPreview(id) {
+  const degree = document.getElementById(`edu-degree-${id}`)?.value || '';
+  const school = document.getElementById(`edu-school-${id}`)?.value || '';
+  const preview = document.getElementById(`edu-preview-${id}`);
+  if (preview) preview.textContent = [degree, school].filter(Boolean).join(' — ') || t('untitled_edu');
+}
+
+function toggleCurrentEdu(id) {
+  const cb = document.getElementById(`edu-current-${id}`);
+  const endField = document.getElementById(`edu-end-${id}`);
+  endField.disabled = cb.checked;
+  if (cb.checked) endField.value = '';
+}
+
+function toggleCollapse(card) {
+  const body = card.querySelector('.entry-body');
+  const isCollapsed = card.classList.contains('collapsed');
+  if (isCollapsed) {
+    card.classList.remove('collapsed');
+    body.style.maxHeight = '2000px';
+    body.style.opacity = '1';
+  } else {
+    card.classList.add('collapsed');
+    body.style.maxHeight = '0';
+    body.style.opacity = '0';
+  }
+}
+
+function removeEntry(card, type) {
+  card.style.animation = 'none';
+  card.style.opacity = '0';
+  card.style.transform = 'translateY(-8px)';
+  card.style.transition = 'all 0.2s ease';
+  setTimeout(() => card.remove(), 200);
+  saveProgress();
+}
+
+/* ═══════════════ SKILLS CHIPS ═══════════════ */
+function setupSkillInput(inputId, chipsId, arr) {
+  const input = document.getElementById(inputId);
+  const container = document.getElementById(chipsId);
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      addChip(input.value.replace(',','').trim(), arr, container, input);
+    } else if (e.key === 'Backspace' && !input.value && arr.length > 0) {
+      removeChipByIndex(arr.length - 1, arr, container, input);
+    }
+  });
+
+  input.addEventListener('paste', (e) => {
+    setTimeout(() => {
+      const vals = input.value.split(/[,\n]+/).map(v => v.trim()).filter(Boolean);
+      vals.forEach(v => addChip(v, arr, container, input));
+      input.value = '';
+    }, 10);
+  });
+}
+
+function addChip(value, arr, container, input) {
+  if (!value || arr.includes(value)) { if(input) input.value = ''; return; }
+  arr.push(value);
+  const chip = document.createElement('span');
+  chip.className = 'skill-chip';
+  chip.innerHTML = `${escHtml(value)} <button type="button" onclick="removeChipByValue('${escAttr(value)}',${getArrRef(arr)})" aria-label="Remove ${escAttr(value)}">×</button>`;
+  container.insertBefore(chip, input);
+  if (input) input.value = '';
+  saveProgress();
+}
+
+function getArrRef(arr) {
+  if (arr === techSkills) return 'techSkills';
+  if (arr === softSkills) return 'softSkills';
+  if (arr === langSkills) return 'langSkills';
+  return 'certSkills';
+}
+
+function removeChipByValue(val, arrName) {
+  const map = { techSkills, softSkills, langSkills, certSkills };
+  const arr = map[arrName];
+  const idx = arr.indexOf(val);
+  if (idx > -1) {
+    arr.splice(idx, 1);
+    reRenderChips(arrName);
+    saveProgress();
+  }
+}
+
+function removeChipByIndex(idx, arr, container, input) {
+  arr.splice(idx, 1);
+  const chips = container.querySelectorAll('.skill-chip');
+  if (chips[idx]) chips[idx].remove();
+  saveProgress();
+}
+
+function reRenderChips(arrName) {
+  const map = {
+    techSkills: { input: 'tech-input', container: 'tech-chips', arr: techSkills },
+    softSkills: { input: 'soft-input', container: 'soft-chips', arr: softSkills },
+    langSkills: { input: 'lang-input', container: 'lang-chips', arr: langSkills },
+    certSkills: { input: 'cert-input', container: 'cert-chips', arr: certSkills },
+  };
+  const cfg = map[arrName];
+  const container = document.getElementById(cfg.container);
+  const input = document.getElementById(cfg.input);
+  container.innerHTML = '';
+  container.appendChild(input);
+  cfg.arr.forEach(v => addChip(v, cfg.arr, container, null));
+}
+
+/* ═══════════════ CHAR COUNTER ═══════════════ */
+function updateCharCount(el, counterId, max) {
+  const len = el.value.length;
+  const counter = document.getElementById(counterId);
+  if (!counter) return;
+  counter.textContent = `${len} / ${max}`;
+  counter.className = 'char-count' + (len > max * 0.9 ? (len > max ? ' over' : ' warn') : '');
+}
+
+document.querySelectorAll('textarea[data-maxlen]').forEach(ta => {
+  const max = parseInt(ta.dataset.maxlen);
+  const counterId = ta.id === 'summary' ? 'summary-count' : (ta.id === 'achievements' ? 'achievements-count' : null);
+  if (counterId) ta.addEventListener('input', () => updateCharCount(ta, counterId, max));
+});
+
+/* ═══════════════ REAL-TIME INPUT → CLEAR ERROR ═══════════════ */
+document.querySelectorAll('input, textarea, select').forEach(el => {
+  el.addEventListener('input', () => {
+    el.classList.remove('error');
+    const err = document.getElementById('err-' + el.id);
+    if (err) err.classList.remove('show');
+  });
+});
+
+/* ═══════════════ TOAST ═══════════════ */
+let toastTimer;
+function showToast(msg, isError = false) {
+  const toast = document.getElementById('toast');
+  const msgEl = document.getElementById('toast-msg');
+  const icon = document.getElementById('toast-icon');
+  msgEl.textContent = msg;
+  toast.className = 'toast show' + (isError ? ' error' : '');
+  icon.textContent = isError ? '⚠' : '✓';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+/* ═══════════════ EMAIL TOGGLE ═══════════════ */
+function toggleEmailField() {
+  const show = document.getElementById('sendEmail').checked;
+  document.getElementById('email-copy-field').style.display = show ? 'block' : 'none';
+  if (show) {
+    const emailVal = document.getElementById('email').value;
+    if (emailVal) document.getElementById('copyEmail').value = emailVal;
+  }
+}
+
+/* ═══════════════ SAVE / LOAD ═══════════════ */
+function collectData() {
+  const expEntries = [];
+  document.querySelectorAll('#experience-list .entry-card').forEach(card => {
+    const id = card.dataset.id;
+    expEntries.push({
+      id,
+      title: document.getElementById(`exp-title-${id}`)?.value || '',
+      company: document.getElementById(`exp-company-${id}`)?.value || '',
+      location: document.getElementById(`exp-location-${id}`)?.value || '',
+      type: document.getElementById(`exp-type-${id}`)?.value || '',
+      start: document.getElementById(`exp-start-${id}`)?.value || '',
+      end: document.getElementById(`exp-end-${id}`)?.value || '',
+      current: document.getElementById(`exp-current-${id}`)?.checked || false,
+      desc: document.getElementById(`exp-desc-${id}`)?.value || '',
+    });
+  });
+
+  const eduEntries = [];
+  document.querySelectorAll('#education-list .entry-card').forEach(card => {
+    const id = card.dataset.id;
+    eduEntries.push({
+      id,
+      degree: document.getElementById(`edu-degree-${id}`)?.value || '',
+      field: document.getElementById(`edu-field-${id}`)?.value || '',
+      school: document.getElementById(`edu-school-${id}`)?.value || '',
+      location: document.getElementById(`edu-location-${id}`)?.value || '',
+      gpa: document.getElementById(`edu-gpa-${id}`)?.value || '',
+      start: document.getElementById(`edu-start-${id}`)?.value || '',
+      end: document.getElementById(`edu-end-${id}`)?.value || '',
+      current: document.getElementById(`edu-current-${id}`)?.checked || false,
+      achievements: document.getElementById(`edu-ach-${id}`)?.value || '',
+    });
+  });
+
+  return {
+    lang: currentLang,
+    personal: {
+      firstName: document.getElementById('firstName').value,
+      lastName: document.getElementById('lastName').value,
+      jobTitle: document.getElementById('jobTitle').value,
+      email: document.getElementById('email').value,
+      phone: document.getElementById('phone').value,
+      city: document.getElementById('city').value,
+      country: document.getElementById('country').value,
+      linkedin: document.getElementById('linkedin').value,
+      website: document.getElementById('website').value,
+      github: document.getElementById('github').value,
+      nationality: document.getElementById('nationality').value,
+    },
+    summary: document.getElementById('summary').value,
+    experience: expEntries,
+    education: eduEntries,
+    skills: { tech: [...techSkills], soft: [...softSkills], languages: [...langSkills], certs: [...certSkills] },
+    extras: {
+      achievements: document.getElementById('achievements').value,
+      references: document.getElementById('references').value,
+      sendEmail: document.getElementById('sendEmail').checked,
+      copyEmail: document.getElementById('copyEmail').value,
+    }
+  };
+}
+
+function saveProgress() {
+  try {
+    sessionStorage.setItem('craftcv_data', JSON.stringify(collectData()));
+  } catch(e) {}
+}
+
+function loadProgress() {
+  try {
+    const raw = sessionStorage.getItem('craftcv_data');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (!d) return;
+
+    if (d.lang) setLang(d.lang);
+
+    const p = d.personal || {};
+    ['firstName','lastName','jobTitle','email','phone','city','country','linkedin','website','github','nationality'].forEach(k => {
+      const el = document.getElementById(k);
+      if (el && p[k]) el.value = p[k];
+    });
+
+    if (d.summary) document.getElementById('summary').value = d.summary;
+
+    (d.experience || []).forEach(e => addExperience(e));
+    (d.education || []).forEach(e => addEducation(e));
+
+    const sk = d.skills || {};
+    (sk.tech || []).forEach(v => addChip(v, techSkills, document.getElementById('tech-chips'), document.getElementById('tech-input')));
+    (sk.soft || []).forEach(v => addChip(v, softSkills, document.getElementById('soft-chips'), document.getElementById('soft-input')));
+    (sk.languages || []).forEach(v => addChip(v, langSkills, document.getElementById('lang-chips'), document.getElementById('lang-input')));
+    (sk.certs || []).forEach(v => addChip(v, certSkills, document.getElementById('cert-chips'), document.getElementById('cert-input')));
+
+    const ex = d.extras || {};
+    if (ex.achievements) document.getElementById('achievements').value = ex.achievements;
+    if (ex.references) document.getElementById('references').value = ex.references;
+    if (ex.sendEmail) { document.getElementById('sendEmail').checked = true; toggleEmailField(); }
+    if (ex.copyEmail) document.getElementById('copyEmail').value = ex.copyEmail;
+
+  } catch(e) { console.warn('Could not load saved data', e); }
+}
+
+/* ═══════════════ AUTO-SAVE ON INPUT ═══════════════ */
+document.querySelectorAll('input, textarea, select').forEach(el => {
+  el.addEventListener('change', saveProgress);
+});
+
+/* ═══════════════ UTILS ═══════════════ */
+function escHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function escAttr(str) { return str.replace(/'/g,"\\'").replace(/"/g,"&quot;"); }
+
+/* ═══════════════ INIT ═══════════════ */
+(function init() {
+  setupSkillInput('tech-input', 'tech-chips', techSkills);
+  setupSkillInput('soft-input', 'soft-chips', softSkills);
+  setupSkillInput('lang-input', 'lang-chips', langSkills);
+  setupSkillInput('cert-input', 'cert-chips', certSkills);
+
+  const saved = sessionStorage.getItem('craftcv_data');
+  if (saved) {
+    loadProgress();
+  } else {
+    addExperience();
+    addEducation();
+  }
+
+  setLang(currentLang);
+  updateNavButton();
+})();
+</script>
+</body>
+</html>
