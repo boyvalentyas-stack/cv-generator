@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CraftCV — ATS-Friendly Resume Builder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #F5F0E8;
+    --cream-dark: #EDE7D9;
+    --ink: #1A1714;
+    --ink-mid: #3D3830;
+    --ink-light: #7A7268;
+    --sage: #3B6D11;
+    --sage-light: #EAF3DE;
+    --sage-mid: #639922;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --coral: #993C1D;
+    --white: #FFFFFF;
+    --border: rgba(26,23,20,0.12);
+    --border-strong: rgba(26,23,20,0.22);
+    --radius: 12px;
+    --radius-lg: 20px;
+    --font-display: 'DM Serif Display', Georgia, serif;
+    --font-body: 'DM Sans', system-ui, sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--font-body);
+    background-color: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.6;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 2rem;
+    background: rgba(245,240,232,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    color: var(--ink);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-logo span {
+    color: var(--sage);
+  }
+
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .lang-toggle {
+    display: flex;
+    align-items: center;
+    background: var(--white);
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 3px;
+    gap: 2px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .lang-btn {
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--ink-light);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.04em;
+  }
+
+  .lang-btn.active {
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  .btn-cta-nav {
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 8px 20px;
+    border-radius: 999px;
+    border: none;
+    background: var(--ink);
+    color: var(--cream);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .btn-cta-nav:hover {
+    background: var(--ink-mid);
+    transform: translateY(-1px);
+  }
+
+  /* ── HERO ── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 7rem 2rem 4rem;
+    position: relative;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  .hero-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--sage-light);
+    color: var(--sage);
+    border: 1px solid rgba(59,109,17,0.25);
+    border-radius: 999px;
+    padding: 6px 16px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 2rem;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .badge-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--sage);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 7vw, 6rem);
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    max-width: 800px;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+
+  .hero-title em {
+    font-style: italic;
+    color: var(--sage);
+  }
+
+  .hero-subtitle {
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: var(--ink-light);
+    max-width: 520px;
+    margin: 1.5rem auto 2.5rem;
+    font-weight: 300;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.6s 0.2s ease both;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 14px 32px;
+    border-radius: 999px;
+    border: none;
+    background: var(--ink);
+    color: var(--cream);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 20px rgba(26,23,20,0.2);
+  }
+
+  .btn-primary:hover {
+    background: var(--ink-mid);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(26,23,20,0.28);
+  }
+
+  .btn-primary .arrow {
+    transition: transform 0.2s ease;
+  }
+
+  .btn-primary:hover .arrow {
+    transform: translateX(4px);
+  }
+
+  .btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 400;
+    padding: 14px 28px;
+    border-radius: 999px;
+    border: 1.5px solid var(--border-strong);
+    background: transparent;
+    color: var(--ink-mid);
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .btn-secondary:hover {
+    background: var(--cream-dark);
+    border-color: var(--ink);
+  }
+
+  /* ── HERO PREVIEW CARD ── */
+  .hero-preview {
+    margin-top: 4rem;
+    position: relative;
+    z-index: 1;
+    animation: fadeUp 0.7s 0.45s ease both;
+    max-width: 720px;
+    width: 100%;
+  }
+
+  .preview-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 2rem 2.5rem;
+    box-shadow: 0 24px 64px rgba(26,23,20,0.1), 0 4px 16px rgba(26,23,20,0.06);
+    text-align: left;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .preview-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--sage), var(--sage-mid), var(--amber));
+  }
+
+  .cv-preview-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .cv-name {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    color: var(--ink);
+    line-height: 1.1;
+  }
+
+  .cv-role {
+    font-size: 0.9rem;
+    color: var(--ink-light);
+    margin-top: 4px;
+    font-weight: 300;
+  }
+
+  .cv-contact-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .cv-pill {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    color: var(--ink-mid);
+    white-space: nowrap;
+  }
+
+  .cv-section-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 0.5rem;
+    margin-top: 1rem;
+  }
+
+  .cv-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .cv-bar {
+    height: 8px;
+    background: var(--cream-dark);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .cv-bar-fill {
+    height: 100%;
+    background: var(--sage-light);
+    border-radius: 4px;
+    border: 1px solid rgba(59,109,17,0.2);
+  }
+
+  .cv-exp-item {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .cv-exp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sage);
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .cv-exp-text {
+    flex: 1;
+  }
+
+  .cv-exp-title {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .cv-exp-sub {
+    font-size: 0.7rem;
+    color: var(--ink-light);
+    margin-top: 2px;
+  }
+
+  .preview-label {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    color: var(--ink-light);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* ── HOW IT WORKS ── */
+  .section {
+    padding: 6rem 2rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--sage);
+    margin-bottom: 0.75rem;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    max-width: 480px;
+  }
+
+  .section-title em {
+    font-style: italic;
+    color: var(--sage);
+  }
+
+  .section-desc {
+    font-size: 1rem;
+    color: var(--ink-light);
+    font-weight: 300;
+    max-width: 440px;
+    margin-top: 1rem;
+    line-height: 1.8;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-top: 3rem;
+  }
+
+  .step-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    position: relative;
+    transition: all 0.25s ease;
+    overflow: hidden;
+  }
+
+  .step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(26,23,20,0.1);
+    border-color: var(--border-strong);
+  }
+
+  .step-num {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    color: var(--cream-dark);
+    line-height: 1;
+    position: absolute;
+    top: 1rem;
+    right: 1.25rem;
+    user-select: none;
+  }
+
+  .step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+
+  .step-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke: var(--sage);
+  }
+
+  .step-title {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+
+  .step-desc {
+    font-size: 0.85rem;
+    color: var(--ink-light);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  /* ── FEATURES ── */
+  .features-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: center;
+    margin-top: 1rem;
+  }
+
+  @media (max-width: 700px) {
+    .features-layout {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  .features-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 2rem;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .feature-check {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--sage-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .feature-check svg {
+    width: 12px;
+    height: 12px;
+    stroke: var(--sage);
+  }
+
+  .feature-text strong {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--ink);
+    margin-bottom: 2px;
+  }
+
+  .feature-text span {
+    font-size: 0.82rem;
+    color: var(--ink-light);
+    font-weight: 300;
+  }
+
+  .features-visual {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(26,23,20,0.06);
+  }
+
+  .ats-score-ring {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .ring-visual {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: conic-gradient(var(--sage) 0% 92%, var(--cream-dark) 92% 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .ring-visual::after {
+    content: '';
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--white);
+    position: absolute;
+  }
+
+  .ring-text {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--ink);
+  }
+
+  .ats-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--ink);
+  }
+
+  .ats-sublabel {
+    font-size: 0.72rem;
+    color: var(--ink-light);
+    margin-top: 2px;
+  }
+
+  .keyword-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .kchip {
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+
+  .kchip-green {
+    background: var(--sage-light);
+    color: var(--sage);
+    border: 1px solid rgba(59,109,17,0.2);
+  }
+
+  .kchip-amber {
+    background: var(--amber-light);
+    color: var(--amber);
+    border: 1px solid rgba(186,117,23,0.2);
+  }
+
+  /* ── DISCLAIMER ── */
+  .disclaimer-section {
+    background: var(--cream-dark);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .disclaimer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 3rem 2rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .disclaimer-icon {
+    width: 44px;
+    height: 44px;
+    background: var(--amber-light);
+    border: 1px solid rgba(186,117,23,0.2);
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .disclaimer-icon svg {
+    width: 22px;
+    height: 22px;
+    stroke: var(--amber);
+  }
+
+  .disclaimer-content {
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .disclaimer-title {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    color: var(--ink);
+    margin-bottom: 0.5rem;
+  }
+
+  .disclaimer-text {
+    font-size: 0.875rem;
+    color: var(--ink-light);
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  .disclaimer-text strong {
+    color: var(--ink-mid);
+    font-weight: 500;
+  }
+
+  /* ── CTA SECTION ── */
+  .cta-section {
+    text-align: center;
+    padding: 6rem 2rem;
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .cta-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    margin-bottom: 1rem;
+  }
+
+  .cta-title em {
+    font-style: italic;
+    color: var(--sage);
+  }
+
+  .cta-sub {
+    font-size: 1rem;
+    color: var(--ink-light);
+    font-weight: 300;
+    margin-bottom: 2.5rem;
+    line-height: 1.7;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .footer-logo span { color: var(--sage); }
+
+  .footer-note {
+    font-size: 0.78rem;
+    color: var(--ink-light);
+    font-weight: 300;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* ── MOBILE ── */
+  @media (max-width: 640px) {
+    nav { padding: 0.875rem 1.25rem; }
+    .btn-cta-nav { display: none; }
+    .hero { padding: 6rem 1.25rem 3rem; }
+    .preview-card { padding: 1.5rem; }
+    .cv-preview-header { flex-direction: column; }
+    .section { padding: 4rem 1.25rem; }
+    .steps-grid { grid-template-columns: 1fr; }
+    .disclaimer-inner { padding: 2rem 1.25rem; }
+    footer { padding: 1.5rem 1.25rem; flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+    .cta-section { padding: 4rem 1.25rem; }
+  }
+
+  @media (max-width: 400px) {
+    .hero-title { font-size: 2.3rem; }
+    .lang-btn { padding: 4px 8px; font-size: 0.7rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">Craft<span>CV</span></a>
+  <div class="nav-right">
+    <div class="lang-toggle" role="group" aria-label="Language selector">
+      <button class="lang-btn active" id="btn-en" onclick="setLang('en')" aria-pressed="true">EN</button>
+      <button class="lang-btn" id="btn-id" onclick="setLang('id')" aria-pressed="false">ID</button>
+    </div>
+    <a href="form.html" class="btn-cta-nav" data-i18n="nav_cta">Build My CV</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-grid" aria-hidden="true"></div>
+
+  <div class="hero-badge" aria-label="Free, no account required">
+    <span class="badge-dot"></span>
+    <span data-i18n="badge">Free · No sign-up required</span>
+  </div>
+
+  <h1 class="hero-title">
+    <span data-i18n="hero_title_1">Land your dream job</span><br>
+    <em data-i18n="hero_title_2">with a CV that passes</em><br>
+    <span data-i18n="hero_title_3">every ATS filter</span>
+  </h1>
+
+  <p class="hero-subtitle" data-i18n="hero_sub">
+    Build a clean, professional, ATS-optimised resume in minutes — download as PDF, receive a copy by email. No data stored, ever.
+  </p>
+
+  <div class="hero-actions">
+    <a href="form.html" class="btn-primary">
+      <span data-i18n="hero_cta">Build My CV Now</span>
+      <span class="arrow" aria-hidden="true">→</span>
+    </a>
+    <a href="#how-it-works" class="btn-secondary">
+      <span data-i18n="hero_how">See how it works</span>
+    </a>
+  </div>
+
+  <!-- PREVIEW MOCK -->
+  <div class="hero-preview" aria-hidden="true">
+    <div class="preview-card">
+      <span class="preview-label" data-i18n="preview_label">Preview</span>
+
+      <div class="cv-preview-header">
+        <div>
+          <div class="cv-name">Alexandra Chen</div>
+          <div class="cv-role">Senior Product Designer · UI/UX</div>
+        </div>
+        <div class="cv-contact-pills">
+          <span class="cv-pill">alexandra@email.com</span>
+          <span class="cv-pill">+62 812-3456-7890</span>
+          <span class="cv-pill">Jakarta, ID</span>
+          <span class="cv-pill">linkedin.com/in/alexchen</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:2rem;flex-wrap:wrap;">
+        <div>
+          <div class="cv-section-label" data-i18n="cv_experience">Experience</div>
+          <div class="cv-exp-item">
+            <div class="cv-exp-dot"></div>
+            <div class="cv-exp-text">
+              <div class="cv-exp-title">Lead Product Designer — Tokopedia</div>
+              <div class="cv-exp-sub">2021 – Present · Designed end-to-end checkout flows</div>
+            </div>
+          </div>
+          <div class="cv-exp-item">
+            <div class="cv-exp-dot"></div>
+            <div class="cv-exp-text">
+              <div class="cv-exp-title">UI Designer — Grab</div>
+              <div class="cv-exp-sub">2019 – 2021 · Driver app redesign, +18% retention</div>
+            </div>
+          </div>
+          <div class="cv-section-label" style="margin-top:1.25rem;" data-i18n="cv_education">Education</div>
+          <div class="cv-exp-item">
+            <div class="cv-exp-dot"></div>
+            <div class="cv-exp-text">
+              <div class="cv-exp-title">B.S. Informatics — Universitas Indonesia</div>
+              <div class="cv-exp-sub">2015 – 2019 · GPA 3.78</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="cv-section-label" data-i18n="cv_skills">Skills</div>
+          <div class="cv-bars">
+            <div style="font-size:0.7rem;color:var(--ink-light);margin-bottom:2px;">Figma</div>
+            <div class="cv-bar"><div class="cv-bar-fill" style="width:95%"></div></div>
+            <div style="font-size:0.7rem;color:var(--ink-light);margin:4px 0 2px;">User Research</div>
+            <div class="cv-bar"><div class="cv-bar-fill" style="width:80%"></div></div>
+            <div style="font-size:0.7rem;color:var(--ink-light);margin:4px 0 2px;">Prototyping</div>
+            <div class="cv-bar"><div class="cv-bar-fill" style="width:88%"></div></div>
+            <div style="font-size:0.7rem;color:var(--ink-light);margin:4px 0 2px;">HTML/CSS</div>
+            <div class="cv-bar"><div class="cv-bar-fill" style="width:65%"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section id="how-it-works" class="section" aria-label="How it works">
+  <div class="reveal">
+    <div class="section-label" data-i18n="how_label">How it works</div>
+    <h2 class="section-title">
+      <span data-i18n="how_title_1">Four steps to your</span>
+      <em data-i18n="how_title_2"> perfect resume</em>
+    </h2>
+    <p class="section-desc" data-i18n="how_desc">No account. No data saved. Just you, your details, and a polished PDF in minutes.</p>
+  </div>
+
+  <div class="steps-grid reveal">
+    <div class="step-card">
+      <span class="step-num" aria-hidden="true">01</span>
+      <div class="step-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 20h9M16.5 3.5a2.12 2.12 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+        </svg>
+      </div>
+      <h3 class="step-title" data-i18n="step1_title">Fill the form</h3>
+      <p class="step-desc" data-i18n="step1_desc">Enter your personal info, work experience, education, and skills. Add as many entries as you need with dynamic fields.</p>
+    </div>
+
+    <div class="step-card">
+      <span class="step-num" aria-hidden="true">02</span>
+      <div class="step-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <path d="M8 21h8M12 17v4"/>
+        </svg>
+      </div>
+      <h3 class="step-title" data-i18n="step2_title">Preview your CV</h3>
+      <p class="step-desc" data-i18n="step2_desc">Review how your resume looks in real time. Jump back to edit anything before committing to the final version.</p>
+    </div>
+
+    <div class="step-card">
+      <span class="step-num" aria-hidden="true">03</span>
+      <div class="step-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8"/>
+        </svg>
+      </div>
+      <h3 class="step-title" data-i18n="step3_title">Generate PDF</h3>
+      <p class="step-desc" data-i18n="step3_desc">One click renders your ATS-friendly PDF with clean formatting that hiring system parsers love.</p>
+    </div>
+
+    <div class="step-card">
+      <span class="step-num" aria-hidden="true">04</span>
+      <div class="step-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+      </div>
+      <h3 class="step-title" data-i18n="step4_title">Download & Email</h3>
+      <p class="step-desc" data-i18n="step4_desc">Download your PDF instantly and optionally receive a copy of your inputs sent to your own email address.</p>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- FEATURES -->
+<section class="section" aria-label="Features">
+  <div class="features-layout">
+    <div class="reveal">
+      <div class="section-label" data-i18n="feat_label">Why CraftCV</div>
+      <h2 class="section-title">
+        <span data-i18n="feat_title_1">Built for</span>
+        <em data-i18n="feat_title_2"> real results</em>
+      </h2>
+      <div class="features-list">
+        <div class="feature-item">
+          <div class="feature-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <strong data-i18n="f1_title">ATS-Optimised Structure</strong>
+            <span data-i18n="f1_desc">Clean, single-column layout with proper heading hierarchy that ATS parsers read perfectly.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <strong data-i18n="f2_title">Dynamic Multi-Entry Fields</strong>
+            <span data-i18n="f2_desc">Add unlimited jobs and education entries with a single click — no templates to wrestle with.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <strong data-i18n="f3_title">Email Copy to Yourself</strong>
+            <span data-i18n="f3_desc">Optionally receive a formatted summary of your CV inputs straight to your inbox.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <strong data-i18n="f4_title">Zero Data Retention</strong>
+            <span data-i18n="f4_desc">No database, no accounts, no cookies. Your data stays on your device until you close the tab.</span>
+          </div>
+        </div>
+        <div class="feature-item">
+          <div class="feature-check" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </div>
+          <div class="feature-text">
+            <strong data-i18n="f5_title">Bilingual Interface</strong>
+            <span data-i18n="f5_desc">Switch between English and Indonesian seamlessly — your form data stays intact.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="features-visual">
+        <div class="ats-score-ring">
+          <div class="ring-visual" aria-hidden="true">
+            <span class="ring-text">92</span>
+          </div>
+          <div>
+            <div class="ats-label" data-i18n="ats_score">ATS Compatibility Score</div>
+            <div class="ats-sublabel" data-i18n="ats_score_sub">Based on standard recruiter system parsing</div>
+          </div>
+        </div>
+
+        <div class="cv-section-label" data-i18n="kw_detected">Keywords Detected</div>
+        <div class="keyword-chips" style="margin-top:0.5rem;">
+          <span class="kchip kchip-green">Work Experience</span>
+          <span class="kchip kchip-green">Education</span>
+          <span class="kchip kchip-green">Skills</span>
+          <span class="kchip kchip-green">Contact Info</span>
+          <span class="kchip kchip-green">Professional Summary</span>
+          <span class="kchip kchip-amber">References</span>
+          <span class="kchip kchip-amber">Certifications</span>
+        </div>
+
+        <div style="margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);">
+          <div class="cv-section-label" data-i18n="format_check">Format Checklist</div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:0.5rem;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--sage);">
+              <span aria-hidden="true">✓</span> <span data-i18n="fc1">Single-column layout</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--sage);">
+              <span aria-hidden="true">✓</span> <span data-i18n="fc2">Standard section headings</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--sage);">
+              <span aria-hidden="true">✓</span> <span data-i18n="fc3">Machine-readable fonts</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--sage);">
+              <span aria-hidden="true">✓</span> <span data-i18n="fc4">No tables or text boxes</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:0.8rem;color:var(--sage);">
+              <span aria-hidden="true">✓</span> <span data-i18n="fc5">Reverse-chronological order</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DISCLAIMER -->
+<div class="disclaimer-section" role="note" aria-label="Portfolio & privacy disclaimer">
+  <div class="disclaimer-inner">
+    <div class="disclaimer-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    <div class="disclaimer-content">
+      <h3 class="disclaimer-title" data-i18n="disc_title">Portfolio Project — Your Privacy is Protected</h3>
+      <p class="disclaimer-text" data-i18n="disc_text">
+        This tool is a <strong>personal portfolio project</strong> built to demonstrate full-stack web development skills.
+        <strong>No information you enter is ever stored, logged, or transmitted to any server</strong> — not to a database, not to third-party analytics, nothing.
+        Your data exists only in your browser's memory for the duration of your session.
+        The optional email feature sends a copy directly to you via a client-side email service (EmailJS) and is not intercepted or recorded.
+        By using this tool you acknowledge it is provided as-is, for demonstration purposes.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- CTA -->
+<section class="cta-section reveal" aria-label="Call to action">
+  <h2 class="cta-title">
+    <span data-i18n="cta_title_1">Ready to get</span>
+    <em data-i18n="cta_title_2"> hired?</em>
+  </h2>
+  <p class="cta-sub" data-i18n="cta_sub">It takes less than 10 minutes. No account needed. Start building your ATS-friendly CV right now.</p>
+  <a href="form.html" class="btn-primary" style="font-size:1.05rem;padding:16px 40px;">
+    <span data-i18n="cta_btn">Start Building — It's Free</span>
+    <span class="arrow" aria-hidden="true">→</span>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<div class="divider"></div>
+<footer>
+  <a href="index.html" class="footer-logo">Craft<span>CV</span></a>
+  <p class="footer-note" data-i18n="footer_note">A portfolio project · No data stored · Made with ❤️ from BVIG and hosted on GitHub Pages powered by Claude.AI</p>
+</footer>
+
+<script>
+  /* ── TRANSLATIONS ── */
+  const i18n = {
+    en: {
+      nav_cta: "Build My CV",
+      badge: "Free · No sign-up required",
+      hero_title_1: "Land your dream job",
+      hero_title_2: "with a CV that passes",
+      hero_title_3: "every ATS filter",
+      hero_sub: "Build a clean, professional, ATS-optimised resume in minutes — download as PDF, receive a copy by email. No data stored, ever.",
+      hero_cta: "Build My CV Now",
+      hero_how: "See how it works",
+      preview_label: "Preview",
+      cv_experience: "Experience",
+      cv_education: "Education",
+      cv_skills: "Skills",
+      how_label: "How it works",
+      how_title_1: "Four steps to your",
+      how_title_2: " perfect resume",
+      how_desc: "No account. No data saved. Just you, your details, and a polished PDF in minutes.",
+      step1_title: "Fill the form",
+      step1_desc: "Enter your personal info, work experience, education, and skills. Add as many entries as you need with dynamic fields.",
+      step2_title: "Preview your CV",
+      step2_desc: "Review how your resume looks in real time. Jump back to edit anything before committing to the final version.",
+      step3_title: "Generate PDF",
+      step3_desc: "One click renders your ATS-friendly PDF with clean formatting that hiring system parsers love.",
+      step4_title: "Download & Email",
+      step4_desc: "Download your PDF instantly and optionally receive a copy of your inputs sent to your own email address.",
+      feat_label: "Why CraftCV",
+      feat_title_1: "Built for",
+      feat_title_2: " real results",
+      f1_title: "ATS-Optimised Structure",
+      f1_desc: "Clean, single-column layout with proper heading hierarchy that ATS parsers read perfectly.",
+      f2_title: "Dynamic Multi-Entry Fields",
+      f2_desc: "Add unlimited jobs and education entries with a single click — no templates to wrestle with.",
+      f3_title: "Email Copy to Yourself",
+      f3_desc: "Optionally receive a formatted summary of your CV inputs straight to your inbox.",
+      f4_title: "Zero Data Retention",
+      f4_desc: "No database, no accounts, no cookies. Your data stays on your device until you close the tab.",
+      f5_title: "Bilingual Interface",
+      f5_desc: "Switch between English and Indonesian seamlessly — your form data stays intact.",
+      ats_score: "ATS Compatibility Score",
+      ats_score_sub: "Based on standard recruiter system parsing",
+      kw_detected: "Keywords Detected",
+      format_check: "Format Checklist",
+      fc1: "Single-column layout",
+      fc2: "Standard section headings",
+      fc3: "Machine-readable fonts",
+      fc4: "No tables or text boxes",
+      fc5: "Reverse-chronological order",
+      disc_title: "Portfolio Project — Your Privacy is Protected",
+      disc_text: 'This tool is a <strong>personal portfolio project</strong> built to demonstrate full-stack web development skills. <strong>No information you enter is ever stored, logged, or transmitted to any server</strong> — not to a database, not to third-party analytics, nothing. Your data exists only in your browser\'s memory for the duration of your session. The optional email feature sends a copy directly to you via a client-side email service (EmailJS) and is not intercepted or recorded. By using this tool you acknowledge it is provided as-is, for demonstration purposes.',
+      cta_title_1: "Ready to get",
+      cta_title_2: " hired?",
+      cta_sub: "It takes less than 10 minutes. No account needed. Start building your ATS-friendly CV right now.",
+      cta_btn: "Start Building — It's Free",
+      footer_note: "A portfolio project · No data stored · Made with ❤️ from BVIG and hosted on GitHub Pages powered by Claude.AI",
+    },
+    id: {
+      nav_cta: "Buat CV Saya",
+      badge: "Gratis · Tanpa daftar akun",
+      hero_title_1: "Raih pekerjaan impianmu",
+      hero_title_2: "dengan CV yang lolos",
+      hero_title_3: "setiap filter ATS",
+      hero_sub: "Buat resume yang bersih, profesional, dan dioptimalkan untuk ATS dalam hitungan menit — unduh sebagai PDF, terima salinan lewat email. Data tidak pernah disimpan.",
+      hero_cta: "Buat CV Saya Sekarang",
+      hero_how: "Lihat caranya",
+      preview_label: "Pratinjau",
+      cv_experience: "Pengalaman",
+      cv_education: "Pendidikan",
+      cv_skills: "Keahlian",
+      how_label: "Cara kerja",
+      how_title_1: "Empat langkah menuju",
+      how_title_2: " resume sempurna",
+      how_desc: "Tanpa akun. Tanpa data tersimpan. Hanya kamu, detail-mu, dan PDF profesional dalam hitungan menit.",
+      step1_title: "Isi formulir",
+      step1_desc: "Masukkan info pribadi, pengalaman kerja, pendidikan, dan keahlian. Tambahkan entri sebanyak yang dibutuhkan dengan kolom dinamis.",
+      step2_title: "Pratinjau CV-mu",
+      step2_desc: "Tinjau tampilan resume secara langsung. Kembali untuk mengedit apa pun sebelum menyimpan versi final.",
+      step3_title: "Buat PDF",
+      step3_desc: "Satu klik menghasilkan PDF ramah ATS dengan format bersih yang disukai oleh sistem perekrut.",
+      step4_title: "Unduh & Email",
+      step4_desc: "Unduh PDF langsung dan opsional terima salinan isian CV-mu ke alamat email kamu sendiri.",
+      feat_label: "Mengapa CraftCV",
+      feat_title_1: "Dirancang untuk",
+      feat_title_2: " hasil nyata",
+      f1_title: "Struktur Ramah ATS",
+      f1_desc: "Tata letak satu kolom yang bersih dengan hierarki heading yang sempurna dibaca oleh parser ATS.",
+      f2_title: "Kolom Multi-Entri Dinamis",
+      f2_desc: "Tambah entri pekerjaan dan pendidikan tanpa batas dengan satu klik — tanpa perlu bergumul dengan template.",
+      f3_title: "Salinan Email untuk Diri Sendiri",
+      f3_desc: "Opsional terima ringkasan isian CV-mu langsung ke kotak masuk emailmu.",
+      f4_title: "Nol Penyimpanan Data",
+      f4_desc: "Tanpa database, tanpa akun, tanpa cookie. Data kamu hanya ada di memori browser selama sesi berlangsung.",
+      f5_title: "Antarmuka Dwibahasa",
+      f5_desc: "Ganti antara Bahasa Inggris dan Indonesia dengan mudah — data formulirmu tetap utuh.",
+      ats_score: "Skor Kompatibilitas ATS",
+      ats_score_sub: "Berdasarkan standar parsing sistem perekrut",
+      kw_detected: "Kata Kunci Terdeteksi",
+      format_check: "Daftar Format",
+      fc1: "Tata letak satu kolom",
+      fc2: "Heading seksi standar",
+      fc3: "Font yang dapat dibaca mesin",
+      fc4: "Tanpa tabel atau kotak teks",
+      fc5: "Urutan kronologi terbalik",
+      disc_title: "Proyek Portofolio — Privasi Anda Dilindungi",
+      disc_text: 'Alat ini adalah <strong>proyek portofolio pribadi</strong> yang dibuat untuk menunjukkan kemampuan pengembangan web. <strong>Tidak ada informasi yang Anda masukkan yang pernah disimpan, dicatat, atau dikirim ke server manapun</strong> — tidak ke database, tidak ke analitik pihak ketiga, tidak sama sekali. Data Anda hanya ada di memori browser selama sesi berlangsung. Fitur email opsional mengirimkan salinan langsung kepada Anda melalui layanan email sisi klien (EmailJS) dan tidak disadap atau dicatat. Dengan menggunakan alat ini, Anda mengakui bahwa alat ini disediakan apa adanya, untuk tujuan demonstrasi.',
+      cta_title_1: "Siap untuk",
+      cta_title_2: " diterima kerja?",
+      cta_sub: "Hanya butuh kurang dari 10 menit. Tanpa akun. Mulai buat CV ramah ATS-mu sekarang.",
+      cta_btn: "Mulai Buat — Gratis",
+      footer_note: "Proyek portofolio · Tidak ada data tersimpan · Dibuat dengan ❤️ dari BVIG dan di-hosting di GitHub Pages dibantu oleh by Claude.AI",
+    }
+  };
+
+  let currentLang = localStorage.getItem('craftcv_lang') || 'en';
+
+  function setLang(lang) {
+    currentLang = lang;
+    localStorage.setItem('craftcv_lang', lang);
+    document.documentElement.lang = lang;
+
+    document.getElementById('btn-en').classList.toggle('active', lang === 'en');
+    document.getElementById('btn-id').classList.toggle('active', lang === 'id');
+    document.getElementById('btn-en').setAttribute('aria-pressed', lang === 'en');
+    document.getElementById('btn-id').setAttribute('aria-pressed', lang === 'id');
+
+    const t = i18n[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (t[key] !== undefined) {
+        el.innerHTML = t[key];
+      }
+    });
+  }
+
+  /* ── SCROLL REVEAL ── */
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        observer.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12 });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  /* init */
+  setLang(currentLang);
+</script>
+</body>
+</html>
