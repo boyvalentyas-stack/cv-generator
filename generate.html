@@ -6,1316 +6,1056 @@
 <title>CraftCV — Generate Your CV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 
-<!-- PDF generation library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-<!-- EmailJS -->
+<!-- jsPDF — renders PDF as pure vector text, guaranteed non-blank -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- EmailJS browser SDK v4 -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#F5F0E8;--cream-dark:#EDE7D9;
+  --ink:#1A1714;--ink-mid:#3D3830;--ink-light:#7A7268;--ink-faint:#B0A99E;
+  --sage:#3B6D11;--sage-light:#EAF3DE;--sage-dark:#27500A;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --coral:#993C1D;--coral-light:#FAECE7;
+  --white:#FFFFFF;
+  --border:rgba(26,23,20,.11);--border-mid:rgba(26,23,20,.18);--border-strong:rgba(26,23,20,.26);
+  --r:10px;--r-lg:16px;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --ffd:'DM Serif Display',Georgia,serif;
+  --ease:.22s ease;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--ff);background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden}
 
-:root {
-  --cream: #F5F0E8;
-  --cream-dark: #EDE7D9;
-  --ink: #1A1714;
-  --ink-mid: #3D3830;
-  --ink-light: #7A7268;
-  --ink-faint: #B0A99E;
-  --sage: #3B6D11;
-  --sage-light: #EAF3DE;
-  --sage-mid: #639922;
-  --sage-dark: #27500A;
-  --amber: #BA7517;
-  --amber-light: #FAEEDA;
-  --coral: #993C1D;
-  --coral-light: #FAECE7;
-  --white: #FFFFFF;
-  --border: rgba(26,23,20,0.11);
-  --border-mid: rgba(26,23,20,0.18);
-  --border-strong: rgba(26,23,20,0.26);
-  --radius: 10px;
-  --radius-lg: 16px;
-  --font-display: 'DM Serif Display', Georgia, serif;
-  --font-body: 'DM Sans', system-ui, sans-serif;
-  --transition: 0.22s ease;
-}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:.85rem 2rem;background:rgba(245,240,232,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);gap:1rem}
+.logo{font-family:var(--ffd);font-size:1.35rem;color:var(--ink);text-decoration:none}
+.logo span{color:var(--sage)}
+.nav-steps{display:flex;align-items:center;gap:5px;background:var(--white);border:1px solid var(--border-mid);border-radius:999px;padding:4px 5px;flex:1;max-width:330px;margin:0 auto}
+.ns{flex:1;text-align:center;font-size:.71rem;padding:5px 9px;border-radius:999px;color:var(--ink-faint);white-space:nowrap}
+.ns.done{color:var(--sage)}
+.ns.active{background:var(--ink);color:var(--cream);font-weight:500}
+.nav-r{display:flex;align-items:center;gap:.75rem}
+.lt{display:flex;background:var(--white);border:1px solid var(--border-strong);border-radius:999px;padding:3px;gap:2px}
+.lb{font-size:.7rem;font-weight:500;padding:3px 10px;border-radius:999px;border:none;background:transparent;color:var(--ink-light);cursor:pointer;transition:all var(--ease);font-family:var(--ff)}
+.lb.active{background:var(--ink);color:var(--cream)}
 
-html { scroll-behavior: smooth; }
-body {
-  font-family: var(--font-body);
-  background: var(--cream);
-  color: var(--ink);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+/* PAGE */
+.page{max-width:980px;margin:0 auto;padding:5.5rem 2rem 4rem;display:grid;grid-template-columns:1fr 350px;gap:2.5rem;align-items:start}
 
-/* ── NAV ── */
-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0.85rem 2rem;
-  background: rgba(245,240,232,0.92);
-  backdrop-filter: blur(14px);
-  border-bottom: 1px solid var(--border);
-  gap: 1rem;
-}
-.nav-logo { font-family: var(--font-display); font-size: 1.35rem; color: var(--ink); text-decoration: none; flex-shrink: 0; }
-.nav-logo span { color: var(--sage); }
-.nav-center {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--white); border: 1px solid var(--border-mid);
-  border-radius: 999px; padding: 4px 6px; flex: 1; max-width: 340px; margin: 0 auto;
-}
-.nav-step { flex: 1; text-align: center; font-size: 0.72rem; font-weight: 400; padding: 5px 10px; border-radius: 999px; color: var(--ink-faint); white-space: nowrap; }
-.nav-step.done { color: var(--sage); }
-.nav-step.active { background: var(--ink); color: var(--cream); font-weight: 500; }
-.nav-right { display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0; }
-.lang-toggle { display: flex; align-items: center; background: var(--white); border: 1px solid var(--border-strong); border-radius: 999px; padding: 3px; gap: 2px; }
-.lang-btn { font-family: var(--font-body); font-size: 0.7rem; font-weight: 500; padding: 3px 10px; border-radius: 999px; border: none; background: transparent; color: var(--ink-light); cursor: pointer; transition: all var(--transition); }
-.lang-btn.active { background: var(--ink); color: var(--cream); }
+/* HEADINGS */
+.eyebrow{font-size:.63rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:.4rem}
+.page-title{font-family:var(--ffd);font-size:clamp(1.9rem,3.8vw,2.6rem);line-height:1.1;letter-spacing:-.02em;color:var(--ink);margin-bottom:.65rem}
+.page-title em{font-style:italic;color:var(--sage)}
+.page-sub{font-size:.92rem;color:var(--ink-light);font-weight:300;line-height:1.75;max-width:420px;margin-bottom:2rem}
 
-/* ── PAGE WRAPPER ── */
-.page-wrapper {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 5rem 2rem 4rem;
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 2.5rem;
-  align-items: start;
-}
+/* CARDS */
+.card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 4px 24px rgba(26,23,20,.06);margin-bottom:1.2rem}
+.ch{padding:1.15rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.ci{width:38px;height:38px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ci svg{width:18px;height:18px;stroke:currentColor;fill:none}
+.ci.pdf{background:var(--sage-light);color:var(--sage)}
+.ci.mail{background:var(--amber-light);color:var(--amber)}
+.ci.cfg{background:var(--cream-dark);color:var(--ink-light)}
+.ct{font-family:var(--ffd);font-size:1.08rem;color:var(--ink)}
+.cs{font-size:.76rem;color:var(--ink-light);font-weight:300;margin-top:2px}
+.cb{padding:1.5rem}
 
-/* ── LEFT COLUMN ── */
-.left-col {}
+/* FIELDS */
+.og{margin-bottom:1.15rem}
+.og:last-child{margin-bottom:0}
+.ol{display:block;font-size:.77rem;font-weight:500;color:var(--ink-mid);margin-bottom:6px}
+.or{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:6px 14px;border-radius:999px;border:1.5px solid var(--border-mid);background:var(--cream);font-size:.76rem;color:var(--ink-mid);cursor:pointer;transition:all var(--ease);font-family:var(--ff)}
+.pill:hover{border-color:var(--border-strong);color:var(--ink)}
+.pill.sel{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.fw{position:relative}
+.fi{width:100%;font-family:var(--ff);font-size:.88rem;color:var(--ink);background:var(--cream-dark);border:1.5px solid var(--border-mid);border-radius:var(--r);padding:10px 56px 10px 14px;outline:none;transition:border-color var(--ease),box-shadow var(--ease)}
+.fi:focus{border-color:var(--sage);box-shadow:0 0 0 3px rgba(59,109,17,.1)}
+.fe{position:absolute;right:13px;top:50%;transform:translateY(-50%);font-size:.73rem;font-weight:500;color:var(--ink-faint);pointer-events:none}
+.fld{display:flex;flex-direction:column;gap:5px;margin-bottom:.9rem}
+.fld:last-child{margin-bottom:0}
+.fld label{font-size:.77rem;font-weight:500;color:var(--ink-mid)}
+.fld input,.fld textarea{font-family:var(--ff);font-size:.87rem;color:var(--ink);background:var(--cream-dark);border:1.5px solid var(--border-mid);border-radius:var(--r);padding:10px 14px;outline:none;transition:border-color var(--ease),box-shadow var(--ease);width:100%}
+.fld input:focus,.fld textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(186,117,23,.1)}
+.fld input.err{border-color:var(--coral)}
+.hint{font-size:.69rem;color:var(--ink-faint);margin-top:2px;line-height:1.5}
 
-/* ── SECTION HEADER ── */
-.page-eyebrow {
-  font-size: 0.65rem; font-weight: 600; letter-spacing: 0.12em;
-  text-transform: uppercase; color: var(--sage); margin-bottom: 0.5rem;
-}
-.page-title {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 4vw, 2.8rem);
-  line-height: 1.1; letter-spacing: -0.02em; color: var(--ink);
-  margin-bottom: 0.75rem;
-}
-.page-title em { font-style: italic; color: var(--sage); }
-.page-sub {
-  font-size: 0.95rem; color: var(--ink-light); font-weight: 300;
-  line-height: 1.75; max-width: 420px; margin-bottom: 2.5rem;
-}
+/* GENERATE BTN */
+.btn-gen{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-family:var(--ff);font-size:1rem;font-weight:500;padding:14px 24px;border-radius:var(--r);border:none;background:var(--ink);color:var(--cream);cursor:pointer;transition:all var(--ease);box-shadow:0 3px 16px rgba(26,23,20,.2);margin-top:.2rem;position:relative;overflow:hidden}
+.btn-gen::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);transform:translateX(-100%);transition:transform .55s ease}
+.btn-gen:hover::after{transform:translateX(100%)}
+.btn-gen:hover{background:var(--ink-mid);transform:translateY(-1px);box-shadow:0 6px 22px rgba(26,23,20,.26)}
+.btn-gen:disabled{opacity:.55;cursor:not-allowed;pointer-events:none}
+.btn-gen svg{width:18px;height:18px;stroke:currentColor;flex-shrink:0;fill:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .75s linear infinite}
 
-/* ── GENERATE CARD ── */
-.gen-card {
-  background: var(--white);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  box-shadow: 0 4px 24px rgba(26,23,20,0.06);
-  margin-bottom: 1.25rem;
-}
-.gen-card-header {
-  padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; gap: 12px;
-}
-.gen-card-icon {
-  width: 38px; height: 38px; border-radius: 9px; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-}
-.gen-card-icon svg { width: 18px; height: 18px; stroke: currentColor; }
-.gen-card-icon.pdf-icon { background: var(--sage-light); color: var(--sage); }
-.gen-card-icon.email-icon { background: var(--amber-light); color: var(--amber); }
-.gen-card-title { font-family: var(--font-display); font-size: 1.1rem; color: var(--ink); }
-.gen-card-sub { font-size: 0.78rem; color: var(--ink-light); font-weight: 300; margin-top: 2px; }
-.gen-card-body { padding: 1.5rem; }
+/* PROGRESS */
+.pw{display:none;margin-top:1rem}
+.pw.show{display:block}
+.pt{height:5px;background:var(--cream-dark);border-radius:999px;overflow:hidden;margin-bottom:6px}
+.pf{height:100%;background:var(--sage);border-radius:999px;width:0%;transition:width .35s ease}
+.pl{font-size:.71rem;color:var(--ink-light);text-align:center}
 
-/* ── PDF OPTIONS ── */
-.option-group { margin-bottom: 1.25rem; }
-.option-group:last-child { margin-bottom: 0; }
-.option-label { font-size: 0.78rem; font-weight: 500; color: var(--ink-mid); margin-bottom: 8px; display: block; }
-.option-row { display: flex; gap: 8px; flex-wrap: wrap; }
-.option-pill {
-  padding: 7px 16px; border-radius: 999px; border: 1.5px solid var(--border-mid);
-  background: var(--cream); font-size: 0.78rem; font-weight: 400; color: var(--ink-mid);
-  cursor: pointer; transition: all var(--transition); font-family: var(--font-body);
-}
-.option-pill:hover { border-color: var(--border-strong); color: var(--ink); }
-.option-pill.selected { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+/* TOGGLE SWITCH */
+.tr{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.sw{position:relative;width:42px;height:24px;flex-shrink:0}
+.sw input{opacity:0;width:0;height:0;position:absolute}
+.sw-t{position:absolute;inset:0;border-radius:999px;background:var(--cream-dark);border:1.5px solid var(--border-mid);cursor:pointer;transition:all var(--ease)}
+.sw input:checked+.sw-t{background:var(--sage);border-color:var(--sage)}
+.sw-th{position:absolute;top:4px;left:4px;width:14px;height:14px;border-radius:50%;background:var(--white);box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform var(--ease);pointer-events:none}
+.sw input:checked~.sw-th{transform:translateX(18px)}
+.tt{font-size:.85rem;color:var(--ink-mid)}
+.ef{display:none}
+.ef.show{display:block;animation:fd .25s ease both}
+@keyframes fd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── FILENAME FIELD ── */
-.filename-wrap { position: relative; }
-.filename-input {
-  width: 100%; font-family: var(--font-body); font-size: 0.88rem;
-  color: var(--ink); background: var(--cream);
-  border: 1.5px solid var(--border-mid); border-radius: var(--radius);
-  padding: 10px 60px 10px 14px; outline: none;
-  transition: border-color var(--transition), box-shadow var(--transition);
-}
-.filename-input:focus { border-color: var(--sage); box-shadow: 0 0 0 3px rgba(59,109,17,0.1); }
-.filename-ext {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-  font-size: 0.75rem; font-weight: 500; color: var(--ink-faint);
-  pointer-events: none; font-family: var(--font-body);
-}
+/* EMAIL BTN */
+.btn-em{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-family:var(--ff);font-size:.9rem;font-weight:500;padding:11px 20px;border-radius:var(--r);border:1.5px solid rgba(186,117,23,.4);background:var(--amber-light);color:var(--amber);cursor:pointer;transition:all var(--ease);margin-top:.2rem}
+.btn-em:hover{background:#F5E3C5;border-color:var(--amber);transform:translateY(-1px)}
+.btn-em:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
+.btn-em svg{width:16px;height:16px;stroke:currentColor;fill:none}
+.btn-em.sent{background:var(--sage-light);border-color:var(--sage);color:var(--sage-dark)}
 
-/* ── GENERATE BUTTON ── */
-.btn-generate-pdf {
-  display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
-  font-family: var(--font-body); font-size: 1rem; font-weight: 500;
-  padding: 14px 24px; border-radius: var(--radius); border: none;
-  background: var(--ink); color: var(--cream); cursor: pointer;
-  transition: all var(--transition);
-  box-shadow: 0 3px 16px rgba(26,23,20,0.2);
-  position: relative; overflow: hidden;
-}
-.btn-generate-pdf::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 50%, transparent 100%);
-  transform: translateX(-100%); transition: transform 0.6s ease;
-}
-.btn-generate-pdf:hover::before { transform: translateX(100%); }
-.btn-generate-pdf:hover { background: var(--ink-mid); transform: translateY(-1px); box-shadow: 0 6px 24px rgba(26,23,20,0.26); }
-.btn-generate-pdf:active { transform: translateY(0); }
-.btn-generate-pdf:disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
-.btn-generate-pdf svg { width: 18px; height: 18px; stroke: currentColor; flex-shrink: 0; }
-.btn-spinner { animation: spin 0.8s linear infinite; }
-@keyframes spin { to { transform: rotate(360deg); } }
+/* NOTICE BOXES */
+.notice{display:flex;align-items:flex-start;gap:9px;padding:10px 13px;border-radius:var(--r);margin-top:.9rem}
+.notice p{font-size:.72rem;color:var(--ink-light);line-height:1.65;font-weight:300}
+.notice p strong{color:var(--ink-mid);font-weight:500}
+.ni{font-size:.82rem;flex-shrink:0;margin-top:1px}
+.n-ink{background:var(--cream-dark);border:1px solid var(--border-mid)}
+.n-amber{background:var(--amber-light);border:1px solid rgba(186,117,23,.22)}
+.n-sage{background:var(--sage-light);border:1px solid rgba(59,109,17,.2)}
 
-/* ── EMAIL SECTION ── */
-.email-toggle-row {
-  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-  flex-wrap: wrap;
-}
-.toggle-switch-label { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-.toggle-switch { position: relative; width: 40px; height: 22px; flex-shrink: 0; }
-.toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
-.toggle-track {
-  position: absolute; inset: 0; border-radius: 999px;
-  background: var(--cream-dark); border: 1.5px solid var(--border-mid);
-  transition: all var(--transition); cursor: pointer;
-}
-.toggle-switch input:checked + .toggle-track { background: var(--sage); border-color: var(--sage); }
-.toggle-thumb {
-  position: absolute; top: 3px; left: 3px; width: 14px; height: 14px;
-  border-radius: 50%; background: var(--white); box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-  transition: transform var(--transition); pointer-events: none;
-}
-.toggle-switch input:checked ~ .toggle-thumb { transform: translateX(18px); }
-.toggle-text { font-size: 0.85rem; color: var(--ink-mid); user-select: none; }
+/* SETUP STEPS */
+.steps{display:flex;flex-direction:column;gap:10px;margin-top:1rem}
+.step{display:flex;align-items:flex-start;gap:10px}
+.snum{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--cream);font-size:.65rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.stxt{font-size:.76rem;color:var(--ink-mid);line-height:1.65}
+.stxt a{color:var(--sage);text-decoration:none;font-weight:500}
+.stxt a:hover{text-decoration:underline}
+.stxt code{background:var(--cream-dark);border:1px solid var(--border-mid);border-radius:4px;padding:1px 5px;font-size:.68rem;font-family:monospace;color:var(--ink-mid)}
 
-.email-fields {
-  margin-top: 1.25rem; display: none;
-  animation: slideDown 0.25s ease both;
-}
-.email-fields.show { display: block; }
-@keyframes slideDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+/* DISCLAIMER */
+.disc{display:flex;align-items:flex-start;gap:9px;padding:12px 14px;border-radius:var(--r);background:var(--cream-dark);border:1px solid var(--border-mid);margin-top:1.2rem}
+.disc p{font-size:.71rem;color:var(--ink-light);line-height:1.7;font-weight:300}
+.disc p strong{color:var(--ink-mid);font-weight:500}
+.disc p code{background:rgba(26,23,20,.08);border-radius:3px;padding:1px 4px;font-family:monospace;font-size:.67rem}
 
-.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 1rem; }
-.field:last-child { margin-bottom: 0; }
-.field label { font-size: 0.78rem; font-weight: 500; color: var(--ink-mid); }
-.field input, .field textarea {
-  font-family: var(--font-body); font-size: 0.88rem; color: var(--ink);
-  background: var(--cream); border: 1.5px solid var(--border-mid); border-radius: var(--radius);
-  padding: 10px 14px; outline: none; transition: border-color var(--transition), box-shadow var(--transition);
-}
-.field input:focus, .field textarea:focus { border-color: var(--amber); box-shadow: 0 0 0 3px rgba(186,117,23,0.12); }
-.field input.error { border-color: var(--coral); }
-.field-hint { font-size: 0.7rem; color: var(--ink-faint); }
+/* RIGHT COL */
+.sc{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 4px 24px rgba(26,23,20,.06);position:sticky;top:80px}
+.sc-h{padding:1.15rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.sc-t{font-family:var(--ffd);font-size:1rem;color:var(--ink)}
+.sc-b-link{font-size:.73rem;color:var(--ink-light);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color var(--ease)}
+.sc-b-link:hover{color:var(--sage)}
+.sc-body{padding:1.35rem}
+.mn{font-size:1.2rem;font-weight:600;color:var(--ink);line-height:1.15;font-family:Georgia,serif}
+.mr{font-size:.87rem;color:var(--ink-light);font-style:italic;margin-top:2px;margin-bottom:9px}
+.md{height:1px;background:var(--border);margin:8px 0}
+.ms{font-size:.6rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:5px;margin-top:7px}
+.mc{font-size:.71rem;color:var(--ink-light);display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.me{display:flex;align-items:flex-start;gap:5px;margin-bottom:5px}
+.md2{width:5px;height:5px;border-radius:50%;background:var(--sage);flex-shrink:0;margin-top:5px}
+.mt{font-size:.71rem;color:var(--ink-mid);line-height:1.4}
+.mt .sub{color:var(--ink-faint);font-size:.66rem}
+.mchips{display:flex;flex-wrap:wrap;gap:3px}
+.mchip{font-size:.61rem;padding:2px 7px;border-radius:999px;background:var(--sage-light);color:var(--sage-dark);border:1px solid rgba(59,109,17,.15)}
+.sc-f{padding:.9rem 1.5rem;border-top:1px solid var(--border);background:var(--cream);display:flex;align-items:center;gap:7px}
+.fok{width:16px;height:16px;border-radius:50%;background:var(--sage-light);color:var(--sage);display:flex;align-items:center;justify-content:center;font-size:.55rem;flex-shrink:0}
+.ftxt{font-size:.71rem;color:var(--ink-light)}
 
-.btn-send-email {
-  display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
-  font-family: var(--font-body); font-size: 0.9rem; font-weight: 500;
-  padding: 11px 20px; border-radius: var(--radius); border: 1.5px solid rgba(186,117,23,0.4);
-  background: var(--amber-light); color: var(--amber); cursor: pointer;
-  transition: all var(--transition);
-}
-.btn-send-email:hover { background: #F5E3C5; border-color: var(--amber); transform: translateY(-1px); }
-.btn-send-email:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
-.btn-send-email svg { width: 16px; height: 16px; stroke: currentColor; }
+/* SUCCESS */
+.success{position:fixed;inset:0;z-index:900;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(245,240,232,.97);backdrop-filter:blur(16px);padding:2rem;text-align:center}
+.success.show{display:flex}
+.sr{width:84px;height:84px;border-radius:50%;background:var(--sage-light);border:2px solid rgba(59,109,17,.3);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;animation:pop .5s cubic-bezier(.175,.885,.32,1.275) both}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.sr svg{width:38px;height:38px;stroke:var(--sage);stroke-width:2.5;fill:none}
+.stitle{font-family:var(--ffd);font-size:clamp(1.9rem,4vw,2.9rem);color:var(--ink);letter-spacing:-.02em;line-height:1.1;margin-bottom:.7rem}
+.stitle em{font-style:italic;color:var(--sage)}
+.ssub{font-size:.96rem;color:var(--ink-light);font-weight:300;max-width:420px;line-height:1.75;margin-bottom:1.8rem}
+.sacts{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center}
+.btn-dl{display:flex;align-items:center;gap:7px;font-family:var(--ff);font-size:.9rem;font-weight:500;padding:12px 26px;border-radius:999px;border:none;background:var(--ink);color:var(--cream);cursor:pointer;transition:all var(--ease);text-decoration:none;box-shadow:0 3px 14px rgba(26,23,20,.18)}
+.btn-dl:hover{background:var(--ink-mid);transform:translateY(-1px)}
+.btn-dl svg{width:15px;height:15px;stroke:currentColor;fill:none}
+.btn-ghost{display:flex;align-items:center;gap:7px;font-family:var(--ff);font-size:.9rem;font-weight:400;padding:12px 22px;border-radius:999px;border:1.5px solid var(--border-strong);background:transparent;color:var(--ink-mid);cursor:pointer;transition:all var(--ease);text-decoration:none}
+.btn-ghost:hover{background:var(--cream-dark)}
+.ebadge{margin-top:1.25rem;padding:10px 20px;border-radius:var(--r);font-size:.79rem;display:none}
+.ebadge.ok{display:inline-block;background:var(--sage-light);color:var(--sage-dark);border:1px solid rgba(59,109,17,.2)}
+.ebadge.fail{display:inline-block;background:var(--amber-light);color:var(--amber);border:1px solid rgba(186,117,23,.22)}
 
-.emailjs-notice {
-  display: flex; align-items: flex-start; gap: 8px; margin-top: 1rem;
-  padding: 10px 12px; background: var(--cream); border-radius: var(--radius);
-  border: 1px solid var(--border);
-}
-.emailjs-notice p { font-size: 0.72rem; color: var(--ink-light); line-height: 1.6; font-weight: 300; }
-.emailjs-notice p strong { color: var(--ink-mid); font-weight: 500; }
-.emailjs-notice .notice-icon { font-size: 0.8rem; flex-shrink: 0; margin-top: 1px; }
+/* TOAST */
+.toast{position:fixed;top:76px;right:1.5rem;z-index:9999;background:var(--ink);color:var(--cream);padding:11px 18px;border-radius:var(--r);font-size:.82rem;display:flex;align-items:center;gap:8px;transform:translateY(-20px);opacity:0;pointer-events:none;transition:all .3s ease;max-width:320px;box-shadow:0 4px 20px rgba(26,23,20,.2)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:var(--sage)}
+.toast.err{background:var(--coral)}
+.toast.warn{background:var(--amber)}
 
-/* ── RIGHT COLUMN: CV SUMMARY CARD ── */
-.right-col {}
-.summary-card {
-  background: var(--white); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); overflow: hidden;
-  box-shadow: 0 4px 24px rgba(26,23,20,0.06);
-  position: sticky; top: 80px;
-}
-.summary-card-header {
-  padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
-}
-.summary-card-title { font-family: var(--font-display); font-size: 1rem; color: var(--ink); }
-.summary-back {
-  font-size: 0.75rem; color: var(--ink-light); text-decoration: none;
-  display: flex; align-items: center; gap: 4px; transition: color var(--transition);
-}
-.summary-back:hover { color: var(--sage); }
+/* NO DATA */
+.nodata{position:fixed;inset:57px 0 0 0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(245,240,232,.97);backdrop-filter:blur(8px);flex-direction:column;gap:1rem;text-align:center;padding:2rem}
+.nodata h2{font-family:var(--ffd);font-size:1.75rem;color:var(--ink)}
+.nodata p{color:var(--ink-light);font-size:.9rem;max-width:360px}
+.btn-go{display:inline-flex;align-items:center;gap:7px;font-family:var(--ff);font-size:.9rem;font-weight:500;padding:12px 28px;border-radius:999px;border:none;background:var(--ink);color:var(--cream);cursor:pointer;text-decoration:none;transition:all var(--ease);box-shadow:0 4px 16px rgba(26,23,20,.15);margin-top:.5rem}
+.btn-go:hover{transform:translateY(-2px)}
 
-/* mini CV preview */
-.mini-cv { padding: 1.5rem; }
-.mini-cv-name { font-family: 'EB Garamond', Georgia, serif; font-size: 1.3rem; font-weight: 600; color: var(--ink); line-height: 1.15; }
-.mini-cv-role { font-family: 'EB Garamond', Georgia, serif; font-size: 0.95rem; color: var(--ink-light); font-style: italic; margin-top: 2px; margin-bottom: 12px; }
-.mini-divider { height: 1px; background: var(--border); margin: 10px 0; }
-.mini-section-label { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 6px; margin-top: 10px; }
-.mini-contact { font-size: 0.73rem; color: var(--ink-light); display: flex; align-items: center; gap: 5px; margin-bottom: 4px; }
-.mini-contact svg { width: 9px; height: 9px; stroke: var(--ink-faint); flex-shrink: 0; }
-.mini-entry { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 6px; }
-.mini-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--sage); flex-shrink: 0; margin-top: 5px; }
-.mini-text { font-size: 0.73rem; color: var(--ink-mid); line-height: 1.4; }
-.mini-text .sub { color: var(--ink-faint); font-size: 0.68rem; }
-.mini-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.mini-chip { font-size: 0.62rem; padding: 2px 7px; border-radius: 999px; background: var(--sage-light); color: var(--sage-dark); border: 1px solid rgba(59,109,17,0.15); }
-.summary-card-footer {
-  padding: 1rem 1.5rem; border-top: 1px solid var(--border);
-  background: var(--cream); display: flex; align-items: center; gap: 8px;
+/* RESPONSIVE */
+@media(max-width:820px){
+  .page{grid-template-columns:1fr;padding:5.5rem 1.25rem 3rem;gap:1.5rem}
+  .sc{position:static}
+  nav{padding:.8rem 1.25rem}
+  .nav-steps{display:none}
 }
-.footer-check { width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.55rem; flex-shrink: 0; }
-.footer-check.ok { background: var(--sage-light); color: var(--sage); }
-.footer-text { font-size: 0.72rem; color: var(--ink-light); }
-
-/* ── SUCCESS STATE ── */
-.success-overlay {
-  position: fixed; inset: 0; z-index: 900; display: none;
-  flex-direction: column; align-items: center; justify-content: center;
-  background: rgba(245,240,232,0.97); backdrop-filter: blur(16px);
-  padding: 2rem; text-align: center;
-}
-.success-overlay.show { display: flex; }
-.success-anim {
-  width: 80px; height: 80px; border-radius: 50%;
-  background: var(--sage-light); border: 2px solid rgba(59,109,17,0.3);
-  display: flex; align-items: center; justify-content: center;
-  margin-bottom: 1.5rem;
-  animation: successPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
-}
-@keyframes successPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.success-anim svg { width: 36px; height: 36px; stroke: var(--sage); stroke-width: 2; }
-.success-title {
-  font-family: var(--font-display); font-size: clamp(1.8rem, 4vw, 2.8rem);
-  color: var(--ink); letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 0.75rem;
-}
-.success-title em { font-style: italic; color: var(--sage); }
-.success-sub { font-size: 1rem; color: var(--ink-light); font-weight: 300; max-width: 400px; line-height: 1.7; margin-bottom: 2rem; }
-.success-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center; }
-.btn-download-again {
-  display: flex; align-items: center; gap: 7px;
-  font-family: var(--font-body); font-size: 0.9rem; font-weight: 500;
-  padding: 12px 24px; border-radius: 999px; border: none;
-  background: var(--ink); color: var(--cream); cursor: pointer;
-  transition: all var(--transition); text-decoration: none;
-  box-shadow: 0 3px 14px rgba(26,23,20,0.18);
-}
-.btn-download-again:hover { background: var(--ink-mid); transform: translateY(-1px); }
-.btn-download-again svg { width: 15px; height: 15px; stroke: currentColor; }
-.btn-start-over {
-  display: flex; align-items: center; gap: 7px;
-  font-family: var(--font-body); font-size: 0.9rem; font-weight: 400;
-  padding: 12px 24px; border-radius: 999px; border: 1.5px solid var(--border-strong);
-  background: transparent; color: var(--ink-mid); cursor: pointer;
-  transition: all var(--transition); text-decoration: none;
-}
-.btn-start-over:hover { background: var(--cream-dark); }
-.success-email-status {
-  margin-top: 1.25rem; padding: 10px 20px; border-radius: var(--radius);
-  font-size: 0.8rem; display: none;
-}
-.success-email-status.sent { display: block; background: var(--sage-light); color: var(--sage-dark); border: 1px solid rgba(59,109,17,0.2); }
-.success-email-status.failed { display: block; background: var(--amber-light); color: var(--amber); border: 1px solid rgba(186,117,23,0.2); }
-
-/* ── PROGRESS BAR (generation) ── */
-.gen-progress { display: none; margin-top: 1rem; }
-.gen-progress.show { display: block; }
-.gen-progress-bar-track {
-  height: 4px; background: var(--cream-dark); border-radius: 999px; overflow: hidden;
-}
-.gen-progress-bar-fill {
-  height: 100%; background: var(--sage); border-radius: 999px;
-  width: 0%; transition: width 0.4s ease;
-}
-.gen-progress-label { font-size: 0.72rem; color: var(--ink-light); margin-top: 6px; text-align: center; }
-
-/* ── DISCLAIMER ── */
-.disclaimer-box {
-  background: var(--cream-dark); border: 1px solid var(--border-mid);
-  border-radius: var(--radius); padding: 1rem 1.25rem;
-  display: flex; align-items: flex-start; gap: 10px; margin-top: 1.25rem;
-}
-.disclaimer-box p { font-size: 0.73rem; color: var(--ink-light); line-height: 1.7; font-weight: 300; }
-.disclaimer-box p strong { color: var(--ink-mid); font-weight: 500; }
-.disclaimer-icon { font-size: 0.85rem; flex-shrink: 0; margin-top: 1px; }
-
-/* ── TOAST ── */
-.toast {
-  position: fixed; top: 76px; right: 1.5rem; z-index: 9999;
-  background: var(--ink); color: var(--cream); padding: 11px 18px;
-  border-radius: var(--radius); font-size: 0.82rem;
-  display: flex; align-items: center; gap: 8px;
-  transform: translateY(-20px); opacity: 0; pointer-events: none;
-  transition: all 0.3s ease; max-width: 320px;
-}
-.toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { background: var(--sage); }
-.toast.error { background: var(--coral); }
-.toast.warning { background: var(--amber); }
-
-/* ── NO DATA OVERLAY ── */
-.no-data-overlay {
-  position: fixed; inset: 57px 0 0 0; z-index: 100;
-  display: flex; align-items: center; justify-content: center;
-  background: rgba(245,240,232,0.97); backdrop-filter: blur(8px);
-  flex-direction: column; gap: 1rem; text-align: center; padding: 2rem;
-}
-.no-data-overlay h2 { font-family: var(--font-display); font-size: 1.75rem; color: var(--ink); }
-.no-data-overlay p { color: var(--ink-light); font-size: 0.9rem; max-width: 360px; }
-.btn-go { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-body); font-size: 0.9rem; font-weight: 500; padding: 12px 28px; border-radius: 999px; border: none; background: var(--ink); color: var(--cream); cursor: pointer; text-decoration: none; transition: all var(--transition); box-shadow: 0 4px 16px rgba(26,23,20,0.15); margin-top: 0.5rem; }
-.btn-go:hover { transform: translateY(-2px); }
-
-/* ── THE HIDDEN CV FOR PDF RENDERING ── */
-#cv-for-pdf {
-  position: absolute;
-  left: -9999px; top: -9999px;
-  width: 794px; /* A4 at 96dpi */
-  background: #fff;
-  font-family: 'EB Garamond', Georgia, serif;
-  font-size: 11pt;
-  line-height: 1.55;
-  color: #111;
-  padding: 52px 56px;
-}
-/* PDF CV styles (same as preview but for print-quality rendering) */
-#cv-for-pdf .cv-name { font-family: 'EB Garamond', Georgia, serif; font-size: 26pt; font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; color: #111; margin-bottom: 3px; }
-#cv-for-pdf .cv-role { font-family: 'EB Garamond', Georgia, serif; font-size: 12pt; font-style: italic; color: #444; margin-bottom: 10px; }
-#cv-for-pdf .cv-header { margin-bottom: 18px; border-bottom: 2px solid #111; padding-bottom: 12px; }
-#cv-for-pdf .cv-contacts { display: flex; flex-wrap: wrap; gap: 3px 14px; font-size: 9.5pt; color: #333; font-family: 'DM Sans', sans-serif; }
-#cv-for-pdf .cv-contact-item { display: flex; align-items: center; gap: 4px; }
-#cv-for-pdf .cv-section { margin-bottom: 14px; }
-#cv-for-pdf .cv-section-title { font-family: 'DM Sans', sans-serif; font-size: 8.5pt; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: #111; border-bottom: 1px solid #111; padding-bottom: 3px; margin-bottom: 9px; }
-#cv-for-pdf .cv-summary { font-size: 10.5pt; color: #222; line-height: 1.65; text-align: justify; }
-#cv-for-pdf .cv-exp-item { margin-bottom: 12px; }
-#cv-for-pdf .cv-exp-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 2px; }
-#cv-for-pdf .cv-exp-title { font-family: 'DM Sans', sans-serif; font-size: 10.5pt; font-weight: 600; color: #111; }
-#cv-for-pdf .cv-exp-date { font-family: 'DM Sans', sans-serif; font-size: 8.5pt; color: #555; white-space: nowrap; }
-#cv-for-pdf .cv-exp-badge { display: inline-block; font-family: 'DM Sans', sans-serif; font-size: 7.5pt; font-weight: 500; padding: 1px 5px; border: 1px solid #999; border-radius: 3px; color: #555; margin-left: 5px; vertical-align: middle; }
-#cv-for-pdf .cv-exp-meta { font-size: 10pt; color: #444; font-style: italic; margin-bottom: 4px; }
-#cv-for-pdf .cv-exp-desc { font-size: 10pt; color: #222; line-height: 1.6; }
-#cv-for-pdf .cv-exp-desc ul { padding-left: 1.2em; margin-top: 2px; }
-#cv-for-pdf .cv-exp-desc li { margin-bottom: 2px; }
-#cv-for-pdf .cv-edu-item { margin-bottom: 10px; }
-#cv-for-pdf .cv-edu-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
-#cv-for-pdf .cv-edu-degree { font-family: 'DM Sans', sans-serif; font-size: 10.5pt; font-weight: 600; color: #111; }
-#cv-for-pdf .cv-edu-date { font-family: 'DM Sans', sans-serif; font-size: 8.5pt; color: #555; white-space: nowrap; }
-#cv-for-pdf .cv-edu-school { font-size: 10pt; color: #444; font-style: italic; margin-top: 1px; }
-#cv-for-pdf .cv-edu-gpa { font-family: 'DM Sans', sans-serif; font-size: 8.5pt; color: #555; margin-top: 2px; }
-#cv-for-pdf .cv-edu-ach { font-size: 9.5pt; color: #333; margin-top: 3px; white-space: pre-wrap; }
-#cv-for-pdf .cv-skills-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 16px; }
-#cv-for-pdf .cv-skill-group-label { font-family: 'DM Sans', sans-serif; font-size: 8.5pt; font-weight: 600; color: #333; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
-#cv-for-pdf .cv-skill-chips { display: flex; flex-wrap: wrap; gap: 3px; }
-#cv-for-pdf .cv-skill-chip { font-family: 'DM Sans', sans-serif; font-size: 8.5pt; color: #222; padding: 1px 7px; border: 1px solid #ccc; border-radius: 3px; background: #f8f8f8; }
-#cv-for-pdf .cv-achievements { font-size: 10pt; color: #222; line-height: 1.65; white-space: pre-wrap; }
-#cv-for-pdf .cv-references { font-size: 10pt; color: #555; font-style: italic; }
-
-/* ── MOBILE ── */
-@media (max-width: 800px) {
-  .page-wrapper { grid-template-columns: 1fr; padding: 5rem 1.25rem 3rem; gap: 1.5rem; }
-  .right-col .summary-card { position: static; }
-  nav { padding: 0.8rem 1.25rem; }
-  .nav-center { display: none; }
-}
-@media (max-width: 500px) {
-  .success-actions { flex-direction: column; }
-  .btn-download-again, .btn-start-over { width: 100%; justify-content: center; }
+@media(max-width:480px){
+  .sacts{flex-direction:column}
+  .btn-dl,.btn-ghost{width:100%;justify-content:center}
 }
 </style>
 </head>
 <body>
 
-<!-- HIDDEN CV ELEMENT FOR PDF RENDERING -->
-<div id="cv-for-pdf" aria-hidden="true"></div>
-
 <!-- TOAST -->
 <div class="toast" id="toast" role="alert" aria-live="polite">
-  <span id="toast-icon">ℹ</span>
-  <span id="toast-msg"></span>
+  <span id="t-icon">ℹ</span><span id="t-msg"></span>
 </div>
 
 <!-- SUCCESS OVERLAY -->
-<div class="success-overlay" id="success-overlay" role="dialog" aria-modal="true" aria-label="CV Generated Successfully">
-  <div class="success-anim" aria-hidden="true">
-    <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="20 6 9 17 4 12"/>
-    </svg>
-  </div>
-  <h2 class="success-title">
-    <span data-i18n="success_title_1">Your CV is</span>
-    <em data-i18n="success_title_2"> ready!</em>
-  </h2>
-  <p class="success-sub" data-i18n="success_sub">Your ATS-friendly PDF has been generated and downloaded. Good luck with your application!</p>
-  <div id="success-email-status" class="success-email-status"></div>
-  <div class="success-actions">
-    <button class="btn-download-again" id="btn-download-again" onclick="downloadAgain()">
-      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-      </svg>
-      <span data-i18n="btn_download_again">Download Again</span>
+<div class="success" id="success" role="dialog" aria-modal="true">
+  <div class="sr"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+  <h2 class="stitle"><span data-i18n="s1">Your CV is</span> <em data-i18n="s2">ready!</em></h2>
+  <p class="ssub" data-i18n="s3">Your ATS-friendly PDF has been downloaded. Good luck with your application!</p>
+  <div id="ebadge" class="ebadge"></div>
+  <div class="sacts" style="margin-top:1.5rem">
+    <button class="btn-dl" onclick="triggerDownload()">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span data-i18n="s_dl">Download Again</span>
     </button>
-    <a href="form.html" class="btn-start-over" onclick="clearSession()">
-      <span data-i18n="btn_start_over">Start New CV</span>
-    </a>
-    <a href="index.html" class="btn-start-over">
-      <span data-i18n="btn_home">← Home</span>
-    </a>
+    <a href="form.html" class="btn-ghost" onclick="clearSession()"><span data-i18n="s_new">Start New CV</span></a>
+    <a href="index.html" class="btn-ghost"><span data-i18n="s_home">← Home</span></a>
   </div>
 </div>
 
 <!-- NAV -->
 <nav>
-  <a href="index.html" class="nav-logo">Craft<span>CV</span></a>
-  <div class="nav-center" aria-label="Progress steps">
-    <span class="nav-step done" data-i18n="nav_step_fill">Fill Form</span>
-    <span class="nav-step done" data-i18n="nav_step_preview">Preview</span>
-    <span class="nav-step active" data-i18n="nav_step_generate">Generate PDF</span>
+  <a href="index.html" class="logo">Craft<span>CV</span></a>
+  <div class="nav-steps">
+    <span class="ns done" data-i18n="n1">Fill Form</span>
+    <span class="ns done" data-i18n="n2">Preview</span>
+    <span class="ns active" data-i18n="n3">Generate PDF</span>
   </div>
-  <div class="nav-right">
-    <div class="lang-toggle">
-      <button class="lang-btn active" id="btn-en" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" id="btn-id" onclick="setLang('id')">ID</button>
+  <div class="nav-r">
+    <div class="lt">
+      <button class="lb active" id="btn-en" onclick="setLang('en')">EN</button>
+      <button class="lb" id="btn-id" onclick="setLang('id')">ID</button>
     </div>
   </div>
 </nav>
 
-<!-- MAIN PAGE -->
-<div class="page-wrapper" id="page-wrapper">
+<!-- MAIN -->
+<div class="page">
 
-  <!-- LEFT COLUMN -->
-  <div class="left-col">
-    <p class="page-eyebrow" data-i18n="page_eyebrow">Final Step</p>
-    <h1 class="page-title">
-      <span data-i18n="page_title_1">Generate &</span>
-      <em data-i18n="page_title_2"> download</em><br>
-      <span data-i18n="page_title_3">your CV</span>
-    </h1>
-    <p class="page-sub" data-i18n="page_sub">Your ATS-optimised resume is ready to export. Customise the file name, format, and optionally receive an email copy.</p>
+<!-- ═══════════ LEFT ═══════════ -->
+<div>
+  <p class="eyebrow" data-i18n="ey">Final Step</p>
+  <h1 class="page-title"><span data-i18n="pt1">Generate &</span> <em data-i18n="pt2">download</em><br><span data-i18n="pt3">your CV</span></h1>
+  <p class="page-sub" data-i18n="psub">Your ATS-optimised resume is ready. Customise the filename, then generate a real vector PDF — not a screenshot, so ATS systems read it perfectly.</p>
 
-    <!-- PDF CARD -->
-    <div class="gen-card">
-      <div class="gen-card-header">
-        <div class="gen-card-icon pdf-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/>
-            <line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/>
-          </svg>
-        </div>
-        <div>
-          <p class="gen-card-title" data-i18n="pdf_card_title">Download as PDF</p>
-          <p class="gen-card-sub" data-i18n="pdf_card_sub">ATS-friendly, single-column, A4 format</p>
+  <!-- PDF CARD -->
+  <div class="card">
+    <div class="ch">
+      <div class="ci pdf" aria-hidden="true">
+        <svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+      </div>
+      <div><p class="ct" data-i18n="pdf_t">Download as PDF</p><p class="cs" data-i18n="pdf_s">jsPDF vector text · ATS-readable · A4 or Letter</p></div>
+    </div>
+    <div class="cb">
+
+      <div class="og">
+        <label class="ol" for="fname" data-i18n="l_fn">File Name</label>
+        <div class="fw"><input class="fi" type="text" id="fname" value="My_CV" maxlength="60"><span class="fe">.pdf</span></div>
+      </div>
+
+      <div class="og">
+        <span class="ol" data-i18n="l_ps">Paper Size</span>
+        <div class="or">
+          <button class="pill sel" data-g="paper" data-v="a4" onclick="pick(this,'paper')">A4</button>
+          <button class="pill" data-g="paper" data-v="letter" onclick="pick(this,'paper')">US Letter</button>
         </div>
       </div>
-      <div class="gen-card-body">
 
-        <!-- File name -->
-        <div class="option-group">
-          <label class="option-label" for="filename" data-i18n="label_filename">File Name</label>
-          <div class="filename-wrap">
-            <input class="filename-input" type="text" id="filename" value="My_CV" maxlength="60" placeholder="My_CV" aria-label="PDF filename">
-            <span class="filename-ext">.pdf</span>
-          </div>
+      <div class="og">
+        <span class="ol" data-i18n="l_mg">Side Margins</span>
+        <div class="or">
+          <button class="pill" data-g="mg" data-v="14" onclick="pick(this,'mg')" data-i18n="mg1">Narrow (14 mm)</button>
+          <button class="pill sel" data-g="mg" data-v="20" onclick="pick(this,'mg')" data-i18n="mg2">Normal (20 mm)</button>
+          <button class="pill" data-g="mg" data-v="28" onclick="pick(this,'mg')" data-i18n="mg3">Wide (28 mm)</button>
         </div>
+      </div>
 
-        <!-- Paper size -->
-        <div class="option-group">
-          <span class="option-label" data-i18n="label_paper">Paper Size</span>
-          <div class="option-row" role="radiogroup" aria-label="Paper size">
-            <button class="option-pill selected" data-group="paper" data-val="a4" onclick="selectOption(this,'paper')" role="radio" aria-checked="true">A4</button>
-            <button class="option-pill" data-group="paper" data-val="letter" onclick="selectOption(this,'paper')" role="radio" aria-checked="false">US Letter</button>
-          </div>
+      <button class="btn-gen" id="btn-gen" onclick="generatePDF()">
+        <svg id="gico" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span id="glbl" data-i18n="btn_gen">Generate &amp; Download PDF</span>
+      </button>
+
+      <div class="pw" id="pw">
+        <div class="pt"><div class="pf" id="pf"></div></div>
+        <p class="pl" id="pl" data-i18n="pr1">Building your PDF…</p>
+      </div>
+
+      <div class="notice n-ink"><span class="ni">💡</span>
+        <p data-i18n="pdf_note">PDF is generated in your browser by <strong>jsPDF</strong> — pure vector text, no screenshot. Every word is machine-readable by ATS systems.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL CARD -->
+  <div class="card">
+    <div class="ch">
+      <div class="ci mail" aria-hidden="true">
+        <svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div><p class="ct" data-i18n="em_t">Email a Copy</p><p class="cs" data-i18n="em_s">Receive a formatted CV summary in your inbox</p></div>
+    </div>
+    <div class="cb">
+      <label class="tr" for="etog">
+        <div class="sw">
+          <input type="checkbox" id="etog" onchange="toggleEmail()">
+          <div class="sw-t"></div><div class="sw-th"></div>
         </div>
+        <span class="tt" data-i18n="etog_lbl">Send me an email copy</span>
+      </label>
 
-        <!-- Margin -->
-        <div class="option-group">
-          <span class="option-label" data-i18n="label_margin">Margin</span>
-          <div class="option-row" role="radiogroup" aria-label="Margin">
-            <button class="option-pill" data-group="margin" data-val="10" onclick="selectOption(this,'margin')" role="radio" aria-checked="false" data-i18n="margin_narrow">Narrow</button>
-            <button class="option-pill selected" data-group="margin" data-val="16" onclick="selectOption(this,'margin')" role="radio" aria-checked="true" data-i18n="margin_normal">Normal</button>
-            <button class="option-pill" data-group="margin" data-val="24" onclick="selectOption(this,'margin')" role="radio" aria-checked="false" data-i18n="margin_wide">Wide</button>
-          </div>
+      <div class="ef" id="ef">
+        <div style="height:1.1rem"></div>
+        <div class="fld">
+          <label for="to-em" data-i18n="l_to">Your Email Address</label>
+          <input type="email" id="to-em" placeholder="you@email.com">
+          <span class="hint" data-i18n="h_to">A full CV summary will be sent here.</span>
         </div>
-
-        <!-- Generate button -->
-        <button class="btn-generate-pdf" id="btn-gen" onclick="generatePDF()" aria-live="polite">
-          <svg id="btn-gen-icon" viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-          </svg>
-          <span id="btn-gen-label" data-i18n="btn_generate">Generate & Download PDF</span>
+        <div class="fld">
+          <label for="em-note" data-i18n="l_note">Personal Note <span style="font-weight:300;color:var(--ink-faint)" data-i18n="opt">(optional)</span></label>
+          <textarea id="em-note" rows="2" placeholder="e.g. Applying to Google SWE — deadline Friday"></textarea>
+        </div>
+        <div class="notice n-amber" style="margin-bottom:.9rem"><span class="ni">⚙️</span>
+          <p data-i18n="ejs_req">Email requires your own <strong>free EmailJS credentials</strong>. Follow the setup guide below and enter them in the configuration card.</p>
+        </div>
+        <button class="btn-em" id="btn-em" onclick="sendEmail()">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <span id="em-lbl" data-i18n="btn_em">Send Email Copy</span>
         </button>
-
-        <!-- Progress -->
-        <div class="gen-progress" id="gen-progress">
-          <div class="gen-progress-bar-track">
-            <div class="gen-progress-bar-fill" id="gen-progress-fill"></div>
-          </div>
-          <p class="gen-progress-label" id="gen-progress-label" data-i18n="progress_rendering">Rendering your CV…</p>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- EMAIL CARD -->
-    <div class="gen-card">
-      <div class="gen-card-header">
-        <div class="gen-card-icon email-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-          </svg>
-        </div>
-        <div>
-          <p class="gen-card-title" data-i18n="email_card_title">Email a Copy</p>
-          <p class="gen-card-sub" data-i18n="email_card_sub">Receive a formatted summary of your CV details</p>
-        </div>
-      </div>
-      <div class="gen-card-body">
-
-        <div class="email-toggle-row">
-          <label class="toggle-switch-label" for="email-toggle">
-            <div class="toggle-switch">
-              <input type="checkbox" id="email-toggle" onchange="toggleEmail()" aria-label="Enable email copy">
-              <div class="toggle-track"></div>
-              <div class="toggle-thumb"></div>
-            </div>
-            <span class="toggle-text" data-i18n="email_toggle_label">Send me an email copy</span>
-          </label>
-        </div>
-
-        <div class="email-fields" id="email-fields">
-          <div class="field" style="margin-top:1.25rem;">
-            <label for="to-email" data-i18n="label_to_email">Your Email Address</label>
-            <input type="email" id="to-email" placeholder="you@email.com" autocomplete="email">
-            <span class="field-hint" data-i18n="hint_to_email">A summary of your CV will be sent to this address.</span>
-          </div>
-          <div class="field">
-            <label for="email-subject" data-i18n="label_subject">Subject Line</label>
-            <input type="text" id="email-subject" placeholder="My CV Details — CraftCV" id="email-subject">
-          </div>
-          <div class="field">
-            <label for="email-note" data-i18n="label_note">Personal Note <span style="font-weight:300;color:var(--ink-faint);" data-i18n="optional">(optional)</span></label>
-            <textarea id="email-note" rows="3" placeholder="Any extra notes to yourself about this application…"></textarea>
-          </div>
-
-          <button class="btn-send-email" id="btn-send" onclick="sendEmail()">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-            </svg>
-            <span data-i18n="btn_send_email">Send Email Copy</span>
-          </button>
-
-          <div class="emailjs-notice">
-            <span class="notice-icon">🔒</span>
-            <p data-i18n="emailjs_notice">Email is sent via <strong>EmailJS</strong> directly from your browser. <strong>No data passes through any server we control.</strong> You'll need to configure your own EmailJS Service ID, Template ID, and Public Key below for this to work. See the setup instructions in the README.</p>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-    <!-- EMAILJS CONFIG CARD -->
-    <div class="gen-card" id="emailjs-config-card" style="display:none;">
-      <div class="gen-card-header">
-        <div class="gen-card-icon" style="background:var(--cream-dark);color:var(--ink-light);" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 19.07a10 10 0 010-14.14"/>
-          </svg>
-        </div>
-        <div>
-          <p class="gen-card-title" data-i18n="config_card_title">EmailJS Configuration</p>
-          <p class="gen-card-sub" data-i18n="config_card_sub">Enter your EmailJS credentials (stored in browser only, never sent anywhere)</p>
-        </div>
-      </div>
-      <div class="gen-card-body">
-        <div class="field">
-          <label for="ejs-service" data-i18n="label_ejs_service">Service ID</label>
-          <input type="text" id="ejs-service" placeholder="service_xxxxxxx">
-        </div>
-        <div class="field">
-          <label for="ejs-template" data-i18n="label_ejs_template">Template ID</label>
-          <input type="text" id="ejs-template" placeholder="template_xxxxxxx">
-        </div>
-        <div class="field">
-          <label for="ejs-pubkey" data-i18n="label_ejs_pubkey">Public Key</label>
-          <input type="text" id="ejs-pubkey" placeholder="xxxxxxxxxxxxxxxxxxxxxx">
-          <span class="field-hint" data-i18n="hint_ejs_pubkey">Find these in your EmailJS dashboard → Account → API Keys</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- DISCLAIMER -->
-    <div class="disclaimer-box">
-      <span class="disclaimer-icon">🛡️</span>
-      <p data-i18n="disclaimer_text"><strong>Portfolio project:</strong> This tool stores no data on any server. PDF generation happens entirely in your browser via html2pdf.js. Email sending uses EmailJS client SDK — data goes directly to EmailJS's API, not through any server we own. Your CV data is only in your browser's sessionStorage and is cleared when you close the tab.</p>
-    </div>
-
-  </div>
-
-  <!-- RIGHT COLUMN: MINI CV SUMMARY -->
-  <div class="right-col">
-    <div class="summary-card">
-      <div class="summary-card-header">
-        <p class="summary-card-title" data-i18n="summary_card_title">Your CV Summary</p>
-        <a href="preview.html" class="summary-back">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-          <span data-i18n="btn_back_preview">Back to Preview</span>
-        </a>
-      </div>
-      <div class="mini-cv" id="mini-cv">
-        <!-- Rendered by JS -->
-      </div>
-      <div class="summary-card-footer">
-        <div class="footer-check ok" aria-hidden="true">✓</div>
-        <span class="footer-text" data-i18n="footer_ats">ATS-optimised format · Ready to generate</span>
       </div>
     </div>
   </div>
 
+  <!-- EMAILJS CONFIG + GUIDE CARD -->
+  <div class="card" id="cfg-card" style="display:none">
+    <div class="ch">
+      <div class="ci cfg" aria-hidden="true">
+        <svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
+      </div>
+      <div><p class="ct" data-i18n="cfg_t">EmailJS Setup Guide</p><p class="cs" data-i18n="cfg_s">Free · 200 emails/month · No backend required</p></div>
+    </div>
+    <div class="cb">
+
+      <div class="notice n-sage"><span class="ni">🔒</span>
+        <p data-i18n="cfg_priv">EmailJS sends email <strong>directly from your browser</strong>. Your CV data never touches any server you don't own. Credentials are only stored in this browser session.</p>
+      </div>
+
+      <p style="font-size:.79rem;font-weight:500;color:var(--ink-mid);margin:1rem 0 .6rem" data-i18n="guide_h">Step-by-step: get your free credentials</p>
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="stxt">Create a free account at <a href="https://www.emailjs.com" target="_blank" rel="noopener noreferrer">emailjs.com</a> — no credit card needed. Free plan gives <strong>200 emails/month</strong>.</div></div>
+        <div class="step"><div class="snum">2</div><div class="stxt">In your dashboard → <strong>Email Services</strong> → <strong>Add New Service</strong>. Connect <strong>Gmail</strong>, Outlook, or any SMTP you own. After connecting, copy the <code>Service ID</code> shown (e.g. <code>service_abc1234</code>).</div></div>
+        <div class="step"><div class="snum">3</div><div class="stxt">Go to <strong>Email Templates</strong> → <strong>Create New Template</strong>. In the template body, use these variables:<br><br>
+          <code>{{to_name}}</code> — recipient's full name<br>
+          <code>{{cv_full_text}}</code> — full plain-text CV summary<br>
+          <code>{{personal_note}}</code> — personal note (if any)<br><br>
+          Set the <strong>To Email</strong> field to <code>{{to_email}}</code>.<br>
+          Set <strong>Reply To</strong> to <code>{{reply_to}}</code>.<br>
+          Suggested Subject: <code>Your CV Summary — {{to_name}}</code><br><br>
+          Copy the <code>Template ID</code> (e.g. <code>template_xyz9876</code>).
+        </div></div>
+        <div class="step"><div class="snum">4</div><div class="stxt">Go to <strong>Account</strong> → <strong>General</strong> → copy your <strong>Public Key</strong> (looks like a random 20-char string).</div></div>
+        <div class="step"><div class="snum">5</div><div class="stxt">Paste all three values in the fields below and click <strong>Save Credentials</strong>. Then use the <em>Send Email Copy</em> button above.</div></div>
+      </div>
+
+      <div style="height:1.25rem"></div>
+      <div class="fld">
+        <label for="ejs-svc" data-i18n="l_svc">Service ID</label>
+        <input type="text" id="ejs-svc" placeholder="service_xxxxxxx" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="fld">
+        <label for="ejs-tpl" data-i18n="l_tpl">Template ID</label>
+        <input type="text" id="ejs-tpl" placeholder="template_xxxxxxx" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="fld">
+        <label for="ejs-key" data-i18n="l_key">Public Key</label>
+        <input type="text" id="ejs-key" placeholder="xxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
+        <span class="hint" data-i18n="h_key">Dashboard → Account → General → Public Key</span>
+      </div>
+
+      <button class="btn-em" style="margin-top:.4rem" onclick="saveCfg()">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <span data-i18n="btn_save">Save Credentials</span>
+      </button>
+
+    </div>
+  </div>
+
+  <div class="disc">
+    <span style="font-size:.85rem;flex-shrink:0;margin-top:1px">🛡️</span>
+    <p data-i18n="disc">
+      <strong>Portfolio project notice:</strong> No data is stored on any server. PDF generation runs 100% in your browser via jsPDF. Email sending uses EmailJS's client-side SDK — your data goes directly to EmailJS's API and is not logged by this project. Your CV lives only in browser <code>sessionStorage</code> and is deleted when you close this tab.
+    </p>
+  </div>
 </div>
 
+<!-- ═══════════ RIGHT ═══════════ -->
+<div>
+  <div class="sc">
+    <div class="sc-h">
+      <p class="sc-t" data-i18n="sc_t">Your CV Summary</p>
+      <a href="preview.html" class="sc-b-link">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        <span data-i18n="sc_back">Back to Preview</span>
+      </a>
+    </div>
+    <div class="sc-body" id="mini-cv"><!-- js --></div>
+    <div class="sc-f">
+      <div class="fok" aria-hidden="true">✓</div>
+      <span class="ftxt" data-i18n="sc_foot">ATS-optimised · Ready to generate</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
 <script>
-/* ═══════════════════════════════════════
+/* ══════════════════════════════════════════════
    TRANSLATIONS
-═══════════════════════════════════════ */
-const i18n = {
-  en: {
-    nav_step_fill: "Fill Form",
-    nav_step_preview: "Preview",
-    nav_step_generate: "Generate PDF",
-    page_eyebrow: "Final Step",
-    page_title_1: "Generate &",
-    page_title_2: " download",
-    page_title_3: "your CV",
-    page_sub: "Your ATS-optimised resume is ready to export. Customise the file name, format, and optionally receive an email copy.",
-    pdf_card_title: "Download as PDF",
-    pdf_card_sub: "ATS-friendly, single-column, A4 format",
-    label_filename: "File Name",
-    label_paper: "Paper Size",
-    label_margin: "Margin",
-    margin_narrow: "Narrow",
-    margin_normal: "Normal",
-    margin_wide: "Wide",
-    btn_generate: "Generate & Download PDF",
-    progress_rendering: "Rendering your CV…",
-    progress_building: "Building PDF…",
-    progress_saving: "Saving file…",
-    email_card_title: "Email a Copy",
-    email_card_sub: "Receive a formatted summary of your CV details",
-    email_toggle_label: "Send me an email copy",
-    label_to_email: "Your Email Address",
-    hint_to_email: "A summary of your CV will be sent to this address.",
-    label_subject: "Subject Line",
-    label_note: "Personal Note",
-    optional: "(optional)",
-    btn_send_email: "Send Email Copy",
-    emailjs_notice: "Email is sent via <strong>EmailJS</strong> directly from your browser. <strong>No data passes through any server we control.</strong> You'll need to configure your own EmailJS Service ID, Template ID, and Public Key below for this to work.",
-    config_card_title: "EmailJS Configuration",
-    config_card_sub: "Enter your EmailJS credentials (stored in browser only, never sent anywhere)",
-    label_ejs_service: "Service ID",
-    label_ejs_template: "Template ID",
-    label_ejs_pubkey: "Public Key",
-    hint_ejs_pubkey: "Find these in your EmailJS dashboard → Account → API Keys",
-    disclaimer_text: "<strong>Portfolio project:</strong> This tool stores no data on any server. PDF generation happens entirely in your browser via html2pdf.js. Email sending uses EmailJS client SDK — data goes directly to EmailJS's API, not through any server we own. Your CV data is only in your browser's sessionStorage and is cleared when you close the tab.",
-    summary_card_title: "Your CV Summary",
-    btn_back_preview: "Back to Preview",
-    footer_ats: "ATS-optimised format · Ready to generate",
-    success_title_1: "Your CV is",
-    success_title_2: " ready!",
-    success_sub: "Your ATS-friendly PDF has been generated and downloaded. Good luck with your application!",
-    btn_download_again: "Download Again",
-    btn_start_over: "Start New CV",
-    btn_home: "← Home",
-    no_data_title: "No CV Data Found",
-    no_data_desc: "Please fill in the form first before generating your PDF.",
-    btn_go_form: "← Go to Form",
-    toast_generating: "Generating your PDF…",
-    toast_pdf_success: "PDF downloaded successfully!",
-    toast_pdf_error: "PDF generation failed. Please try again.",
-    toast_email_sending: "Sending email…",
-    toast_email_success: "Email sent successfully!",
-    toast_email_error: "Email sending failed. Check your EmailJS credentials.",
-    toast_email_missing: "Please enter your email address.",
-    toast_config_missing: "Please enter your EmailJS Service ID, Template ID, and Public Key.",
-    email_sent_notice: "✓ Email copy sent to ",
-    email_failed_notice: "⚠ Email could not be sent — check your EmailJS configuration.",
-    cv_section_summary: "Professional Summary",
-    cv_section_experience: "Work Experience",
-    cv_section_education: "Education",
-    cv_section_skills: "Skills",
-    cv_section_achievements: "Key Achievements",
-    cv_section_references: "References",
-    cv_skills_tech: "Technical Skills",
-    cv_skills_soft: "Soft Skills",
-    cv_skills_lang: "Languages",
-    cv_skills_cert: "Certifications",
-    cv_present: "Present",
-  },
-  id: {
-    nav_step_fill: "Isi Formulir",
-    nav_step_preview: "Pratinjau",
-    nav_step_generate: "Buat PDF",
-    page_eyebrow: "Langkah Terakhir",
-    page_title_1: "Buat &",
-    page_title_2: " unduh",
-    page_title_3: "CV Anda",
-    page_sub: "Resume yang dioptimalkan untuk ATS siap diekspor. Sesuaikan nama file, format, dan opsional terima salinan email.",
-    pdf_card_title: "Unduh sebagai PDF",
-    pdf_card_sub: "Format ramah ATS, satu kolom, ukuran A4",
-    label_filename: "Nama File",
-    label_paper: "Ukuran Kertas",
-    label_margin: "Margin",
-    margin_narrow: "Sempit",
-    margin_normal: "Normal",
-    margin_wide: "Lebar",
-    btn_generate: "Buat & Unduh PDF",
-    progress_rendering: "Merender CV Anda…",
-    progress_building: "Membangun PDF…",
-    progress_saving: "Menyimpan file…",
-    email_card_title: "Kirim Salinan Email",
-    email_card_sub: "Terima ringkasan terformat dari detail CV Anda",
-    email_toggle_label: "Kirimkan salinan email ke saya",
-    label_to_email: "Alamat Email Anda",
-    hint_to_email: "Ringkasan CV Anda akan dikirim ke alamat ini.",
-    label_subject: "Baris Subjek",
-    label_note: "Catatan Pribadi",
-    optional: "(opsional)",
-    btn_send_email: "Kirim Salinan Email",
-    emailjs_notice: "Email dikirim melalui <strong>EmailJS</strong> langsung dari browser Anda. <strong>Tidak ada data yang melewati server yang kami kendalikan.</strong> Anda perlu mengonfigurasi Service ID, Template ID, dan Public Key EmailJS Anda sendiri agar ini berfungsi.",
-    config_card_title: "Konfigurasi EmailJS",
-    config_card_sub: "Masukkan kredensial EmailJS Anda (disimpan di browser saja, tidak dikirim ke mana pun)",
-    label_ejs_service: "Service ID",
-    label_ejs_template: "Template ID",
-    label_ejs_pubkey: "Public Key",
-    hint_ejs_pubkey: "Temukan di dashboard EmailJS Anda → Account → API Keys",
-    disclaimer_text: "<strong>Proyek portofolio:</strong> Alat ini tidak menyimpan data di server mana pun. Pembuatan PDF terjadi sepenuhnya di browser Anda via html2pdf.js. Pengiriman email menggunakan SDK klien EmailJS — data langsung ke API EmailJS, bukan melalui server kami. Data CV Anda hanya ada di sessionStorage browser dan dihapus saat Anda menutup tab.",
-    summary_card_title: "Ringkasan CV Anda",
-    btn_back_preview: "Kembali ke Pratinjau",
-    footer_ats: "Format ramah ATS · Siap dibuat",
-    success_title_1: "CV Anda",
-    success_title_2: " siap!",
-    success_sub: "PDF ramah ATS Anda telah dibuat dan diunduh. Semoga sukses dengan lamaran Anda!",
-    btn_download_again: "Unduh Lagi",
-    btn_start_over: "Buat CV Baru",
-    btn_home: "← Beranda",
-    no_data_title: "Data CV Tidak Ditemukan",
-    no_data_desc: "Harap isi formulir terlebih dahulu sebelum membuat PDF.",
-    btn_go_form: "← Ke Formulir",
-    toast_generating: "Membuat PDF Anda…",
-    toast_pdf_success: "PDF berhasil diunduh!",
-    toast_pdf_error: "Pembuatan PDF gagal. Silakan coba lagi.",
-    toast_email_sending: "Mengirim email…",
-    toast_email_success: "Email berhasil dikirim!",
-    toast_email_error: "Pengiriman email gagal. Periksa kredensial EmailJS Anda.",
-    toast_email_missing: "Masukkan alamat email Anda.",
-    toast_config_missing: "Masukkan Service ID, Template ID, dan Public Key EmailJS Anda.",
-    email_sent_notice: "✓ Salinan email dikirim ke ",
-    email_failed_notice: "⚠ Email tidak dapat dikirim — periksa konfigurasi EmailJS Anda.",
-    cv_section_summary: "Ringkasan Profesional",
-    cv_section_experience: "Pengalaman Kerja",
-    cv_section_education: "Pendidikan",
-    cv_section_skills: "Keahlian",
-    cv_section_achievements: "Pencapaian Utama",
-    cv_section_references: "Referensi",
-    cv_skills_tech: "Keahlian Teknis",
-    cv_skills_soft: "Soft Skills",
-    cv_skills_lang: "Bahasa",
-    cv_skills_cert: "Sertifikasi",
-    cv_present: "Sekarang",
+══════════════════════════════════════════════ */
+const TR={
+en:{
+  ey:'Final Step',pt1:'Generate &',pt2:'download',pt3:'your CV',
+  psub:'Your ATS-optimised resume is ready. Customise the filename, then generate a real vector PDF — not a screenshot, so ATS systems read it perfectly.',
+  n1:'Fill Form',n2:'Preview',n3:'Generate PDF',
+  pdf_t:'Download as PDF',pdf_s:'jsPDF vector text · ATS-readable · A4 or Letter',
+  l_fn:'File Name',l_ps:'Paper Size',l_mg:'Side Margins',
+  mg1:'Narrow (14 mm)',mg2:'Normal (20 mm)',mg3:'Wide (28 mm)',
+  btn_gen:'Generate & Download PDF',
+  pr1:'Building your PDF…',pr2:'Writing sections…',pr3:'Saving file…',
+  pdf_note:'PDF is generated in your browser by <strong>jsPDF</strong> — pure vector text, no screenshot. Every word is machine-readable by ATS systems.',
+  em_t:'Email a Copy',em_s:'Receive a formatted CV summary in your inbox',
+  etog_lbl:'Send me an email copy',
+  l_to:'Your Email Address',h_to:'A full CV summary will be sent here.',
+  l_note:'Personal Note',opt:'(optional)',
+  ejs_req:'Email requires your own <strong>free EmailJS credentials</strong>. Follow the setup guide below and enter them in the configuration card.',
+  btn_em:'Send Email Copy',
+  cfg_t:'EmailJS Setup Guide',cfg_s:'Free · 200 emails/month · No backend required',
+  cfg_priv:'EmailJS sends email <strong>directly from your browser</strong>. Your CV data never touches any server you don\'t own. Credentials are only stored in this browser session.',
+  guide_h:'Step-by-step: get your free credentials',
+  l_svc:'Service ID',l_tpl:'Template ID',l_key:'Public Key',
+  h_key:'Dashboard → Account → General → Public Key',
+  btn_save:'Save Credentials',
+  disc:'<strong>Portfolio project notice:</strong> No data is stored on any server. PDF generation runs 100% in your browser via jsPDF. Email sending uses EmailJS\'s client-side SDK — your data goes directly to EmailJS\'s API and is not logged by this project. Your CV lives only in browser <code>sessionStorage</code> and is deleted when you close this tab.',
+  sc_t:'Your CV Summary',sc_back:'Back to Preview',sc_foot:'ATS-optimised · Ready to generate',
+  s1:'Your CV is',s2:'ready!',s3:'Your ATS-friendly PDF has been downloaded. Good luck with your application!',
+  s_dl:'Download Again',s_new:'Start New CV',s_home:'← Home',
+  t_gen:'Building your PDF…',t_done:'PDF downloaded!',t_err:'PDF failed — see browser console.',
+  t_sending:'Sending email…',t_ok:'Email sent!',t_fail:'Email failed — check EmailJS credentials.',
+  t_nomail:'Enter your email address first.',t_nocfg:'Enter your EmailJS Service ID, Template ID, and Public Key.',
+  t_saved:'EmailJS credentials saved.',
+  eb_ok:'✓ Email sent to ',eb_fail:'⚠ Email failed — check your EmailJS configuration.',
+  cv_sum:'Professional Summary',cv_exp:'Work Experience',cv_edu:'Education',
+  cv_sk:'Skills',cv_skt:'Technical Skills',cv_sks:'Soft Skills',cv_skl:'Languages',cv_skc:'Certifications',
+  cv_ach:'Key Achievements',cv_ref:'References',cv_now:'Present',
+  nd_t:'No CV Data Found',nd_d:'Fill in the form first before generating a PDF.',nd_go:'← Go to Form',
+},
+id:{
+  ey:'Langkah Terakhir',pt1:'Buat &',pt2:'unduh',pt3:'CV Anda',
+  psub:'Resume yang dioptimalkan untuk ATS siap diekspor. Sesuaikan nama file, lalu buat PDF vektor nyata — bukan screenshot, sehingga sistem ATS membacanya sempurna.',
+  n1:'Isi Formulir',n2:'Pratinjau',n3:'Buat PDF',
+  pdf_t:'Unduh sebagai PDF',pdf_s:'Teks vektor jsPDF · Dapat dibaca ATS · A4 atau Letter',
+  l_fn:'Nama File',l_ps:'Ukuran Kertas',l_mg:'Margin Samping',
+  mg1:'Sempit (14 mm)',mg2:'Normal (20 mm)',mg3:'Lebar (28 mm)',
+  btn_gen:'Buat & Unduh PDF',
+  pr1:'Membangun PDF Anda…',pr2:'Menulis bagian CV…',pr3:'Menyimpan file…',
+  pdf_note:'PDF dibuat di browser Anda menggunakan <strong>jsPDF</strong> — teks vektor murni, bukan screenshot. Setiap kata dapat dibaca oleh sistem ATS dengan sempurna.',
+  em_t:'Kirim Salinan Email',em_s:'Terima ringkasan CV terformat di kotak masuk Anda',
+  etog_lbl:'Kirimkan salinan email ke saya',
+  l_to:'Alamat Email Anda',h_to:'Ringkasan CV lengkap akan dikirim ke sini.',
+  l_note:'Catatan Pribadi',opt:'(opsional)',
+  ejs_req:'Email memerlukan <strong>kredensial EmailJS gratis Anda sendiri</strong>. Ikuti panduan setup di bawah dan masukkan di kartu konfigurasi.',
+  btn_em:'Kirim Salinan Email',
+  cfg_t:'Panduan Setup EmailJS',cfg_s:'Gratis · 200 email/bulan · Tidak perlu backend',
+  cfg_priv:'EmailJS mengirim email <strong>langsung dari browser Anda</strong>. Data CV Anda tidak pernah menyentuh server yang tidak Anda miliki.',
+  guide_h:'Langkah demi langkah: dapatkan kredensial gratis Anda',
+  l_svc:'Service ID',l_tpl:'Template ID',l_key:'Public Key',
+  h_key:'Dashboard → Account → General → Public Key',
+  btn_save:'Simpan Kredensial',
+  disc:'<strong>Pemberitahuan proyek portofolio:</strong> Tidak ada data yang disimpan di server mana pun. Pembuatan PDF berjalan 100% di browser Anda melalui jsPDF. Pengiriman email menggunakan SDK sisi klien EmailJS. Data CV Anda hanya ada di <code>sessionStorage</code> browser dan dihapus saat Anda menutup tab.',
+  sc_t:'Ringkasan CV Anda',sc_back:'Kembali ke Pratinjau',sc_foot:'Format ramah ATS · Siap dibuat',
+  s1:'CV Anda',s2:'siap!',s3:'PDF ramah ATS Anda telah diunduh. Semoga sukses dengan lamaran Anda!',
+  s_dl:'Unduh Lagi',s_new:'Buat CV Baru',s_home:'← Beranda',
+  t_gen:'Membangun PDF Anda…',t_done:'PDF berhasil diunduh!',t_err:'PDF gagal — periksa konsol browser.',
+  t_sending:'Mengirim email…',t_ok:'Email berhasil dikirim!',t_fail:'Email gagal — periksa kredensial EmailJS.',
+  t_nomail:'Masukkan alamat email Anda terlebih dahulu.',t_nocfg:'Masukkan Service ID, Template ID, dan Public Key EmailJS Anda.',
+  t_saved:'Kredensial EmailJS tersimpan.',
+  eb_ok:'✓ Email dikirim ke ',eb_fail:'⚠ Email gagal — periksa konfigurasi EmailJS Anda.',
+  cv_sum:'Ringkasan Profesional',cv_exp:'Pengalaman Kerja',cv_edu:'Pendidikan',
+  cv_sk:'Keahlian',cv_skt:'Keahlian Teknis',cv_sks:'Soft Skills',cv_skl:'Bahasa',cv_skc:'Sertifikasi',
+  cv_ach:'Pencapaian Utama',cv_ref:'Referensi',cv_now:'Sekarang',
+  nd_t:'Data CV Tidak Ditemukan',nd_d:'Isi formulir terlebih dahulu sebelum membuat PDF.',nd_go:'← Ke Formulir',
+}};
+
+let lang=localStorage.getItem('craftcv_lang')||'en';
+let cvData=null;
+let lastBlob=null;
+const opts={paper:'a4',mg:20};
+
+function t(k){return (TR[lang]||TR.en)[k]||TR.en[k]||k;}
+
+function setLang(l){
+  lang=l; localStorage.setItem('craftcv_lang',l); document.documentElement.lang=l;
+  document.getElementById('btn-en').classList.toggle('active',l==='en');
+  document.getElementById('btn-id').classList.toggle('active',l==='id');
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const k=el.getAttribute('data-i18n');
+    if((TR[l]||TR.en)[k]!==undefined) el.innerHTML=(TR[l]||TR.en)[k];
+  });
+  if(cvData) renderMini(cvData);
+}
+
+/* OPTIONS */
+function pick(btn,group){
+  document.querySelectorAll(`[data-g="${group}"]`).forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+  if(group==='paper') opts.paper=btn.dataset.v;
+  if(group==='mg')    opts.mg=parseInt(btn.dataset.v);
+}
+
+/* TOAST */
+let toastT;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  document.getElementById('t-msg').textContent=msg;
+  document.getElementById('t-icon').textContent=type==='ok'?'✓':type==='err'?'✗':'ℹ';
+  el.className=`toast show${type?' '+type:''}`;
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),4200);
+}
+
+/* EMAIL TOGGLE */
+function toggleEmail(){
+  const on=document.getElementById('etog').checked;
+  document.getElementById('ef').classList.toggle('show',on);
+  document.getElementById('cfg-card').style.display=on?'block':'none';
+  if(on&&cvData){
+    const p=cvData.personal||{};
+    document.getElementById('to-em').value=cvData.extras?.copyEmail||p.email||'';
   }
-};
-
-let currentLang = localStorage.getItem('craftcv_lang') || 'en';
-let cvData = null;
-let pdfBlob = null;
-
-function t(key) { return i18n[currentLang][key] || i18n.en[key] || key; }
-
-/* ═══════════════════════════════════════
-   LANGUAGE
-═══════════════════════════════════════ */
-function setLang(lang) {
-  currentLang = lang;
-  localStorage.setItem('craftcv_lang', lang);
-  document.documentElement.lang = lang;
-  document.getElementById('btn-en').classList.toggle('active', lang === 'en');
-  document.getElementById('btn-id').classList.toggle('active', lang === 'id');
-  document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.getAttribute('data-i18n');
-    if (i18n[lang][key] !== undefined) el.innerHTML = i18n[lang][key];
-  });
-  if (cvData) renderMiniCV(cvData);
 }
 
-/* ═══════════════════════════════════════
-   OPTIONS
-═══════════════════════════════════════ */
-const opts = { paper: 'a4', margin: '16' };
-function selectOption(btn, group) {
-  document.querySelectorAll(`[data-group="${group}"]`).forEach(b => {
-    b.classList.remove('selected');
-    b.setAttribute('aria-checked', 'false');
-  });
-  btn.classList.add('selected');
-  btn.setAttribute('aria-checked', 'true');
-  opts[group] = btn.dataset.val;
+/* EMAILJS CONFIG */
+function saveCfg(){
+  const s=document.getElementById('ejs-svc').value.trim();
+  const tp=document.getElementById('ejs-tpl').value.trim();
+  const k=document.getElementById('ejs-key').value.trim();
+  if(!s||!tp||!k){toast(t('t_nocfg'),'err');return;}
+  sessionStorage.setItem('ejs_cfg',JSON.stringify({s,tp,k}));
+  toast(t('t_saved'),'ok');
+}
+function loadCfg(){
+  try{
+    const c=JSON.parse(sessionStorage.getItem('ejs_cfg')||'{}');
+    if(c.s)  document.getElementById('ejs-svc').value=c.s;
+    if(c.tp) document.getElementById('ejs-tpl').value=c.tp;
+    if(c.k)  document.getElementById('ejs-key').value=c.k;
+  }catch(e){}
 }
 
-function toggleEmail() {
-  const on = document.getElementById('email-toggle').checked;
-  const fields = document.getElementById('email-fields');
-  const configCard = document.getElementById('emailjs-config-card');
-  if (on) {
-    fields.classList.add('show');
-    configCard.style.display = 'block';
-    // Pre-fill from CV data
-    if (cvData && cvData.personal && cvData.personal.email) {
-      document.getElementById('to-email').value = cvData.extras?.copyEmail || cvData.personal.email || '';
+/* ══════════════════════════════════════════════
+   PDF GENERATION — jsPDF TEXT PRIMITIVES
+   Pure vector. No html2canvas. No blank pages.
+══════════════════════════════════════════════ */
+function fmtM(s){
+  if(!s)return '';
+  const[y,m]=s.split('-');
+  const ME=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MI=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  return ((lang==='id'?MI:ME)[parseInt(m)-1]||'')+' '+y;
+}
+
+function generatePDF(){
+  if(!cvData){toast(t('t_err'),'err');return;}
+
+  const btn=document.getElementById('btn-gen');
+  const lbl=document.getElementById('glbl');
+  const ico=document.getElementById('gico');
+  const pw=document.getElementById('pw');
+  const pf=document.getElementById('pf');
+  const pl=document.getElementById('pl');
+
+  btn.disabled=true;
+  lbl.textContent=t('pr1');
+  ico.innerHTML=`<circle cx="12" cy="12" r="9" fill="none" stroke-width="2.5"/><path d="M12 6v6l3 3" fill="none"/>`;
+  ico.classList.add('spin');
+  pw.classList.add('show');
+  pf.style.width='10%';
+  toast(t('t_gen'));
+
+  setTimeout(()=>{
+    try{
+      const{jsPDF}=window.jspdf;
+      const isA4=opts.paper==='a4';
+      const PW=isA4?210:215.9, PH=isA4?297:279.4;
+      const MG=opts.mg;       // side margin mm
+      const TW=PW-MG*2;       // usable text width
+      let Y=MG;               // current Y position
+
+      const doc=new jsPDF({unit:'mm',format:isA4?'a4':'letter',orientation:'portrait'});
+
+      /* ── layout constants ── */
+      const LH  =5.5;  // normal line height
+      const LHS =4.8;  // small line height
+      const GAP =3.5;  // between items in a section
+      const SGAP=5.5;  // between sections
+
+      /* ── helpers ── */
+      function needPage(need=12){
+        if(Y+need>PH-MG){doc.addPage();Y=MG;}
+      }
+      function txt(str,x,sz,bold,rgb,maxW,align){
+        doc.setFontSize(sz);
+        doc.setFont('helvetica',bold?'bold':'normal');
+        doc.setTextColor(...(rgb||[17,17,17]));
+        const s=String(str||'');
+        if(maxW){
+          const lines=doc.splitTextToSize(s,maxW);
+          doc.text(lines,x,Y,{align:align||'left'});
+          return lines.length*(sz*0.3528*1.4);
+        }
+        doc.text(s,x,Y,{align:align||'left'});
+        return sz*0.3528*1.4;
+      }
+      function secTitle(label){
+        needPage(12);
+        Y+=SGAP;
+        doc.setDrawColor(17,17,17);
+        doc.setLineWidth(0.45);
+        doc.line(MG,Y,MG+TW,Y);
+        Y+=4;
+        doc.setFontSize(8);
+        doc.setFont('helvetica','bold');
+        doc.setTextColor(17,17,17);
+        doc.text(label.toUpperCase(),MG,Y);
+        Y+=LH+1.5;
+      }
+
+      pf.style.width='30%'; pl.textContent=t('pr2');
+
+      const p =cvData.personal||{};
+      const ex=(cvData.experience||[]).filter(e=>e.title||e.company);
+      const ed=(cvData.education||[]).filter(e=>e.degree||e.school);
+      const sk=cvData.skills||{};
+      const xt=cvData.extras||{};
+      const fullName=`${p.firstName||''} ${p.lastName||''}`.trim();
+
+      /* ══ HEADER ══ */
+      doc.setFontSize(24);
+      doc.setFont('helvetica','bold');
+      doc.setTextColor(17,17,17);
+      doc.text(fullName,PW/2,Y+7,{align:'center'});
+      Y+=12;
+
+      if(p.jobTitle){
+        doc.setFontSize(12);
+        doc.setFont('helvetica','normal');
+        doc.setTextColor(80,80,80);
+        doc.text(p.jobTitle,PW/2,Y,{align:'center'});
+        Y+=LH+1;
+      }
+
+      const ctacts=[
+        p.email,p.phone,
+        [p.city,p.country].filter(Boolean).join(', '),
+        p.linkedin?p.linkedin.replace(/https?:\/\/(www\.)?/i,''):'',
+        p.website ?p.website.replace(/https?:\/\/(www\.)?/i,'') :'',
+        p.github  ?p.github.replace(/https?:\/\/(www\.)?/i,'')  :'',
+      ].filter(Boolean);
+      if(ctacts.length){
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica','normal');
+        doc.setTextColor(70,70,70);
+        const cstr=ctacts.join('  |  ');
+        const clines=doc.splitTextToSize(cstr,TW);
+        doc.text(clines,PW/2,Y,{align:'center'});
+        Y+=clines.length*4.5;
+      }
+      Y+=3;
+      doc.setDrawColor(17,17,17);
+      doc.setLineWidth(0.6);
+      doc.line(MG,Y,MG+TW,Y);
+      Y+=4.5;
+
+      /* ══ SUMMARY ══ */
+      if(cvData.summary&&cvData.summary.trim()){
+        secTitle(t('cv_sum'));
+        doc.setFontSize(10.5);
+        doc.setFont('helvetica','normal');
+        doc.setTextColor(30,30,30);
+        const lines=doc.splitTextToSize(cvData.summary.trim(),TW);
+        needPage(lines.length*LH+4);
+        doc.text(lines,MG,Y);
+        Y+=lines.length*LH+1;
+      }
+
+      pf.style.width='55%';
+
+      /* ══ EXPERIENCE ══ */
+      if(ex.length){
+        secTitle(t('cv_exp'));
+        ex.forEach(e=>{
+          needPage(16);
+          const ds=fmtM(e.start);
+          const de=e.current?t('cv_now'):fmtM(e.end);
+          const dateStr=[ds,de].filter(Boolean).join(' – ');
+          const badge=e.type?` [${e.type}]`:'';
+          // Job title (bold)
+          doc.setFontSize(10.5);
+          doc.setFont('helvetica','bold');
+          doc.setTextColor(17,17,17);
+          doc.text((e.title||'')+badge,MG,Y);
+          // Date right-aligned
+          if(dateStr){
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica','normal');
+            doc.setTextColor(90,90,90);
+            doc.text(dateStr,MG+TW,Y,{align:'right'});
+          }
+          Y+=LHS+0.5;
+          // Company · location
+          const meta=[e.company,e.location].filter(Boolean).join(' · ');
+          if(meta){
+            doc.setFontSize(10);
+            doc.setFont('helvetica','italic');
+            doc.setTextColor(80,80,80);
+            doc.text(meta,MG,Y);
+            Y+=LHS;
+          }
+          // Description with bullet parsing
+          if(e.desc&&e.desc.trim()){
+            const raw=e.desc.split('\n').map(l=>l.trim()).filter(Boolean);
+            const hasBullet=raw.some(l=>/^[•\-\*]/.test(l));
+            doc.setFontSize(10);
+            doc.setFont('helvetica','normal');
+            doc.setTextColor(40,40,40);
+            raw.forEach(line=>{
+              const clean=hasBullet?line.replace(/^[•\-\*]\s*/,''):line;
+              const pfx=hasBullet?'• ':'';
+              const ind=hasBullet?MG+2.5:MG;
+              const wid=hasBullet?TW-2.5:TW;
+              const wrapped=doc.splitTextToSize(pfx+clean,wid);
+              needPage(wrapped.length*LH+2);
+              doc.text(wrapped,ind,Y);
+              Y+=wrapped.length*LH;
+            });
+          }
+          Y+=GAP;
+        });
+      }
+
+      /* ══ EDUCATION ══ */
+      if(ed.length){
+        secTitle(t('cv_edu'));
+        ed.forEach(e=>{
+          needPage(13);
+          const de=e.current?t('cv_now'):e.end;
+          const dateStr=[e.start,de].filter(Boolean).join(' – ');
+          const deg=[e.degree,e.field].filter(Boolean).join(' in ');
+          doc.setFontSize(10.5);
+          doc.setFont('helvetica','bold');
+          doc.setTextColor(17,17,17);
+          doc.text(deg,MG,Y);
+          if(dateStr){
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica','normal');
+            doc.setTextColor(90,90,90);
+            doc.text(dateStr,MG+TW,Y,{align:'right'});
+          }
+          Y+=LHS+0.5;
+          const school=[e.school,e.location].filter(Boolean).join(', ');
+          if(school){
+            doc.setFontSize(10);
+            doc.setFont('helvetica','italic');
+            doc.setTextColor(80,80,80);
+            doc.text(school,MG,Y);
+            Y+=LHS;
+          }
+          if(e.gpa){
+            doc.setFontSize(8.5);
+            doc.setFont('helvetica','normal');
+            doc.setTextColor(100,100,100);
+            doc.text('GPA: '+e.gpa,MG,Y);
+            Y+=LHS;
+          }
+          if(e.achievements&&e.achievements.trim()){
+            doc.setFontSize(9.5);
+            doc.setFont('helvetica','normal');
+            doc.setTextColor(60,60,60);
+            const al=doc.splitTextToSize(e.achievements.trim(),TW);
+            needPage(al.length*LH+2);
+            doc.text(al,MG,Y);
+            Y+=al.length*LH;
+          }
+          Y+=GAP;
+        });
+      }
+
+      pf.style.width='78%';
+
+      /* ══ SKILLS ══ */
+      const hasSkills=(sk.tech||[]).length||(sk.soft||[]).length||(sk.languages||[]).length||(sk.certs||[]).length;
+      if(hasSkills){
+        secTitle(t('cv_sk'));
+        [
+          {label:t('cv_skt'),arr:sk.tech||[]},
+          {label:t('cv_sks'),arr:sk.soft||[]},
+          {label:t('cv_skl'),arr:sk.languages||[]},
+          {label:t('cv_skc'),arr:sk.certs||[]},
+        ].filter(g=>g.arr.length).forEach(g=>{
+          needPage(8);
+          const lw=doc.getStringUnitWidth(g.label.toUpperCase()+': ')*8.5*0.3528+1;
+          doc.setFontSize(8.5);
+          doc.setFont('helvetica','bold');
+          doc.setTextColor(50,50,50);
+          doc.text(g.label.toUpperCase()+': ',MG,Y);
+          doc.setFont('helvetica','normal');
+          doc.setTextColor(40,40,40);
+          const sstr=g.arr.join('  ·  ');
+          const slines=doc.splitTextToSize(sstr,TW-lw);
+          doc.text(slines[0]||'',MG+lw,Y);
+          Y+=LH;
+          for(let i=1;i<slines.length;i++){doc.text(slines[i],MG,Y);Y+=LH;}
+        });
+        Y+=1;
+      }
+
+      /* ══ ACHIEVEMENTS ══ */
+      if(xt.achievements&&xt.achievements.trim()){
+        secTitle(t('cv_ach'));
+        const raw=xt.achievements.split('\n').map(l=>l.trim()).filter(Boolean);
+        const hb=raw.some(l=>/^[•\-\*]/.test(l));
+        doc.setFontSize(10);
+        doc.setFont('helvetica','normal');
+        doc.setTextColor(40,40,40);
+        raw.forEach(line=>{
+          const cl=hb?line.replace(/^[•\-\*]\s*/,''):line;
+          const pfx=hb?'• ':'';
+          const wrapped=doc.splitTextToSize(pfx+cl,TW);
+          needPage(wrapped.length*LH+2);
+          doc.text(wrapped,MG,Y);
+          Y+=wrapped.length*LH;
+        });
+      }
+
+      /* ══ REFERENCES ══ */
+      if(xt.references&&xt.references.trim()){
+        secTitle(t('cv_ref'));
+        doc.setFontSize(10);
+        doc.setFont('helvetica','italic');
+        doc.setTextColor(90,90,90);
+        const rlines=doc.splitTextToSize(xt.references.trim(),TW);
+        needPage(rlines.length*LH+2);
+        doc.text(rlines,MG,Y);
+      }
+
+      pf.style.width='95%'; pl.textContent=t('pr3');
+
+      const fname=(document.getElementById('fname').value.trim()||'My_CV').replace(/\.pdf$/i,'')+'.pdf';
+      doc.save(fname);
+      lastBlob=doc.output('blob');
+
+      pf.style.width='100%';
+      toast(t('t_done'),'ok');
+
+      setTimeout(()=>{
+        btn.disabled=false;
+        lbl.textContent=t('btn_gen');
+        ico.innerHTML=`<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`;
+        ico.classList.remove('spin');
+        pw.classList.remove('show');
+        pf.style.width='0%';
+        showSuccess();
+      },700);
+
+    }catch(err){
+      console.error('jsPDF error:',err);
+      toast(t('t_err'),'err');
+      document.getElementById('btn-gen').disabled=false;
+      document.getElementById('glbl').textContent=t('btn_gen');
+      document.getElementById('gico').classList.remove('spin');
+      document.getElementById('pw').classList.remove('show');
     }
-    const name = cvData ? `${cvData.personal?.firstName || ''} ${cvData.personal?.lastName || ''}`.trim() : '';
-    document.getElementById('email-subject').value = `My CV — ${name}`;
-  } else {
-    fields.classList.remove('show');
-    configCard.style.display = 'none';
-  }
+  },80);
 }
 
-/* ═══════════════════════════════════════
-   TOAST
-═══════════════════════════════════════ */
-let toastTimer;
-function showToast(msg, type = '') {
-  const toast = document.getElementById('toast');
-  document.getElementById('toast-msg').textContent = msg;
-  document.getElementById('toast-icon').textContent = type === 'success' ? '✓' : type === 'error' ? '✗' : 'ℹ';
-  toast.className = `toast show${type ? ' ' + type : ''}`;
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 4000);
+function triggerDownload(){
+  if(!lastBlob){generatePDF();return;}
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(lastBlob);
+  a.download=(document.getElementById('fname').value.trim()||'My_CV')+'.pdf';
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
-/* ═══════════════════════════════════════
-   MINI CV RENDER (right panel)
-═══════════════════════════════════════ */
-function escHtml(str) {
-  if (!str) return '';
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* ══ SUCCESS ══ */
+function showSuccess(emailSent,addr){
+  document.getElementById('success').classList.add('show');
+  const b=document.getElementById('ebadge');
+  if(emailSent===true){b.textContent=t('eb_ok')+addr;b.className='ebadge ok';}
+  else if(emailSent===false){b.textContent=t('eb_fail');b.className='ebadge fail';}
+  else{b.className='ebadge';}
 }
 
-function renderMiniCV(d) {
-  const container = document.getElementById('mini-cv');
-  const p = d.personal || {};
-  const name = `${p.firstName || ''} ${p.lastName || ''}`.trim();
-  const exps = (d.experience || []).filter(e => e.title || e.company).slice(0, 3);
-  const edus = (d.education || []).filter(e => e.degree || e.school).slice(0, 2);
-  const sk = d.skills || {};
+/* ══ EMAIL ══ */
+async function sendEmail(){
+  const toEm=document.getElementById('to-em').value.trim();
+  const note=document.getElementById('em-note').value.trim();
+  let cfg={};
+  try{cfg=JSON.parse(sessionStorage.getItem('ejs_cfg')||'{}');}catch(e){}
+  const svc=document.getElementById('ejs-svc').value.trim()||cfg.s;
+  const tpl=document.getElementById('ejs-tpl').value.trim()||cfg.tp;
+  const key=document.getElementById('ejs-key').value.trim()||cfg.k;
+  if(!toEm){toast(t('t_nomail'),'err');document.getElementById('to-em').classList.add('err');return;}
+  if(!svc||!tpl||!key){toast(t('t_nocfg'),'warn');return;}
 
-  let html = '';
-  html += `<div class="mini-cv-name">${escHtml(name)}</div>`;
-  if (p.jobTitle) html += `<div class="mini-cv-role">${escHtml(p.jobTitle)}</div>`;
+  const btn=document.getElementById('btn-em');
+  const lbl=document.getElementById('em-lbl');
+  btn.disabled=true; lbl.textContent=t('t_sending');
+  toast(t('t_sending'));
 
-  // Contacts
-  if (p.email) html += `<div class="mini-contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>${escHtml(p.email)}</div>`;
-  if (p.phone) html += `<div class="mini-contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>${escHtml(p.phone)}</div>`;
+  const p =cvData.personal||{};
+  const ex=(cvData.experience||[]).filter(e=>e.title||e.company);
+  const ed=(cvData.education||[]).filter(e=>e.degree||e.school);
+  const sk=cvData.skills||{};
+  const xt=cvData.extras||{};
+  const full=`${p.firstName||''} ${p.lastName||''}`.trim();
 
-  if (exps.length) {
-    html += `<div class="mini-divider"></div><div class="mini-section-label">${t('cv_section_experience')}</div>`;
-    exps.forEach(e => {
-      html += `<div class="mini-entry"><div class="mini-dot"></div><div class="mini-text">${escHtml(e.title)}<br><span class="sub">${escHtml(e.company)}${e.start ? ' · ' + e.start.substring(0,4) : ''}</span></div></div>`;
+  let body=`========== CV SUMMARY ==========\n`;
+  body+=`Name     : ${full}\nRole     : ${p.jobTitle||''}\nEmail    : ${p.email||''}\nPhone    : ${p.phone||''}\n`;
+  body+=`Location : ${[p.city,p.country].filter(Boolean).join(', ')}\n`;
+  if(p.linkedin) body+=`LinkedIn : ${p.linkedin}\n`;
+  if(p.website)  body+=`Website  : ${p.website}\n`;
+  if(p.github)   body+=`GitHub   : ${p.github}\n`;
+  if(cvData.summary) body+=`\n--- Professional Summary ---\n${cvData.summary}\n`;
+  if(ex.length){
+    body+=`\n--- Work Experience ---\n`;
+    ex.forEach(e=>{
+      body+=`\n• ${e.title||''} at ${e.company||''}`;
+      if(e.start) body+=` (${fmtM(e.start)} – ${e.current?t('cv_now'):fmtM(e.end)})`;
+      if(e.type)  body+=` | ${e.type}`;
+      body+='\n';
+      if(e.location) body+=`  Location: ${e.location}\n`;
+      if(e.desc)     body+=`${e.desc.substring(0,500)}${e.desc.length>500?'…':''}\n`;
     });
   }
-
-  if (edus.length) {
-    html += `<div class="mini-divider"></div><div class="mini-section-label">${t('cv_section_education')}</div>`;
-    edus.forEach(e => {
-      html += `<div class="mini-entry"><div class="mini-dot"></div><div class="mini-text">${escHtml(e.degree)}<br><span class="sub">${escHtml(e.school)}</span></div></div>`;
+  if(ed.length){
+    body+=`\n--- Education ---\n`;
+    ed.forEach(e=>{
+      body+=`• ${[e.degree,e.field].filter(Boolean).join(' in ')} — ${e.school||''}`;
+      if(e.start||e.end) body+=` (${[e.start,e.current?t('cv_now'):e.end].filter(Boolean).join(' – ')})`;
+      if(e.gpa) body+=` | GPA: ${e.gpa}`;
+      body+='\n';
+      if(e.achievements) body+=`  ${e.achievements}\n`;
     });
   }
+  if((sk.tech||[]).length)      body+=`\n--- Technical Skills ---\n${sk.tech.join(', ')}\n`;
+  if((sk.soft||[]).length)      body+=`\n--- Soft Skills ---\n${sk.soft.join(', ')}\n`;
+  if((sk.languages||[]).length) body+=`\n--- Languages ---\n${sk.languages.join(', ')}\n`;
+  if((sk.certs||[]).length)     body+=`\n--- Certifications ---\n${sk.certs.join(', ')}\n`;
+  if(xt.achievements)           body+=`\n--- Key Achievements ---\n${xt.achievements}\n`;
+  if(note)                      body+=`\n--- Personal Note ---\n${note}\n`;
+  body+=`\n================================\nGenerated by CraftCV (Portfolio Project)\nNo data was stored on any server.\n`;
 
-  if ((sk.tech||[]).length) {
-    html += `<div class="mini-divider"></div><div class="mini-section-label">${t('cv_section_skills')}</div>`;
-    html += `<div class="mini-chips">`;
-    sk.tech.slice(0,6).forEach(s => html += `<span class="mini-chip">${escHtml(s)}</span>`);
-    if (sk.tech.length > 6) html += `<span class="mini-chip">+${sk.tech.length - 6}</span>`;
-    html += `</div>`;
-  }
+  const params={to_email:toEm,to_name:full,reply_to:p.email||toEm,cv_full_text:body,personal_note:note||'',cv_name:full,cv_role:p.jobTitle||''};
 
-  container.innerHTML = html;
-}
-
-/* ═══════════════════════════════════════
-   BUILD PDF HTML
-═══════════════════════════════════════ */
-function fmtMonth(monthStr) {
-  if (!monthStr) return '';
-  const [y, m] = monthStr.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const monthsId = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const arr = currentLang === 'id' ? monthsId : months;
-  return (arr[parseInt(m) - 1] || '') + ' ' + y;
-}
-
-function formatDesc(text) {
-  if (!text) return '';
-  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
-  const hasBullets = lines.some(l => /^[•\-\*]/.test(l));
-  if (hasBullets) {
-    const items = lines.map(l => l.replace(/^[•\-\*]\s*/, '')).filter(Boolean);
-    return '<ul>' + items.map(i => `<li>${escHtml(i)}</li>`).join('') + '</ul>';
-  }
-  return escHtml(text).replace(/\n/g, '<br>');
-}
-
-function buildCVHTML(d) {
-  const p = d.personal || {};
-  const name = `${p.firstName || ''} ${p.lastName || ''}`.trim();
-  let html = '';
-
-  // HEADER
-  html += `<div class="cv-header">`;
-  html += `<div class="cv-name">${escHtml(name)}</div>`;
-  if (p.jobTitle) html += `<div class="cv-role">${escHtml(p.jobTitle)}</div>`;
-  const contacts = [];
-  if (p.email) contacts.push(`<span class="cv-contact-item">${escHtml(p.email)}</span>`);
-  if (p.phone) contacts.push(`<span class="cv-contact-item">${escHtml(p.phone)}</span>`);
-  if (p.city || p.country) contacts.push(`<span class="cv-contact-item">${escHtml([p.city, p.country].filter(Boolean).join(', '))}</span>`);
-  if (p.linkedin) contacts.push(`<span class="cv-contact-item">${escHtml(p.linkedin.replace(/https?:\/\/(www\.)?/i,''))}</span>`);
-  if (p.website) contacts.push(`<span class="cv-contact-item">${escHtml(p.website.replace(/https?:\/\/(www\.)?/i,''))}</span>`);
-  if (p.github) contacts.push(`<span class="cv-contact-item">${escHtml(p.github.replace(/https?:\/\/(www\.)?/i,''))}</span>`);
-  if (contacts.length) html += `<div class="cv-contacts">${contacts.join(' &nbsp;|&nbsp; ')}</div>`;
-  html += `</div>`;
-
-  // SUMMARY
-  if (d.summary && d.summary.trim()) {
-    html += `<div class="cv-section"><div class="cv-section-title">${t('cv_section_summary')}</div><div class="cv-summary">${escHtml(d.summary)}</div></div>`;
-  }
-
-  // EXPERIENCE
-  const exps = (d.experience || []).filter(e => e.title || e.company);
-  if (exps.length) {
-    html += `<div class="cv-section"><div class="cv-section-title">${t('cv_section_experience')}</div>`;
-    exps.forEach(e => {
-      const dateStart = fmtMonth(e.start);
-      const dateEnd = e.current ? t('cv_present') : fmtMonth(e.end);
-      const dateStr = [dateStart, dateEnd].filter(Boolean).join(' – ');
-      html += `<div class="cv-exp-item">
-        <div class="cv-exp-header">
-          <div class="cv-exp-title">${escHtml(e.title)}${e.type ? `<span class="cv-exp-badge">${escHtml(e.type)}</span>` : ''}</div>
-          ${dateStr ? `<div class="cv-exp-date">${escHtml(dateStr)}</div>` : ''}
-        </div>
-        <div class="cv-exp-meta">${[e.company, e.location].filter(Boolean).map(escHtml).join(' · ')}</div>
-        ${e.desc ? `<div class="cv-exp-desc">${formatDesc(e.desc)}</div>` : ''}
-      </div>`;
-    });
-    html += `</div>`;
-  }
-
-  // EDUCATION
-  const edus = (d.education || []).filter(e => e.degree || e.school);
-  if (edus.length) {
-    html += `<div class="cv-section"><div class="cv-section-title">${t('cv_section_education')}</div>`;
-    edus.forEach(e => {
-      const dateEnd = e.current ? t('cv_present') : e.end;
-      const dateStr = [e.start, dateEnd].filter(Boolean).join(' – ');
-      const degreeStr = [e.degree, e.field].filter(Boolean).map(escHtml).join(' in ');
-      html += `<div class="cv-edu-item">
-        <div class="cv-edu-header">
-          <div class="cv-edu-degree">${degreeStr}</div>
-          ${dateStr ? `<div class="cv-edu-date">${escHtml(dateStr)}</div>` : ''}
-        </div>
-        <div class="cv-edu-school">${[e.school, e.location].filter(Boolean).map(escHtml).join(', ')}</div>
-        ${e.gpa ? `<div class="cv-edu-gpa">GPA: ${escHtml(e.gpa)}</div>` : ''}
-        ${e.achievements ? `<div class="cv-edu-ach">${escHtml(e.achievements)}</div>` : ''}
-      </div>`;
-    });
-    html += `</div>`;
-  }
-
-  // SKILLS
-  const sk = d.skills || {};
-  const hasSkills = (sk.tech||[]).length || (sk.soft||[]).length || (sk.languages||[]).length || (sk.certs||[]).length;
-  if (hasSkills) {
-    html += `<div class="cv-section"><div class="cv-section-title">${t('cv_section_skills')}</div><div class="cv-skills-grid">`;
-    if ((sk.tech||[]).length) { html += `<div><div class="cv-skill-group-label">${t('cv_skills_tech')}</div><div class="cv-skill-chips">${sk.tech.map(s=>`<span class="cv-skill-chip">${escHtml(s)}</span>`).join('')}</div></div>`; }
-    if ((sk.soft||[]).length) { html += `<div><div class="cv-skill-group-label">${t('cv_skills_soft')}</div><div class="cv-skill-chips">${sk.soft.map(s=>`<span class="cv-skill-chip">${escHtml(s)}</span>`).join('')}</div></div>`; }
-    if ((sk.languages||[]).length) { html += `<div><div class="cv-skill-group-label">${t('cv_skills_lang')}</div><div class="cv-skill-chips">${sk.languages.map(s=>`<span class="cv-skill-chip">${escHtml(s)}</span>`).join('')}</div></div>`; }
-    if ((sk.certs||[]).length) { html += `<div><div class="cv-skill-group-label">${t('cv_skills_cert')}</div><div class="cv-skill-chips">${sk.certs.map(s=>`<span class="cv-skill-chip">${escHtml(s)}</span>`).join('')}</div></div>`; }
-    html += `</div></div>`;
-  }
-
-  // ACHIEVEMENTS
-  const ex = d.extras || {};
-  if (ex.achievements && ex.achievements.trim()) {
-    html += `<div class="cv-section"><div class="cv-section-title">${t('cv_section_achievements')}</div><div class="cv-achievements">${formatDesc(ex.achievements)}</div></div>`;
-  }
-
-  // REFERENCES
-  if (ex.references && ex.references.trim()) {
-    html += `<div class="cv-section"><div class="cv-section-title">${t('cv_section_references')}</div><div class="cv-references">${escHtml(ex.references)}</div></div>`;
-  }
-
-  return html;
-}
-
-/* ═══════════════════════════════════════
-   PDF GENERATION
-═══════════════════════════════════════ */
-async function generatePDF() {
-  if (!cvData) return;
-
-  const btn = document.getElementById('btn-gen');
-  const btnLabel = document.getElementById('btn-gen-label');
-  const btnIcon = document.getElementById('btn-gen-icon');
-  const progress = document.getElementById('gen-progress');
-  const progressFill = document.getElementById('gen-progress-fill');
-  const progressLabel = document.getElementById('gen-progress-label');
-
-  // Build the hidden CV element
-  const pdfEl = document.getElementById('cv-for-pdf');
-  pdfEl.innerHTML = buildCVHTML(cvData);
-
-  // Lock button
-  btn.disabled = true;
-  btnLabel.textContent = t('progress_rendering');
-  btnIcon.innerHTML = `<circle cx="12" cy="12" r="10" fill="none" stroke-width="2.5"/><path d="M12 6v6l4 2" stroke-width="2" fill="none"/>`;
-  btnIcon.classList.add('btn-spinner');
-  progress.classList.add('show');
-
-  // Animate progress
-  let prog = 0;
-  const progInterval = setInterval(() => {
-    prog = Math.min(prog + (prog < 60 ? 8 : prog < 85 ? 3 : 0.5), 90);
-    progressFill.style.width = prog + '%';
-  }, 200);
-
-  progressLabel.textContent = t('progress_rendering');
-
-  const margin = parseInt(opts.margin);
-  const filename = (document.getElementById('filename').value.trim() || 'My_CV').replace(/\.pdf$/i,'') + '.pdf';
-
-  const pdfOptions = {
-    margin:      [margin, margin, margin, margin],
-    filename:    filename,
-    image:       { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, useCORS: true, letterRendering: true, allowTaint: true, logging: false },
-    jsPDF:       { unit: 'mm', format: opts.paper, orientation: 'portrait' },
-    pagebreak:   { mode: ['avoid-all', 'css', 'legacy'] },
-  };
-
-  showToast(t('toast_generating'));
-
-  try {
-    setTimeout(() => { progressLabel.textContent = t('progress_building'); }, 1200);
-    setTimeout(() => { progressLabel.textContent = t('progress_saving'); progressFill.style.width = '92%'; }, 2400);
-
-    await html2pdf().set(pdfOptions).from(pdfEl).save();
-
-    clearInterval(progInterval);
-    progressFill.style.width = '100%';
-    progressLabel.textContent = '✓ Done';
-
-    setTimeout(() => {
-      btn.disabled = false;
-      btnLabel.textContent = t('btn_generate');
-      btnIcon.innerHTML = `<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`;
-      btnIcon.classList.remove('btn-spinner');
-      progress.classList.remove('show');
-      progressFill.style.width = '0%';
-      showSuccess();
-    }, 800);
-
-  } catch (err) {
-    clearInterval(progInterval);
-    console.error('PDF generation error:', err);
-    btn.disabled = false;
-    btnLabel.textContent = t('btn_generate');
-    btnIcon.classList.remove('btn-spinner');
-    btnIcon.innerHTML = `<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`;
-    progress.classList.remove('show');
-    showToast(t('toast_pdf_error'), 'error');
+  try{
+    emailjs.init({publicKey:key});
+    await emailjs.send(svc,tpl,params);
+    toast(t('t_ok'),'ok');
+    btn.disabled=false; lbl.textContent=t('btn_em'); btn.classList.add('sent');
+    showSuccess(true,toEm);
+  }catch(err){
+    console.error('EmailJS:',err);
+    toast(t('t_fail'),'err');
+    btn.disabled=false; lbl.textContent=t('btn_em');
+    showSuccess(false,'');
   }
 }
 
-function downloadAgain() {
-  generatePDF();
-}
+/* ══ MINI CV ══ */
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-/* ═══════════════════════════════════════
-   SUCCESS STATE
-═══════════════════════════════════════ */
-function showSuccess(emailSent = null, emailAddr = '') {
-  const overlay = document.getElementById('success-overlay');
-  overlay.classList.add('show');
-
-  const statusEl = document.getElementById('success-email-status');
-  if (emailSent === true) {
-    statusEl.textContent = t('email_sent_notice') + emailAddr;
-    statusEl.className = 'success-email-status sent';
-  } else if (emailSent === false) {
-    statusEl.textContent = t('email_failed_notice');
-    statusEl.className = 'success-email-status failed';
-  } else {
-    statusEl.className = 'success-email-status';
+function renderMini(d){
+  const c=document.getElementById('mini-cv');
+  const p=d.personal||{};
+  const ex=(d.experience||[]).filter(e=>e.title||e.company).slice(0,3);
+  const ed=(d.education||[]).filter(e=>e.degree||e.school).slice(0,2);
+  const sk=d.skills||{};
+  const full=`${p.firstName||''} ${p.lastName||''}`.trim();
+  let h=`<div class="mn">${esc(full)}</div>`;
+  if(p.jobTitle) h+=`<div class="mr">${esc(p.jobTitle)}</div>`;
+  const ico=(path)=>`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+  if(p.email) h+=`<div class="mc">${ico('<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>')} ${esc(p.email)}</div>`;
+  if(p.phone) h+=`<div class="mc">${ico('<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.4 1.14 2 2 0 012 .84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>')} ${esc(p.phone)}</div>`;
+  if(ex.length){
+    h+=`<div class="md"></div><div class="ms">${t('cv_exp')}</div>`;
+    ex.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt">${esc(e.title)}<br><span class="sub">${esc(e.company)}${e.start?' · '+e.start.substring(0,4):''}</span></div></div>`;});
   }
-}
-
-/* ═══════════════════════════════════════
-   EMAIL SENDING (EmailJS)
-═══════════════════════════════════════ */
-async function sendEmail() {
-  const toEmail = document.getElementById('to-email').value.trim();
-  const subject = document.getElementById('email-subject').value.trim();
-  const note = document.getElementById('email-note').value.trim();
-  const serviceId = document.getElementById('ejs-service').value.trim();
-  const templateId = document.getElementById('ejs-template').value.trim();
-  const pubKey = document.getElementById('ejs-pubkey').value.trim();
-
-  if (!toEmail) { showToast(t('toast_email_missing'), 'error'); document.getElementById('to-email').classList.add('error'); return; }
-  if (!serviceId || !templateId || !pubKey) { showToast(t('toast_config_missing'), 'warning'); return; }
-
-  const btn = document.getElementById('btn-send');
-  btn.disabled = true;
-  showToast(t('toast_email_sending'));
-
-  const p = cvData.personal || {};
-  const name = `${p.firstName || ''} ${p.lastName || ''}`.trim();
-  const exps = (cvData.experience || []).filter(e => e.title || e.company);
-  const edus = (cvData.education || []).filter(e => e.degree || e.school);
-  const sk = cvData.skills || {};
-
-  // Build clean plain-text summary for the email template
-  let cvSummaryText = `=== CV SUMMARY ===\n`;
-  cvSummaryText += `Name: ${name}\n`;
-  cvSummaryText += `Role: ${p.jobTitle || ''}\n`;
-  cvSummaryText += `Email: ${p.email || ''}\n`;
-  cvSummaryText += `Phone: ${p.phone || ''}\n`;
-  cvSummaryText += `Location: ${[p.city, p.country].filter(Boolean).join(', ')}\n`;
-  if (p.linkedin) cvSummaryText += `LinkedIn: ${p.linkedin}\n`;
-  if (p.website) cvSummaryText += `Website: ${p.website}\n`;
-  if (cvData.summary) cvSummaryText += `\nSUMMARY:\n${cvData.summary}\n`;
-
-  if (exps.length) {
-    cvSummaryText += `\nEXPERIENCE:\n`;
-    exps.forEach(e => {
-      cvSummaryText += `• ${e.title} at ${e.company}${e.start ? ` (${fmtMonth(e.start)} – ${e.current ? 'Present' : fmtMonth(e.end)})` : ''}\n`;
-      if (e.desc) cvSummaryText += `  ${e.desc.substring(0,200)}${e.desc.length > 200 ? '…' : ''}\n`;
-    });
+  if(ed.length){
+    h+=`<div class="md"></div><div class="ms">${t('cv_edu')}</div>`;
+    ed.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt">${esc(e.degree)}<br><span class="sub">${esc(e.school)}</span></div></div>`;});
   }
-
-  if (edus.length) {
-    cvSummaryText += `\nEDUCATION:\n`;
-    edus.forEach(e => cvSummaryText += `• ${e.degree} in ${e.field || ''} — ${e.school}${e.gpa ? ` (GPA: ${e.gpa})` : ''}\n`);
+  if((sk.tech||[]).length){
+    h+=`<div class="md"></div><div class="ms">${t('cv_sk')}</div><div class="mchips">`;
+    sk.tech.slice(0,6).forEach(s=>{h+=`<span class="mchip">${esc(s)}</span>`;});
+    if(sk.tech.length>6) h+=`<span class="mchip">+${sk.tech.length-6}</span>`;
+    h+=`</div>`;
   }
-
-  if ((sk.tech||[]).length) cvSummaryText += `\nTECHNICAL SKILLS:\n${sk.tech.join(', ')}\n`;
-  if ((sk.soft||[]).length) cvSummaryText += `\nSOFT SKILLS:\n${sk.soft.join(', ')}\n`;
-  if ((sk.languages||[]).length) cvSummaryText += `\nLANGUAGES:\n${sk.languages.join(', ')}\n`;
-  if ((sk.certs||[]).length) cvSummaryText += `\nCERTIFICATIONS:\n${sk.certs.join(', ')}\n`;
-  if (note) cvSummaryText += `\nNOTE:\n${note}\n`;
-  cvSummaryText += `\n[Generated by CraftCV — Portfolio Project]\n[Data was never stored on any server]`;
-
-  const templateParams = {
-    to_email:     toEmail,
-    to_name:      name,
-    subject:      subject || `My CV — ${name}`,
-    cv_name:      name,
-    cv_role:      p.jobTitle || '',
-    cv_email:     p.email || '',
-    cv_phone:     p.phone || '',
-    cv_location:  [p.city, p.country].filter(Boolean).join(', '),
-    cv_summary:   cvData.summary || '',
-    cv_full_text: cvSummaryText,
-    personal_note: note || '',
-    reply_to:     p.email || toEmail,
-  };
-
-  try {
-    emailjs.init({ publicKey: pubKey });
-    const result = await emailjs.send(serviceId, templateId, templateParams);
-    console.log('EmailJS success:', result);
-    showToast(t('toast_email_success'), 'success');
-    btn.disabled = false;
-    return true;
-  } catch (err) {
-    console.error('EmailJS error:', err);
-    showToast(t('toast_email_error'), 'error');
-    btn.disabled = false;
-    return false;
-  }
+  c.innerHTML=h;
 }
 
-function fmtMonth(monthStr) {
-  if (!monthStr) return '';
-  const [y, m] = monthStr.split('-');
-  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const monthsId = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const arr = currentLang === 'id' ? monthsId : months;
-  return (arr[parseInt(m) - 1] || '') + ' ' + y;
-}
+/* ══ MISC ══ */
+function clearSession(){sessionStorage.removeItem('craftcv_data');}
 
-/* ═══════════════════════════════════════
-   SESSION CLEAR
-═══════════════════════════════════════ */
-function clearSession() {
-  sessionStorage.removeItem('craftcv_data');
-}
+/* ══ INIT ══ */
+(function init(){
+  try{cvData=JSON.parse(sessionStorage.getItem('craftcv_data')||'null');}catch(e){cvData=null;}
+  const l=(cvData&&cvData.lang)||localStorage.getItem('craftcv_lang')||'en';
+  setLang(l);
 
-/* ═══════════════════════════════════════
-   NO DATA OVERLAY
-═══════════════════════════════════════ */
-function showNoData() {
-  const overlay = document.createElement('div');
-  overlay.className = 'no-data-overlay';
-  overlay.innerHTML = `
-    <h2>${t('no_data_title')}</h2>
-    <p>${t('no_data_desc')}</p>
-    <a href="form.html" class="btn-go">${t('btn_go_form')}</a>`;
-  document.body.appendChild(overlay);
-}
-
-/* ═══════════════════════════════════════
-   INIT
-═══════════════════════════════════════ */
-(function init() {
-  try {
-    const raw = sessionStorage.getItem('craftcv_data');
-    cvData = raw ? JSON.parse(raw) : null;
-  } catch(e) { cvData = null; }
-
-  const lang = (cvData && cvData.lang) || localStorage.getItem('craftcv_lang') || 'en';
-  setLang(lang);
-
-  if (!cvData || !(cvData.personal && cvData.personal.firstName)) {
-    showNoData();
+  if(!cvData||!(cvData.personal&&cvData.personal.firstName)){
+    const d=document.createElement('div');
+    d.className='nodata';
+    d.innerHTML=`<h2>${t('nd_t')}</h2><p>${t('nd_d')}</p><a href="form.html" class="btn-go">${t('nd_go')}</a>`;
+    document.body.appendChild(d);
     return;
   }
 
-  renderMiniCV(cvData);
+  // Pre-fill filename with user's name
+  const p=cvData.personal||{};
+  const fname=`${p.firstName||'My'}_${p.lastName||'CV'}`.replace(/\s+/g,'_');
+  document.getElementById('fname').value=fname+'_CV';
 
-  // Pre-populate filename with user's name
-  const p = cvData.personal || {};
-  const name = `${p.firstName || 'My'}_${p.lastName || 'CV'}`.trim().replace(/\s+/g,'_');
-  document.getElementById('filename').value = `${name}_CV`;
-
-  // If user opted in for email in the form, enable toggle
-  if (cvData.extras && cvData.extras.sendEmail) {
-    document.getElementById('email-toggle').checked = true;
+  // Restore email toggle if opted-in during form
+  if(cvData.extras&&cvData.extras.sendEmail){
+    document.getElementById('etog').checked=true;
     toggleEmail();
   }
+
+  loadCfg();
+  renderMini(cvData);
 })();
 </script>
 </body>
