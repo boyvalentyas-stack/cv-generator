@@ -8,9 +8,9 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
 
-<!-- jsPDF — renders PDF as pure vector text, guaranteed non-blank -->
+<!-- jsPDF UMD — vector text PDF, no screenshot -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- EmailJS browser SDK v4 -->
+<!-- EmailJS browser SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <style>
@@ -37,17 +37,16 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .logo span{color:var(--sage)}
 .nav-steps{display:flex;align-items:center;gap:5px;background:var(--white);border:1px solid var(--border-mid);border-radius:999px;padding:4px 5px;flex:1;max-width:330px;margin:0 auto}
 .ns{flex:1;text-align:center;font-size:.71rem;padding:5px 9px;border-radius:999px;color:var(--ink-faint);white-space:nowrap}
-.ns.done{color:var(--sage)}
-.ns.active{background:var(--ink);color:var(--cream);font-weight:500}
+.ns.done{color:var(--sage)}.ns.active{background:var(--ink);color:var(--cream);font-weight:500}
 .nav-r{display:flex;align-items:center;gap:.75rem}
 .lt{display:flex;background:var(--white);border:1px solid var(--border-strong);border-radius:999px;padding:3px;gap:2px}
 .lb{font-size:.7rem;font-weight:500;padding:3px 10px;border-radius:999px;border:none;background:transparent;color:var(--ink-light);cursor:pointer;transition:all var(--ease);font-family:var(--ff)}
 .lb.active{background:var(--ink);color:var(--cream)}
 
-/* PAGE */
+/* PAGE GRID */
 .page{max-width:980px;margin:0 auto;padding:5.5rem 2rem 4rem;display:grid;grid-template-columns:1fr 350px;gap:2.5rem;align-items:start}
 
-/* HEADINGS */
+/* TYPE */
 .eyebrow{font-size:.63rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:.4rem}
 .page-title{font-family:var(--ffd);font-size:clamp(1.9rem,3.8vw,2.6rem);line-height:1.1;letter-spacing:-.02em;color:var(--ink);margin-bottom:.65rem}
 .page-title em{font-style:italic;color:var(--sage)}
@@ -65,9 +64,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .cs{font-size:.76rem;color:var(--ink-light);font-weight:300;margin-top:2px}
 .cb{padding:1.5rem}
 
-/* FIELDS */
-.og{margin-bottom:1.15rem}
-.og:last-child{margin-bottom:0}
+/* FORM PIECES */
+.og{margin-bottom:1.15rem}.og:last-child{margin-bottom:0}
 .ol{display:block;font-size:.77rem;font-weight:500;color:var(--ink-mid);margin-bottom:6px}
 .or{display:flex;gap:6px;flex-wrap:wrap}
 .pill{padding:6px 14px;border-radius:999px;border:1.5px solid var(--border-mid);background:var(--cream);font-size:.76rem;color:var(--ink-mid);cursor:pointer;transition:all var(--ease);font-family:var(--ff)}
@@ -85,8 +83,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .fld input.err{border-color:var(--coral)}
 .hint{font-size:.69rem;color:var(--ink-faint);margin-top:2px;line-height:1.5}
 
-/* GENERATE BTN */
-.btn-gen{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-family:var(--ff);font-size:1rem;font-weight:500;padding:14px 24px;border-radius:var(--r);border:none;background:var(--ink);color:var(--cream);cursor:pointer;transition:all var(--ease);box-shadow:0 3px 16px rgba(26,23,20,.2);margin-top:.2rem;position:relative;overflow:hidden}
+/* GENERATE BUTTON */
+.btn-gen{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-family:var(--ff);font-size:1rem;font-weight:500;padding:14px 24px;border-radius:var(--r);border:none;background:var(--ink);color:var(--cream);cursor:pointer;transition:all var(--ease);box-shadow:0 3px 16px rgba(26,23,20,.2);position:relative;overflow:hidden}
 .btn-gen::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);transform:translateX(-100%);transition:transform .55s ease}
 .btn-gen:hover::after{transform:translateX(100%)}
 .btn-gen:hover{background:var(--ink-mid);transform:translateY(-1px);box-shadow:0 6px 22px rgba(26,23,20,.26)}
@@ -95,6 +93,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{animation:spin .75s linear infinite}
 
+/* FONT LOADING STATUS */
+.font-status{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:var(--r);font-size:.73rem;margin-bottom:1rem;transition:all var(--ease)}
+.font-status.loading{background:var(--amber-light);border:1px solid rgba(186,117,23,.22);color:var(--amber)}
+.font-status.ready{background:var(--sage-light);border:1px solid rgba(59,109,17,.2);color:var(--sage-dark)}
+.font-status.fallback{background:var(--cream-dark);border:1px solid var(--border-mid);color:var(--ink-light)}
+.fs-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.font-status.loading .fs-dot{background:var(--amber);animation:pulse 1.2s infinite}
+.font-status.ready .fs-dot{background:var(--sage)}
+.font-status.fallback .fs-dot{background:var(--ink-faint)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
 /* PROGRESS */
 .pw{display:none;margin-top:1rem}
 .pw.show{display:block}
@@ -102,7 +111,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .pf{height:100%;background:var(--sage);border-radius:999px;width:0%;transition:width .35s ease}
 .pl{font-size:.71rem;color:var(--ink-light);text-align:center}
 
-/* TOGGLE SWITCH */
+/* TOGGLE */
 .tr{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
 .sw{position:relative;width:42px;height:24px;flex-shrink:0}
 .sw input{opacity:0;width:0;height:0;position:absolute}
@@ -122,9 +131,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .btn-em svg{width:16px;height:16px;stroke:currentColor;fill:none}
 .btn-em.sent{background:var(--sage-light);border-color:var(--sage);color:var(--sage-dark)}
 
-/* NOTICE BOXES */
+/* NOTICES */
 .notice{display:flex;align-items:flex-start;gap:9px;padding:10px 13px;border-radius:var(--r);margin-top:.9rem}
-.notice p{font-size:.72rem;color:var(--ink-light);line-height:1.65;font-weight:300}
+.notice p,.notice{font-size:.72rem;color:var(--ink-light);line-height:1.65;font-weight:300}
 .notice p strong{color:var(--ink-mid);font-weight:500}
 .ni{font-size:.82rem;flex-shrink:0;margin-top:1px}
 .n-ink{background:var(--cream-dark);border:1px solid var(--border-mid)}
@@ -160,8 +169,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .mc{font-size:.71rem;color:var(--ink-light);display:flex;align-items:center;gap:5px;margin-bottom:3px}
 .me{display:flex;align-items:flex-start;gap:5px;margin-bottom:5px}
 .md2{width:5px;height:5px;border-radius:50%;background:var(--sage);flex-shrink:0;margin-top:5px}
-.mt{font-size:.71rem;color:var(--ink-mid);line-height:1.4}
-.mt .sub{color:var(--ink-faint);font-size:.66rem}
+.mt2{font-size:.71rem;color:var(--ink-mid);line-height:1.4}
+.mt2 .sub{color:var(--ink-faint);font-size:.66rem}
 .mchips{display:flex;flex-wrap:wrap;gap:3px}
 .mchip{font-size:.61rem;padding:2px 7px;border-radius:999px;background:var(--sage-light);color:var(--sage-dark);border:1px solid rgba(59,109,17,.15)}
 .sc-f{padding:.9rem 1.5rem;border-top:1px solid var(--border);background:var(--cream);display:flex;align-items:center;gap:7px}
@@ -190,9 +199,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 /* TOAST */
 .toast{position:fixed;top:76px;right:1.5rem;z-index:9999;background:var(--ink);color:var(--cream);padding:11px 18px;border-radius:var(--r);font-size:.82rem;display:flex;align-items:center;gap:8px;transform:translateY(-20px);opacity:0;pointer-events:none;transition:all .3s ease;max-width:320px;box-shadow:0 4px 20px rgba(26,23,20,.2)}
 .toast.show{transform:translateY(0);opacity:1}
-.toast.ok{background:var(--sage)}
-.toast.err{background:var(--coral)}
-.toast.warn{background:var(--amber)}
+.toast.ok{background:var(--sage)}.toast.err{background:var(--coral)}.toast.warn{background:var(--amber)}
 
 /* NO DATA */
 .nodata{position:fixed;inset:57px 0 0 0;z-index:100;display:flex;align-items:center;justify-content:center;background:rgba(245,240,232,.97);backdrop-filter:blur(8px);flex-direction:column;gap:1rem;text-align:center;padding:2rem}
@@ -201,7 +208,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .btn-go{display:inline-flex;align-items:center;gap:7px;font-family:var(--ff);font-size:.9rem;font-weight:500;padding:12px 28px;border-radius:999px;border:none;background:var(--ink);color:var(--cream);cursor:pointer;text-decoration:none;transition:all var(--ease);box-shadow:0 4px 16px rgba(26,23,20,.15);margin-top:.5rem}
 .btn-go:hover{transform:translateY(-2px)}
 
-/* RESPONSIVE */
 @media(max-width:820px){
   .page{grid-template-columns:1fr;padding:5.5rem 1.25rem 3rem;gap:1.5rem}
   .sc{position:static}
@@ -216,12 +222,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 </head>
 <body>
 
-<!-- TOAST -->
-<div class="toast" id="toast" role="alert" aria-live="polite">
-  <span id="t-icon">ℹ</span><span id="t-msg"></span>
-</div>
+<div class="toast" id="toast" role="alert" aria-live="polite"><span id="t-icon">ℹ</span><span id="t-msg"></span></div>
 
-<!-- SUCCESS OVERLAY -->
+<!-- SUCCESS -->
 <div class="success" id="success" role="dialog" aria-modal="true">
   <div class="sr"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
   <h2 class="stitle"><span data-i18n="s1">Your CV is</span> <em data-i18n="s2">ready!</em></h2>
@@ -253,24 +256,29 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   </div>
 </nav>
 
-<!-- MAIN -->
 <div class="page">
 
-<!-- ═══════════ LEFT ═══════════ -->
+<!-- ════ LEFT COLUMN ════ -->
 <div>
   <p class="eyebrow" data-i18n="ey">Final Step</p>
   <h1 class="page-title"><span data-i18n="pt1">Generate &</span> <em data-i18n="pt2">download</em><br><span data-i18n="pt3">your CV</span></h1>
-  <p class="page-sub" data-i18n="psub">Your ATS-optimised resume is ready. Customise the filename, then generate a real vector PDF — not a screenshot, so ATS systems read it perfectly.</p>
+  <p class="page-sub" data-i18n="psub">Your ATS-optimised resume is ready. The PDF uses the same fonts as the preview — EB Garamond body, DM Sans labels — loaded fresh from Google Fonts.</p>
 
   <!-- PDF CARD -->
   <div class="card">
     <div class="ch">
-      <div class="ci pdf" aria-hidden="true">
+      <div class="ci pdf">
         <svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
       </div>
-      <div><p class="ct" data-i18n="pdf_t">Download as PDF</p><p class="cs" data-i18n="pdf_s">jsPDF vector text · ATS-readable · A4 or Letter</p></div>
+      <div><p class="ct" data-i18n="pdf_t">Download as PDF</p><p class="cs" data-i18n="pdf_s">EB Garamond + DM Sans · ATS vector text · A4 or Letter</p></div>
     </div>
     <div class="cb">
+
+      <!-- Font loading status indicator -->
+      <div class="font-status loading" id="font-status">
+        <div class="fs-dot"></div>
+        <span id="font-status-msg" data-i18n="font_loading">Loading fonts (EB Garamond + DM Sans)…</span>
+      </div>
 
       <div class="og">
         <label class="ol" for="fname" data-i18n="l_fn">File Name</label>
@@ -304,16 +312,17 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         <p class="pl" id="pl" data-i18n="pr1">Building your PDF…</p>
       </div>
 
-      <div class="notice n-ink"><span class="ni">💡</span>
-        <p data-i18n="pdf_note">PDF is generated in your browser by <strong>jsPDF</strong> — pure vector text, no screenshot. Every word is machine-readable by ATS systems.</p>
+      <div class="notice n-ink" style="margin-top:1rem"><span class="ni">💡</span>
+        <p data-i18n="pdf_note">PDF uses <strong>EB Garamond</strong> (body) and <strong>DM Sans</strong> (labels) — the same fonts as the preview. Pure vector text; every word is ATS-readable.</p>
       </div>
+
     </div>
   </div>
 
   <!-- EMAIL CARD -->
   <div class="card">
     <div class="ch">
-      <div class="ci mail" aria-hidden="true">
+      <div class="ci mail">
         <svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       </div>
       <div><p class="ct" data-i18n="em_t">Email a Copy</p><p class="cs" data-i18n="em_s">Receive a formatted CV summary in your inbox</p></div>
@@ -326,7 +335,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         </div>
         <span class="tt" data-i18n="etog_lbl">Send me an email copy</span>
       </label>
-
       <div class="ef" id="ef">
         <div style="height:1.1rem"></div>
         <div class="fld">
@@ -339,7 +347,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <textarea id="em-note" rows="2" placeholder="e.g. Applying to Google SWE — deadline Friday"></textarea>
         </div>
         <div class="notice n-amber" style="margin-bottom:.9rem"><span class="ni">⚙️</span>
-          <p data-i18n="ejs_req">Email requires your own <strong>free EmailJS credentials</strong>. Follow the setup guide below and enter them in the configuration card.</p>
+          <p data-i18n="ejs_req">Email requires your own <strong>free EmailJS credentials</strong>. Follow the setup guide in the card below.</p>
         </div>
         <button class="btn-em" id="btn-em" onclick="sendEmail()">
           <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -349,69 +357,52 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     </div>
   </div>
 
-  <!-- EMAILJS CONFIG + GUIDE CARD -->
+  <!-- EMAILJS CONFIG CARD -->
   <div class="card" id="cfg-card" style="display:none">
     <div class="ch">
-      <div class="ci cfg" aria-hidden="true">
+      <div class="ci cfg">
         <svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
       </div>
       <div><p class="ct" data-i18n="cfg_t">EmailJS Setup Guide</p><p class="cs" data-i18n="cfg_s">Free · 200 emails/month · No backend required</p></div>
     </div>
     <div class="cb">
-
       <div class="notice n-sage"><span class="ni">🔒</span>
-        <p data-i18n="cfg_priv">EmailJS sends email <strong>directly from your browser</strong>. Your CV data never touches any server you don't own. Credentials are only stored in this browser session.</p>
+        <p data-i18n="cfg_priv">EmailJS sends directly from your browser. Your data never touches any server you don't control.</p>
       </div>
-
       <p style="font-size:.79rem;font-weight:500;color:var(--ink-mid);margin:1rem 0 .6rem" data-i18n="guide_h">Step-by-step: get your free credentials</p>
       <div class="steps">
-        <div class="step"><div class="snum">1</div><div class="stxt">Create a free account at <a href="https://www.emailjs.com" target="_blank" rel="noopener noreferrer">emailjs.com</a> — no credit card needed. Free plan gives <strong>200 emails/month</strong>.</div></div>
-        <div class="step"><div class="snum">2</div><div class="stxt">In your dashboard → <strong>Email Services</strong> → <strong>Add New Service</strong>. Connect <strong>Gmail</strong>, Outlook, or any SMTP you own. After connecting, copy the <code>Service ID</code> shown (e.g. <code>service_abc1234</code>).</div></div>
-        <div class="step"><div class="snum">3</div><div class="stxt">Go to <strong>Email Templates</strong> → <strong>Create New Template</strong>. In the template body, use these variables:<br><br>
-          <code>{{to_name}}</code> — recipient's full name<br>
-          <code>{{cv_full_text}}</code> — full plain-text CV summary<br>
-          <code>{{personal_note}}</code> — personal note (if any)<br><br>
-          Set the <strong>To Email</strong> field to <code>{{to_email}}</code>.<br>
-          Set <strong>Reply To</strong> to <code>{{reply_to}}</code>.<br>
-          Suggested Subject: <code>Your CV Summary — {{to_name}}</code><br><br>
-          Copy the <code>Template ID</code> (e.g. <code>template_xyz9876</code>).
+        <div class="step"><div class="snum">1</div><div class="stxt">Create a free account at <a href="https://www.emailjs.com" target="_blank" rel="noopener">emailjs.com</a> — no credit card. Free plan = <strong>200 emails/month</strong>.</div></div>
+        <div class="step"><div class="snum">2</div><div class="stxt"><strong>Email Services</strong> → <strong>Add New Service</strong>. Connect Gmail, Outlook, or SMTP. Copy the <code>Service ID</code> (e.g. <code>service_abc1234</code>).</div></div>
+        <div class="step"><div class="snum">3</div><div class="stxt"><strong>Email Templates</strong> → <strong>Create New Template</strong>. Use these variables in the body:<br><br>
+          <code>{{to_name}}</code> — full name &nbsp;|&nbsp; <code>{{cv_full_text}}</code> — CV summary &nbsp;|&nbsp; <code>{{personal_note}}</code> — note<br><br>
+          Set <strong>To Email</strong> → <code>{{to_email}}</code> &nbsp;|&nbsp; <strong>Reply-To</strong> → <code>{{reply_to}}</code><br>
+          Subject suggestion: <code>Your CV Summary — {{to_name}}</code><br>Copy the <code>Template ID</code>.
         </div></div>
-        <div class="step"><div class="snum">4</div><div class="stxt">Go to <strong>Account</strong> → <strong>General</strong> → copy your <strong>Public Key</strong> (looks like a random 20-char string).</div></div>
-        <div class="step"><div class="snum">5</div><div class="stxt">Paste all three values in the fields below and click <strong>Save Credentials</strong>. Then use the <em>Send Email Copy</em> button above.</div></div>
+        <div class="step"><div class="snum">4</div><div class="stxt"><strong>Account</strong> → <strong>General</strong> → copy your <strong>Public Key</strong>.</div></div>
+        <div class="step"><div class="snum">5</div><div class="stxt">Paste all three below and click <strong>Save Credentials</strong>.</div></div>
       </div>
-
       <div style="height:1.25rem"></div>
-      <div class="fld">
-        <label for="ejs-svc" data-i18n="l_svc">Service ID</label>
-        <input type="text" id="ejs-svc" placeholder="service_xxxxxxx" autocomplete="off" spellcheck="false">
-      </div>
-      <div class="fld">
-        <label for="ejs-tpl" data-i18n="l_tpl">Template ID</label>
-        <input type="text" id="ejs-tpl" placeholder="template_xxxxxxx" autocomplete="off" spellcheck="false">
-      </div>
+      <div class="fld"><label for="ejs-svc" data-i18n="l_svc">Service ID</label><input type="text" id="ejs-svc" placeholder="service_xxxxxxx" autocomplete="off" spellcheck="false"></div>
+      <div class="fld"><label for="ejs-tpl" data-i18n="l_tpl">Template ID</label><input type="text" id="ejs-tpl" placeholder="template_xxxxxxx" autocomplete="off" spellcheck="false"></div>
       <div class="fld">
         <label for="ejs-key" data-i18n="l_key">Public Key</label>
         <input type="text" id="ejs-key" placeholder="xxxxxxxxxxxxxxxxxxx" autocomplete="off" spellcheck="false">
         <span class="hint" data-i18n="h_key">Dashboard → Account → General → Public Key</span>
       </div>
-
       <button class="btn-em" style="margin-top:.4rem" onclick="saveCfg()">
         <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
         <span data-i18n="btn_save">Save Credentials</span>
       </button>
-
     </div>
   </div>
 
   <div class="disc">
     <span style="font-size:.85rem;flex-shrink:0;margin-top:1px">🛡️</span>
-    <p data-i18n="disc">
-      <strong>Portfolio project notice:</strong> No data is stored on any server. PDF generation runs 100% in your browser via jsPDF. Email sending uses EmailJS's client-side SDK — your data goes directly to EmailJS's API and is not logged by this project. Your CV lives only in browser <code>sessionStorage</code> and is deleted when you close this tab.
-    </p>
+    <p data-i18n="disc"><strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF. Email sent via EmailJS client SDK. CV data lives only in browser <code>sessionStorage</code> — cleared when you close this tab.</p>
   </div>
 </div>
 
-<!-- ═══════════ RIGHT ═══════════ -->
+<!-- ════ RIGHT COLUMN ════ -->
 <div>
   <div class="sc">
     <div class="sc-h">
@@ -421,7 +412,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         <span data-i18n="sc_back">Back to Preview</span>
       </a>
     </div>
-    <div class="sc-body" id="mini-cv"><!-- js --></div>
+    <div class="sc-body" id="mini-cv"></div>
     <div class="sc-f">
       <div class="fok" aria-hidden="true">✓</div>
       <span class="ftxt" data-i18n="sc_foot">ATS-optimised · Ready to generate</span>
@@ -432,87 +423,100 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 </div><!-- /page -->
 
 <script>
-/* ══════════════════════════════════════════════
+/* ══════════════════════════════════════════
    TRANSLATIONS
-══════════════════════════════════════════════ */
+══════════════════════════════════════════ */
 const TR={
 en:{
   ey:'Final Step',pt1:'Generate &',pt2:'download',pt3:'your CV',
-  psub:'Your ATS-optimised resume is ready. Customise the filename, then generate a real vector PDF — not a screenshot, so ATS systems read it perfectly.',
+  psub:'Your ATS-optimised resume is ready. The PDF uses the same fonts as the preview — EB Garamond body, DM Sans labels — loaded fresh from Google Fonts.',
   n1:'Fill Form',n2:'Preview',n3:'Generate PDF',
-  pdf_t:'Download as PDF',pdf_s:'jsPDF vector text · ATS-readable · A4 or Letter',
+  pdf_t:'Download as PDF',pdf_s:'EB Garamond + DM Sans · ATS vector text · A4 or Letter',
   l_fn:'File Name',l_ps:'Paper Size',l_mg:'Side Margins',
   mg1:'Narrow (14 mm)',mg2:'Normal (20 mm)',mg3:'Wide (28 mm)',
   btn_gen:'Generate & Download PDF',
-  pr1:'Building your PDF…',pr2:'Writing sections…',pr3:'Saving file…',
-  pdf_note:'PDF is generated in your browser by <strong>jsPDF</strong> — pure vector text, no screenshot. Every word is machine-readable by ATS systems.',
+  pr1:'Loading fonts…',pr2:'Writing CV sections…',pr3:'Saving file…',
+  pdf_note:'PDF uses <strong>EB Garamond</strong> (body) and <strong>DM Sans</strong> (labels) — same as the preview. Pure vector text; every word is ATS-readable.',
+  font_loading:'Loading fonts (EB Garamond + DM Sans)…',
+  font_ready:'Fonts ready — EB Garamond + DM Sans loaded',
+  font_fallback:'Fonts unavailable — using Times New Roman + Helvetica fallback',
   em_t:'Email a Copy',em_s:'Receive a formatted CV summary in your inbox',
   etog_lbl:'Send me an email copy',
   l_to:'Your Email Address',h_to:'A full CV summary will be sent here.',
   l_note:'Personal Note',opt:'(optional)',
-  ejs_req:'Email requires your own <strong>free EmailJS credentials</strong>. Follow the setup guide below and enter them in the configuration card.',
+  ejs_req:'Email requires your own <strong>free EmailJS credentials</strong>. Follow the setup guide in the card below.',
   btn_em:'Send Email Copy',
   cfg_t:'EmailJS Setup Guide',cfg_s:'Free · 200 emails/month · No backend required',
-  cfg_priv:'EmailJS sends email <strong>directly from your browser</strong>. Your CV data never touches any server you don\'t own. Credentials are only stored in this browser session.',
+  cfg_priv:'EmailJS sends directly from your browser. Your data never touches any server you don\'t control.',
   guide_h:'Step-by-step: get your free credentials',
   l_svc:'Service ID',l_tpl:'Template ID',l_key:'Public Key',
   h_key:'Dashboard → Account → General → Public Key',
   btn_save:'Save Credentials',
-  disc:'<strong>Portfolio project notice:</strong> No data is stored on any server. PDF generation runs 100% in your browser via jsPDF. Email sending uses EmailJS\'s client-side SDK — your data goes directly to EmailJS\'s API and is not logged by this project. Your CV lives only in browser <code>sessionStorage</code> and is deleted when you close this tab.',
+  disc:'<strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF. Email sent via EmailJS client SDK. CV data lives only in browser <code>sessionStorage</code> — cleared when you close this tab.',
   sc_t:'Your CV Summary',sc_back:'Back to Preview',sc_foot:'ATS-optimised · Ready to generate',
-  s1:'Your CV is',s2:'ready!',s3:'Your ATS-friendly PDF has been downloaded. Good luck with your application!',
+  s1:'Your CV is',s2:'ready!',s3:'Your ATS-friendly PDF has been downloaded. Good luck!',
   s_dl:'Download Again',s_new:'Start New CV',s_home:'← Home',
-  t_gen:'Building your PDF…',t_done:'PDF downloaded!',t_err:'PDF failed — see browser console.',
+  t_gen:'Building your PDF…',t_done:'PDF downloaded successfully!',t_err:'PDF failed — check browser console.',
   t_sending:'Sending email…',t_ok:'Email sent!',t_fail:'Email failed — check EmailJS credentials.',
   t_nomail:'Enter your email address first.',t_nocfg:'Enter your EmailJS Service ID, Template ID, and Public Key.',
   t_saved:'EmailJS credentials saved.',
-  eb_ok:'✓ Email sent to ',eb_fail:'⚠ Email failed — check your EmailJS configuration.',
+  eb_ok:'✓ Email sent to ',eb_fail:'⚠ Email failed — check EmailJS config.',
   cv_sum:'Professional Summary',cv_exp:'Work Experience',cv_edu:'Education',
   cv_sk:'Skills',cv_skt:'Technical Skills',cv_sks:'Soft Skills',cv_skl:'Languages',cv_skc:'Certifications',
   cv_ach:'Key Achievements',cv_ref:'References',cv_now:'Present',
-  nd_t:'No CV Data Found',nd_d:'Fill in the form first before generating a PDF.',nd_go:'← Go to Form',
+  nd_t:'No CV Data Found',nd_d:'Fill in the form first.',nd_go:'← Go to Form',
 },
 id:{
   ey:'Langkah Terakhir',pt1:'Buat &',pt2:'unduh',pt3:'CV Anda',
-  psub:'Resume yang dioptimalkan untuk ATS siap diekspor. Sesuaikan nama file, lalu buat PDF vektor nyata — bukan screenshot, sehingga sistem ATS membacanya sempurna.',
+  psub:'Resume Anda siap diekspor. PDF menggunakan font yang sama dengan pratinjau — EB Garamond untuk isi, DM Sans untuk label — dimuat dari Google Fonts.',
   n1:'Isi Formulir',n2:'Pratinjau',n3:'Buat PDF',
-  pdf_t:'Unduh sebagai PDF',pdf_s:'Teks vektor jsPDF · Dapat dibaca ATS · A4 atau Letter',
+  pdf_t:'Unduh sebagai PDF',pdf_s:'EB Garamond + DM Sans · Teks vektor ATS · A4 atau Letter',
   l_fn:'Nama File',l_ps:'Ukuran Kertas',l_mg:'Margin Samping',
   mg1:'Sempit (14 mm)',mg2:'Normal (20 mm)',mg3:'Lebar (28 mm)',
   btn_gen:'Buat & Unduh PDF',
-  pr1:'Membangun PDF Anda…',pr2:'Menulis bagian CV…',pr3:'Menyimpan file…',
-  pdf_note:'PDF dibuat di browser Anda menggunakan <strong>jsPDF</strong> — teks vektor murni, bukan screenshot. Setiap kata dapat dibaca oleh sistem ATS dengan sempurna.',
-  em_t:'Kirim Salinan Email',em_s:'Terima ringkasan CV terformat di kotak masuk Anda',
+  pr1:'Memuat font…',pr2:'Menulis bagian CV…',pr3:'Menyimpan file…',
+  pdf_note:'PDF menggunakan <strong>EB Garamond</strong> (isi) dan <strong>DM Sans</strong> (label) — sama dengan pratinjau.',
+  font_loading:'Memuat font (EB Garamond + DM Sans)…',
+  font_ready:'Font siap — EB Garamond + DM Sans berhasil dimuat',
+  font_fallback:'Font tidak tersedia — menggunakan Times New Roman + Helvetica',
+  em_t:'Kirim Salinan Email',em_s:'Terima ringkasan CV di kotak masuk Anda',
   etog_lbl:'Kirimkan salinan email ke saya',
   l_to:'Alamat Email Anda',h_to:'Ringkasan CV lengkap akan dikirim ke sini.',
   l_note:'Catatan Pribadi',opt:'(opsional)',
-  ejs_req:'Email memerlukan <strong>kredensial EmailJS gratis Anda sendiri</strong>. Ikuti panduan setup di bawah dan masukkan di kartu konfigurasi.',
+  ejs_req:'Email memerlukan <strong>kredensial EmailJS gratis Anda sendiri</strong>. Ikuti panduan di kartu di bawah.',
   btn_em:'Kirim Salinan Email',
-  cfg_t:'Panduan Setup EmailJS',cfg_s:'Gratis · 200 email/bulan · Tidak perlu backend',
-  cfg_priv:'EmailJS mengirim email <strong>langsung dari browser Anda</strong>. Data CV Anda tidak pernah menyentuh server yang tidak Anda miliki.',
+  cfg_t:'Panduan Setup EmailJS',cfg_s:'Gratis · 200 email/bulan · Tanpa backend',
+  cfg_priv:'EmailJS mengirim langsung dari browser Anda. Data Anda tidak menyentuh server yang tidak Anda kendalikan.',
   guide_h:'Langkah demi langkah: dapatkan kredensial gratis Anda',
   l_svc:'Service ID',l_tpl:'Template ID',l_key:'Public Key',
   h_key:'Dashboard → Account → General → Public Key',
   btn_save:'Simpan Kredensial',
-  disc:'<strong>Pemberitahuan proyek portofolio:</strong> Tidak ada data yang disimpan di server mana pun. Pembuatan PDF berjalan 100% di browser Anda melalui jsPDF. Pengiriman email menggunakan SDK sisi klien EmailJS. Data CV Anda hanya ada di <code>sessionStorage</code> browser dan dihapus saat Anda menutup tab.',
+  disc:'<strong>Proyek portofolio:</strong> Tidak ada data tersimpan di server. PDF dibuat 100% di browser via jsPDF. Email menggunakan EmailJS client SDK. Data CV hanya ada di <code>sessionStorage</code> browser dan dihapus saat tab ditutup.',
   sc_t:'Ringkasan CV Anda',sc_back:'Kembali ke Pratinjau',sc_foot:'Format ramah ATS · Siap dibuat',
-  s1:'CV Anda',s2:'siap!',s3:'PDF ramah ATS Anda telah diunduh. Semoga sukses dengan lamaran Anda!',
+  s1:'CV Anda',s2:'siap!',s3:'PDF ramah ATS Anda telah diunduh. Semoga sukses!',
   s_dl:'Unduh Lagi',s_new:'Buat CV Baru',s_home:'← Beranda',
   t_gen:'Membangun PDF Anda…',t_done:'PDF berhasil diunduh!',t_err:'PDF gagal — periksa konsol browser.',
   t_sending:'Mengirim email…',t_ok:'Email berhasil dikirim!',t_fail:'Email gagal — periksa kredensial EmailJS.',
-  t_nomail:'Masukkan alamat email Anda terlebih dahulu.',t_nocfg:'Masukkan Service ID, Template ID, dan Public Key EmailJS Anda.',
+  t_nomail:'Masukkan alamat email Anda terlebih dahulu.',t_nocfg:'Masukkan Service ID, Template ID, dan Public Key EmailJS.',
   t_saved:'Kredensial EmailJS tersimpan.',
-  eb_ok:'✓ Email dikirim ke ',eb_fail:'⚠ Email gagal — periksa konfigurasi EmailJS Anda.',
+  eb_ok:'✓ Email dikirim ke ',eb_fail:'⚠ Email gagal — periksa konfigurasi EmailJS.',
   cv_sum:'Ringkasan Profesional',cv_exp:'Pengalaman Kerja',cv_edu:'Pendidikan',
   cv_sk:'Keahlian',cv_skt:'Keahlian Teknis',cv_sks:'Soft Skills',cv_skl:'Bahasa',cv_skc:'Sertifikasi',
   cv_ach:'Pencapaian Utama',cv_ref:'Referensi',cv_now:'Sekarang',
-  nd_t:'Data CV Tidak Ditemukan',nd_d:'Isi formulir terlebih dahulu sebelum membuat PDF.',nd_go:'← Ke Formulir',
+  nd_t:'Data CV Tidak Ditemukan',nd_d:'Isi formulir terlebih dahulu.',nd_go:'← Ke Formulir',
 }};
 
 let lang=localStorage.getItem('craftcv_lang')||'en';
 let cvData=null;
 let lastBlob=null;
 const opts={paper:'a4',mg:20};
+
+/* ── loaded font state ── */
+const fonts={
+  garamond:{ normal:null, bold:null, italic:null },
+  dmSans:  { normal:null, bold:null },
+  loaded:false, fallback:false
+};
 
 function t(k){return (TR[lang]||TR.en)[k]||TR.en[k]||k;}
 
@@ -527,7 +531,7 @@ function setLang(l){
   if(cvData) renderMini(cvData);
 }
 
-/* OPTIONS */
+/* ══ OPTIONS ══ */
 function pick(btn,group){
   document.querySelectorAll(`[data-g="${group}"]`).forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
@@ -535,17 +539,17 @@ function pick(btn,group){
   if(group==='mg')    opts.mg=parseInt(btn.dataset.v);
 }
 
-/* TOAST */
+/* ══ TOAST ══ */
 let toastT;
 function toast(msg,type=''){
   const el=document.getElementById('toast');
   document.getElementById('t-msg').textContent=msg;
   document.getElementById('t-icon').textContent=type==='ok'?'✓':type==='err'?'✗':'ℹ';
   el.className=`toast show${type?' '+type:''}`;
-  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),4200);
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),4500);
 }
 
-/* EMAIL TOGGLE */
+/* ══ EMAIL TOGGLE ══ */
 function toggleEmail(){
   const on=document.getElementById('etog').checked;
   document.getElementById('ef').classList.toggle('show',on);
@@ -556,7 +560,7 @@ function toggleEmail(){
   }
 }
 
-/* EMAILJS CONFIG */
+/* ══ EMAILJS CONFIG ══ */
 function saveCfg(){
   const s=document.getElementById('ejs-svc').value.trim();
   const tp=document.getElementById('ejs-tpl').value.trim();
@@ -574,17 +578,138 @@ function loadCfg(){
   }catch(e){}
 }
 
-/* ══════════════════════════════════════════════
-   PDF GENERATION — jsPDF TEXT PRIMITIVES
-   Pure vector. No html2canvas. No blank pages.
-══════════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   URL HELPER — always ensure https://
+══════════════════════════════════════════ */
+function ensureHttps(url){
+  if(!url||!url.trim()) return '';
+  const u=url.trim();
+  if(/^https?:\/\//i.test(u)) return u;
+  return 'https://'+u;
+}
+
+/* Display version strips https:// for readability in CV text */
+function displayUrl(url){
+  return url.replace(/^https?:\/\/(www\.)?/i,'');
+}
+
+/* ══════════════════════════════════════════
+   FONT LOADING — fetch TTF from Google Fonts
+   and register with jsPDF as Base64
+══════════════════════════════════════════ */
+
+/* Google Fonts CSS2 API — returns @font-face rules with actual TTF/woff2 URLs */
+const FONT_URLS={
+  garamond_normal : 'https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RUA4V-e6yHgQ.woff2',
+  garamond_bold   : 'https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RkAoV-e6yHgQ.woff2',
+  garamond_italic : 'https://fonts.gstatic.com/s/ebgaramond/v26/SlGSmQSNjdsmc35JDF1K5GR7SDk_qFd5hQ.woff2',
+  dmsans_normal   : 'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmf3ZGMZpg.woff2',
+  dmsans_bold     : 'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmf3ZA0Zpg.woff2',
+};
+
+async function fetchFontBase64(url){
+  const resp = await fetch(url);
+  if(!resp.ok) throw new Error('Font fetch failed: '+url);
+  const buf = await resp.arrayBuffer();
+  // Convert ArrayBuffer → Base64
+  let binary='';
+  const bytes=new Uint8Array(buf);
+  for(let i=0;i<bytes.byteLength;i++) binary+=String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+async function loadFonts(){
+  const statusEl=document.getElementById('font-status');
+  const statusMsg=document.getElementById('font-status-msg');
+  try{
+    statusEl.className='font-status loading';
+    statusMsg.textContent=t('font_loading');
+
+    const [gNorm, gBold, gItalic, dmNorm, dmBold] = await Promise.all([
+      fetchFontBase64(FONT_URLS.garamond_normal),
+      fetchFontBase64(FONT_URLS.garamond_bold),
+      fetchFontBase64(FONT_URLS.garamond_italic),
+      fetchFontBase64(FONT_URLS.dmsans_normal),
+      fetchFontBase64(FONT_URLS.dmsans_bold),
+    ]);
+
+    fonts.garamond.normal = gNorm;
+    fonts.garamond.bold   = gBold;
+    fonts.garamond.italic = gItalic;
+    fonts.dmSans.normal   = dmNorm;
+    fonts.dmSans.bold     = dmBold;
+    fonts.loaded = true;
+
+    statusEl.className='font-status ready';
+    statusMsg.textContent=t('font_ready');
+  }catch(err){
+    console.warn('Font load failed, using built-in fallback:', err);
+    fonts.fallback=true;
+    statusEl.className='font-status fallback';
+    statusMsg.textContent=t('font_fallback');
+  }
+}
+
+/* Register custom fonts into a jsPDF instance */
+function registerFonts(doc){
+  if(fonts.loaded){
+    doc.addFileToVFS('EBGaramond-Regular.woff2', fonts.garamond.normal);
+    doc.addFont('EBGaramond-Regular.woff2','EBGaramond','normal');
+
+    doc.addFileToVFS('EBGaramond-Bold.woff2', fonts.garamond.bold);
+    doc.addFont('EBGaramond-Bold.woff2','EBGaramond','bold');
+
+    doc.addFileToVFS('EBGaramond-Italic.woff2', fonts.garamond.italic);
+    doc.addFont('EBGaramond-Italic.woff2','EBGaramond','italic');
+
+    doc.addFileToVFS('DMSans-Regular.woff2', fonts.dmSans.normal);
+    doc.addFont('DMSans-Regular.woff2','DMSans','normal');
+
+    doc.addFileToVFS('DMSans-Bold.woff2', fonts.dmSans.bold);
+    doc.addFont('DMSans-Bold.woff2','DMSans','bold');
+  }
+}
+
+/* Return the font name to use — custom if loaded, fallback if not */
+function F(type){
+  // type: 'serif-normal' | 'serif-bold' | 'serif-italic' | 'sans-normal' | 'sans-bold'
+  if(fonts.loaded){
+    if(type==='serif-normal')  return ['EBGaramond','normal'];
+    if(type==='serif-bold')    return ['EBGaramond','bold'];
+    if(type==='serif-italic')  return ['EBGaramond','italic'];
+    if(type==='sans-normal')   return ['DMSans','normal'];
+    if(type==='sans-bold')     return ['DMSans','bold'];
+  }
+  // Fallback: times (serif) / helvetica (sans)
+  if(type==='serif-normal')  return ['times','normal'];
+  if(type==='serif-bold')    return ['times','bold'];
+  if(type==='serif-italic')  return ['times','italic'];
+  if(type==='sans-normal')   return ['helvetica','normal'];
+  if(type==='sans-bold')     return ['helvetica','bold'];
+  return ['helvetica','normal'];
+}
+
+/* ══════════════════════════════════════════
+   PDF GENERATION
+   Spacing mirrors preview.html CSS exactly:
+   - Name: 26pt serif bold
+   - Role: 12pt serif italic
+   - Contacts: 9pt sans normal
+   - Section titles: 8.5pt sans bold uppercase
+   - Body text: 10.5pt serif normal
+   - Small text: 10pt / 8.5pt
+   - Line height: 1.55 → ≈ 5.5mm at 10pt
+══════════════════════════════════════════ */
 function fmtM(s){
-  if(!s)return '';
+  if(!s)return'';
   const[y,m]=s.split('-');
   const ME=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const MI=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  return ((lang==='id'?MI:ME)[parseInt(m)-1]||'')+' '+y;
+  return((lang==='id'?MI:ME)[parseInt(m)-1]||'')+' '+y;
 }
+
+/* pt → mm conversion helper */
+const pt2mm = pt => pt * 0.352778;
 
 function generatePDF(){
   if(!cvData){toast(t('t_err'),'err');return;}
@@ -601,272 +726,307 @@ function generatePDF(){
   ico.innerHTML=`<circle cx="12" cy="12" r="9" fill="none" stroke-width="2.5"/><path d="M12 6v6l3 3" fill="none"/>`;
   ico.classList.add('spin');
   pw.classList.add('show');
-  pf.style.width='10%';
+  pf.style.width='12%';
   toast(t('t_gen'));
 
-  setTimeout(()=>{
+  /* Use rAF to let the UI paint before heavy work */
+  requestAnimationFrame(()=>setTimeout(()=>{
     try{
       const{jsPDF}=window.jspdf;
       const isA4=opts.paper==='a4';
-      const PW=isA4?210:215.9, PH=isA4?297:279.4;
-      const MG=opts.mg;       // side margin mm
-      const TW=PW-MG*2;       // usable text width
-      let Y=MG;               // current Y position
+      const PW=isA4?210:215.9;
+      const PH=isA4?297:279.4;
+      const MG=opts.mg;
+      const TW=PW-MG*2;
+      let Y=MG;
 
       const doc=new jsPDF({unit:'mm',format:isA4?'a4':'letter',orientation:'portrait'});
+      registerFonts(doc);
 
-      /* ── layout constants ── */
-      const LH  =5.5;  // normal line height
-      const LHS =4.8;  // small line height
-      const GAP =3.5;  // between items in a section
-      const SGAP=5.5;  // between sections
+      /* ────────────────────────────────────────
+         SPACING CONSTANTS  (mirroring preview.html)
+         All values in mm. pt→mm: 1pt = 0.3528mm
+         preview line-height 1.55 at 10.5pt body
+         → 10.5 × 1.55 × 0.3528 = 5.74mm ≈ 5.7
+      ──────────────────────────────────────── */
+      const LH_BODY   = 5.7;   // 10.5pt × 1.55 — body text line height
+      const LH_SMALL  = 5.1;   // 10pt   × 1.55 — meta/italic line height
+      const LH_TINY   = 4.5;   // 8.5pt  × 1.55 — label/date line height
+      const ITEM_GAP  = 4.0;   // gap between experience/education items
+      const SEC_BEFORE= 7.0;   // space above each section title
+      const SEC_AFTER = 5.0;   // space after section title rule → first item
+      const DESC_INDENT= 3.5;  // bullet indent
 
-      /* ── helpers ── */
-      function needPage(need=12){
+      function needPage(need=15){
         if(Y+need>PH-MG){doc.addPage();Y=MG;}
       }
-      function txt(str,x,sz,bold,rgb,maxW,align){
+
+      function setF(type,sz){
+        const[family,style]=F(type);
+        doc.setFont(family,style);
         doc.setFontSize(sz);
-        doc.setFont('helvetica',bold?'bold':'normal');
+      }
+
+      function drawText(str,x,sz,fontType,rgb,maxW,align){
+        setF(fontType,sz);
         doc.setTextColor(...(rgb||[17,17,17]));
         const s=String(str||'');
         if(maxW){
           const lines=doc.splitTextToSize(s,maxW);
           doc.text(lines,x,Y,{align:align||'left'});
-          return lines.length*(sz*0.3528*1.4);
+          return lines;
         }
         doc.text(s,x,Y,{align:align||'left'});
-        return sz*0.3528*1.4;
+        return [s];
       }
-      function secTitle(label){
-        needPage(12);
-        Y+=SGAP;
+
+      function sectionTitle(label){
+        needPage(SEC_BEFORE+SEC_AFTER+LH_BODY+4);
+        Y+=SEC_BEFORE;
+        // Rule line above title
         doc.setDrawColor(17,17,17);
-        doc.setLineWidth(0.45);
+        doc.setLineWidth(0.4);
         doc.line(MG,Y,MG+TW,Y);
-        Y+=4;
-        doc.setFontSize(8);
-        doc.setFont('helvetica','bold');
+        Y+=3.8;
+        setF('sans-bold',8.5);
         doc.setTextColor(17,17,17);
         doc.text(label.toUpperCase(),MG,Y);
-        Y+=LH+1.5;
+        Y+=SEC_AFTER;
       }
 
-      pf.style.width='30%'; pl.textContent=t('pr2');
+      pf.style.width='25%'; pl.textContent=t('pr2');
 
-      const p =cvData.personal||{};
-      const ex=(cvData.experience||[]).filter(e=>e.title||e.company);
-      const ed=(cvData.education||[]).filter(e=>e.degree||e.school);
-      const sk=cvData.skills||{};
-      const xt=cvData.extras||{};
+      const p  = cvData.personal||{};
+      const ex = (cvData.experience||[]).filter(e=>e.title||e.company);
+      const ed = (cvData.education||[]).filter(e=>e.degree||e.school);
+      const sk = cvData.skills||{};
+      const xt = cvData.extras||{};
       const fullName=`${p.firstName||''} ${p.lastName||''}`.trim();
 
       /* ══ HEADER ══ */
-      doc.setFontSize(24);
-      doc.setFont('helvetica','bold');
+      // Name — 26pt serif bold, centered
+      setF('serif-bold',26);
       doc.setTextColor(17,17,17);
-      doc.text(fullName,PW/2,Y+7,{align:'center'});
-      Y+=12;
+      doc.text(fullName,PW/2,Y+pt2mm(26)*0.75,{align:'center'});
+      Y+=pt2mm(26)*1.15+1;
 
+      // Role — 12pt serif italic, centered
       if(p.jobTitle){
-        doc.setFontSize(12);
-        doc.setFont('helvetica','normal');
-        doc.setTextColor(80,80,80);
+        setF('serif-italic',12);
+        doc.setTextColor(68,68,68);
         doc.text(p.jobTitle,PW/2,Y,{align:'center'});
-        Y+=LH+1;
+        Y+=pt2mm(12)*1.55+1.5;
       }
 
-      const ctacts=[
-        p.email,p.phone,
+      // Contacts — 9pt sans normal, centered, pipe-separated
+      const rawContacts=[
+        p.email,
+        p.phone,
         [p.city,p.country].filter(Boolean).join(', '),
-        p.linkedin?p.linkedin.replace(/https?:\/\/(www\.)?/i,''):'',
-        p.website ?p.website.replace(/https?:\/\/(www\.)?/i,'') :'',
-        p.github  ?p.github.replace(/https?:\/\/(www\.)?/i,'')  :'',
+        p.linkedin ? displayUrl(ensureHttps(p.linkedin))  : '',
+        p.website  ? displayUrl(ensureHttps(p.website))   : '',
+        p.github   ? displayUrl(ensureHttps(p.github))    : '',
       ].filter(Boolean);
-      if(ctacts.length){
-        doc.setFontSize(8.5);
-        doc.setFont('helvetica','normal');
-        doc.setTextColor(70,70,70);
-        const cstr=ctacts.join('  |  ');
+
+      if(rawContacts.length){
+        setF('sans-normal',9);
+        doc.setTextColor(55,55,55);
+        const cstr=rawContacts.join('  |  ');
         const clines=doc.splitTextToSize(cstr,TW);
         doc.text(clines,PW/2,Y,{align:'center'});
-        Y+=clines.length*4.5;
+        Y+=clines.length*pt2mm(9)*1.45+1.5;
       }
-      Y+=3;
+
+      // Header rule — thick line, matching preview's border-bottom: 2px solid
+      Y+=2;
       doc.setDrawColor(17,17,17);
-      doc.setLineWidth(0.6);
+      doc.setLineWidth(0.7);
       doc.line(MG,Y,MG+TW,Y);
-      Y+=4.5;
+      Y+=5;
 
       /* ══ SUMMARY ══ */
       if(cvData.summary&&cvData.summary.trim()){
-        secTitle(t('cv_sum'));
-        doc.setFontSize(10.5);
-        doc.setFont('helvetica','normal');
-        doc.setTextColor(30,30,30);
+        sectionTitle(t('cv_sum'));
+        setF('serif-normal',10.5);
+        doc.setTextColor(34,34,34);
         const lines=doc.splitTextToSize(cvData.summary.trim(),TW);
-        needPage(lines.length*LH+4);
+        needPage(lines.length*LH_BODY+ITEM_GAP);
         doc.text(lines,MG,Y);
-        Y+=lines.length*LH+1;
+        Y+=lines.length*LH_BODY;
       }
 
-      pf.style.width='55%';
+      pf.style.width='50%';
 
       /* ══ EXPERIENCE ══ */
       if(ex.length){
-        secTitle(t('cv_exp'));
-        ex.forEach(e=>{
-          needPage(16);
+        sectionTitle(t('cv_exp'));
+        ex.forEach((e,idx)=>{
           const ds=fmtM(e.start);
           const de=e.current?t('cv_now'):fmtM(e.end);
           const dateStr=[ds,de].filter(Boolean).join(' – ');
           const badge=e.type?` [${e.type}]`:'';
-          // Job title (bold)
-          doc.setFontSize(10.5);
-          doc.setFont('helvetica','bold');
+          needPage(LH_BODY+LH_SMALL+LH_BODY*3+ITEM_GAP);
+
+          // Job title bold — 10.5pt sans bold
+          setF('sans-bold',10.5);
           doc.setTextColor(17,17,17);
           doc.text((e.title||'')+badge,MG,Y);
-          // Date right-aligned
+
+          // Date right-aligned — 8.5pt sans normal
           if(dateStr){
-            doc.setFontSize(8.5);
-            doc.setFont('helvetica','normal');
+            setF('sans-normal',8.5);
             doc.setTextColor(90,90,90);
             doc.text(dateStr,MG+TW,Y,{align:'right'});
           }
-          Y+=LHS+0.5;
-          // Company · location
+          Y+=LH_SMALL+1;
+
+          // Company · location — 10pt serif italic
           const meta=[e.company,e.location].filter(Boolean).join(' · ');
           if(meta){
-            doc.setFontSize(10);
-            doc.setFont('helvetica','italic');
+            setF('serif-italic',10);
             doc.setTextColor(80,80,80);
             doc.text(meta,MG,Y);
-            Y+=LHS;
+            Y+=LH_SMALL+0.5;
           }
-          // Description with bullet parsing
+
+          // Description — 10pt serif normal, bullets parsed
           if(e.desc&&e.desc.trim()){
             const raw=e.desc.split('\n').map(l=>l.trim()).filter(Boolean);
             const hasBullet=raw.some(l=>/^[•\-\*]/.test(l));
-            doc.setFontSize(10);
-            doc.setFont('helvetica','normal');
-            doc.setTextColor(40,40,40);
+            setF('serif-normal',10);
+            doc.setTextColor(34,34,34);
             raw.forEach(line=>{
               const clean=hasBullet?line.replace(/^[•\-\*]\s*/,''):line;
-              const pfx=hasBullet?'• ':'';
-              const ind=hasBullet?MG+2.5:MG;
-              const wid=hasBullet?TW-2.5:TW;
-              const wrapped=doc.splitTextToSize(pfx+clean,wid);
-              needPage(wrapped.length*LH+2);
-              doc.text(wrapped,ind,Y);
-              Y+=wrapped.length*LH;
+              const pfx=hasBullet?'•  ':'';
+              const indentX=hasBullet?MG+DESC_INDENT:MG;
+              const textW=hasBullet?TW-DESC_INDENT:TW;
+              // Draw bullet separately so it doesn't get wrapped into the indent
+              if(hasBullet){
+                setF('serif-normal',10);
+                doc.setTextColor(34,34,34);
+                doc.text('•',MG,Y);
+              }
+              const wrapped=doc.splitTextToSize(clean,textW);
+              needPage(wrapped.length*LH_SMALL+1);
+              doc.text(wrapped,indentX,Y);
+              Y+=wrapped.length*LH_SMALL;
             });
           }
-          Y+=GAP;
+          // Gap between items (not after last)
+          if(idx<ex.length-1) Y+=ITEM_GAP;
         });
       }
 
       /* ══ EDUCATION ══ */
       if(ed.length){
-        secTitle(t('cv_edu'));
-        ed.forEach(e=>{
-          needPage(13);
+        sectionTitle(t('cv_edu'));
+        ed.forEach((e,idx)=>{
+          needPage(LH_BODY+LH_SMALL*3+ITEM_GAP);
           const de=e.current?t('cv_now'):e.end;
           const dateStr=[e.start,de].filter(Boolean).join(' – ');
           const deg=[e.degree,e.field].filter(Boolean).join(' in ');
-          doc.setFontSize(10.5);
-          doc.setFont('helvetica','bold');
+
+          // Degree — 10.5pt sans bold
+          setF('sans-bold',10.5);
           doc.setTextColor(17,17,17);
           doc.text(deg,MG,Y);
           if(dateStr){
-            doc.setFontSize(8.5);
-            doc.setFont('helvetica','normal');
+            setF('sans-normal',8.5);
             doc.setTextColor(90,90,90);
             doc.text(dateStr,MG+TW,Y,{align:'right'});
           }
-          Y+=LHS+0.5;
+          Y+=LH_SMALL+1;
+
+          // School — 10pt serif italic
           const school=[e.school,e.location].filter(Boolean).join(', ');
           if(school){
-            doc.setFontSize(10);
-            doc.setFont('helvetica','italic');
+            setF('serif-italic',10);
             doc.setTextColor(80,80,80);
             doc.text(school,MG,Y);
-            Y+=LHS;
+            Y+=LH_SMALL+0.5;
           }
+          // GPA — 8.5pt sans normal
           if(e.gpa){
-            doc.setFontSize(8.5);
-            doc.setFont('helvetica','normal');
+            setF('sans-normal',8.5);
             doc.setTextColor(100,100,100);
             doc.text('GPA: '+e.gpa,MG,Y);
-            Y+=LHS;
+            Y+=LH_TINY+0.5;
           }
+          // Achievements — 9.5pt serif normal
           if(e.achievements&&e.achievements.trim()){
-            doc.setFontSize(9.5);
-            doc.setFont('helvetica','normal');
+            setF('serif-normal',9.5);
             doc.setTextColor(60,60,60);
             const al=doc.splitTextToSize(e.achievements.trim(),TW);
-            needPage(al.length*LH+2);
+            needPage(al.length*LH_SMALL+2);
             doc.text(al,MG,Y);
-            Y+=al.length*LH;
+            Y+=al.length*(LH_SMALL-0.5);
           }
-          Y+=GAP;
+          if(idx<ed.length-1) Y+=ITEM_GAP;
         });
       }
 
-      pf.style.width='78%';
+      pf.style.width='75%';
 
       /* ══ SKILLS ══ */
       const hasSkills=(sk.tech||[]).length||(sk.soft||[]).length||(sk.languages||[]).length||(sk.certs||[]).length;
       if(hasSkills){
-        secTitle(t('cv_sk'));
-        [
+        sectionTitle(t('cv_sk'));
+        const groups=[
           {label:t('cv_skt'),arr:sk.tech||[]},
           {label:t('cv_sks'),arr:sk.soft||[]},
           {label:t('cv_skl'),arr:sk.languages||[]},
           {label:t('cv_skc'),arr:sk.certs||[]},
-        ].filter(g=>g.arr.length).forEach(g=>{
-          needPage(8);
-          const lw=doc.getStringUnitWidth(g.label.toUpperCase()+': ')*8.5*0.3528+1;
-          doc.setFontSize(8.5);
-          doc.setFont('helvetica','bold');
+        ].filter(g=>g.arr.length);
+
+        groups.forEach(g=>{
+          needPage(LH_TINY+2);
+          // Label bold — 8.5pt sans bold
+          setF('sans-bold',8.5);
           doc.setTextColor(50,50,50);
-          doc.text(g.label.toUpperCase()+': ',MG,Y);
-          doc.setFont('helvetica','normal');
-          doc.setTextColor(40,40,40);
-          const sstr=g.arr.join('  ·  ');
-          const slines=doc.splitTextToSize(sstr,TW-lw);
-          doc.text(slines[0]||'',MG+lw,Y);
-          Y+=LH;
-          for(let i=1;i<slines.length;i++){doc.text(slines[i],MG,Y);Y+=LH;}
+          const labelTxt=g.label.toUpperCase()+':  ';
+          doc.text(labelTxt,MG,Y);
+          const labelW=doc.getTextWidth(labelTxt);
+          // Skills — 8.5pt sans normal
+          setF('sans-normal',8.5);
+          doc.setTextColor(34,34,34);
+          const sstr=g.arr.join('   ·   ');
+          const slines=doc.splitTextToSize(sstr,TW-labelW);
+          // First line on same line as label
+          if(slines[0]) doc.text(slines[0],MG+labelW,Y);
+          Y+=LH_TINY+0.5;
+          // Overflow lines indented to match
+          for(let i=1;i<slines.length;i++){
+            needPage(LH_TINY+1);
+            doc.text(slines[i],MG+labelW,Y);
+            Y+=LH_TINY+0.5;
+          }
         });
-        Y+=1;
       }
 
-      /* ══ ACHIEVEMENTS ══ */
+      /* ══ KEY ACHIEVEMENTS ══ */
       if(xt.achievements&&xt.achievements.trim()){
-        secTitle(t('cv_ach'));
+        sectionTitle(t('cv_ach'));
         const raw=xt.achievements.split('\n').map(l=>l.trim()).filter(Boolean);
-        const hb=raw.some(l=>/^[•\-\*]/.test(l));
-        doc.setFontSize(10);
-        doc.setFont('helvetica','normal');
-        doc.setTextColor(40,40,40);
+        const hasBullet=raw.some(l=>/^[•\-\*]/.test(l));
+        setF('serif-normal',10);
+        doc.setTextColor(34,34,34);
         raw.forEach(line=>{
-          const cl=hb?line.replace(/^[•\-\*]\s*/,''):line;
-          const pfx=hb?'• ':'';
-          const wrapped=doc.splitTextToSize(pfx+cl,TW);
-          needPage(wrapped.length*LH+2);
-          doc.text(wrapped,MG,Y);
-          Y+=wrapped.length*LH;
+          const clean=hasBullet?line.replace(/^[•\-\*]\s*/,''):line;
+          if(hasBullet) doc.text('•',MG,Y);
+          const wrapped=doc.splitTextToSize(clean,hasBullet?TW-DESC_INDENT:TW);
+          needPage(wrapped.length*LH_SMALL+1);
+          doc.text(wrapped,hasBullet?MG+DESC_INDENT:MG,Y);
+          Y+=wrapped.length*LH_SMALL;
         });
       }
 
       /* ══ REFERENCES ══ */
       if(xt.references&&xt.references.trim()){
-        secTitle(t('cv_ref'));
-        doc.setFontSize(10);
-        doc.setFont('helvetica','italic');
+        sectionTitle(t('cv_ref'));
+        setF('serif-italic',10);
         doc.setTextColor(90,90,90);
         const rlines=doc.splitTextToSize(xt.references.trim(),TW);
-        needPage(rlines.length*LH+2);
+        needPage(rlines.length*LH_SMALL+2);
         doc.text(rlines,MG,Y);
       }
 
@@ -892,12 +1052,13 @@ function generatePDF(){
     }catch(err){
       console.error('jsPDF error:',err);
       toast(t('t_err'),'err');
-      document.getElementById('btn-gen').disabled=false;
+      const b=document.getElementById('btn-gen');
+      b.disabled=false;
       document.getElementById('glbl').textContent=t('btn_gen');
       document.getElementById('gico').classList.remove('spin');
       document.getElementById('pw').classList.remove('show');
     }
-  },80);
+  },60));
 }
 
 function triggerDownload(){
@@ -913,9 +1074,9 @@ function triggerDownload(){
 function showSuccess(emailSent,addr){
   document.getElementById('success').classList.add('show');
   const b=document.getElementById('ebadge');
-  if(emailSent===true){b.textContent=t('eb_ok')+addr;b.className='ebadge ok';}
-  else if(emailSent===false){b.textContent=t('eb_fail');b.className='ebadge fail';}
-  else{b.className='ebadge';}
+  if(emailSent===true){ b.textContent=t('eb_ok')+addr; b.className='ebadge ok'; }
+  else if(emailSent===false){ b.textContent=t('eb_fail'); b.className='ebadge fail'; }
+  else{ b.className='ebadge'; }
 }
 
 /* ══ EMAIL ══ */
@@ -942,15 +1103,16 @@ async function sendEmail(){
   const xt=cvData.extras||{};
   const full=`${p.firstName||''} ${p.lastName||''}`.trim();
 
-  let body=`========== CV SUMMARY ==========\n`;
+  // Build full-text CV summary for email body
+  let body='========== CV SUMMARY ==========\n';
   body+=`Name     : ${full}\nRole     : ${p.jobTitle||''}\nEmail    : ${p.email||''}\nPhone    : ${p.phone||''}\n`;
   body+=`Location : ${[p.city,p.country].filter(Boolean).join(', ')}\n`;
-  if(p.linkedin) body+=`LinkedIn : ${p.linkedin}\n`;
-  if(p.website)  body+=`Website  : ${p.website}\n`;
-  if(p.github)   body+=`GitHub   : ${p.github}\n`;
+  if(p.linkedin) body+=`LinkedIn : ${ensureHttps(p.linkedin)}\n`;
+  if(p.website)  body+=`Website  : ${ensureHttps(p.website)}\n`;
+  if(p.github)   body+=`GitHub   : ${ensureHttps(p.github)}\n`;
   if(cvData.summary) body+=`\n--- Professional Summary ---\n${cvData.summary}\n`;
   if(ex.length){
-    body+=`\n--- Work Experience ---\n`;
+    body+='\n--- Work Experience ---\n';
     ex.forEach(e=>{
       body+=`\n• ${e.title||''} at ${e.company||''}`;
       if(e.start) body+=` (${fmtM(e.start)} – ${e.current?t('cv_now'):fmtM(e.end)})`;
@@ -961,7 +1123,7 @@ async function sendEmail(){
     });
   }
   if(ed.length){
-    body+=`\n--- Education ---\n`;
+    body+='\n--- Education ---\n';
     ed.forEach(e=>{
       body+=`• ${[e.degree,e.field].filter(Boolean).join(' in ')} — ${e.school||''}`;
       if(e.start||e.end) body+=` (${[e.start,e.current?t('cv_now'):e.end].filter(Boolean).join(' – ')})`;
@@ -976,9 +1138,12 @@ async function sendEmail(){
   if((sk.certs||[]).length)     body+=`\n--- Certifications ---\n${sk.certs.join(', ')}\n`;
   if(xt.achievements)           body+=`\n--- Key Achievements ---\n${xt.achievements}\n`;
   if(note)                      body+=`\n--- Personal Note ---\n${note}\n`;
-  body+=`\n================================\nGenerated by CraftCV (Portfolio Project)\nNo data was stored on any server.\n`;
+  body+='\n================================\nGenerated by CraftCV (Portfolio Project)\nNo data was stored on any server.\n';
 
-  const params={to_email:toEm,to_name:full,reply_to:p.email||toEm,cv_full_text:body,personal_note:note||'',cv_name:full,cv_role:p.jobTitle||''};
+  const params={
+    to_email:toEm, to_name:full, reply_to:p.email||toEm,
+    cv_full_text:body, personal_note:note||'', cv_name:full, cv_role:p.jobTitle||'',
+  };
 
   try{
     emailjs.init({publicKey:key});
@@ -987,14 +1152,14 @@ async function sendEmail(){
     btn.disabled=false; lbl.textContent=t('btn_em'); btn.classList.add('sent');
     showSuccess(true,toEm);
   }catch(err){
-    console.error('EmailJS:',err);
+    console.error('EmailJS error:',err);
     toast(t('t_fail'),'err');
     btn.disabled=false; lbl.textContent=t('btn_em');
     showSuccess(false,'');
   }
 }
 
-/* ══ MINI CV ══ */
+/* ══ MINI CV (right panel) ══ */
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
 function renderMini(d){
@@ -1004,18 +1169,18 @@ function renderMini(d){
   const ed=(d.education||[]).filter(e=>e.degree||e.school).slice(0,2);
   const sk=d.skills||{};
   const full=`${p.firstName||''} ${p.lastName||''}`.trim();
+  const icoSvg=(path)=>`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
   let h=`<div class="mn">${esc(full)}</div>`;
   if(p.jobTitle) h+=`<div class="mr">${esc(p.jobTitle)}</div>`;
-  const ico=(path)=>`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
-  if(p.email) h+=`<div class="mc">${ico('<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>')} ${esc(p.email)}</div>`;
-  if(p.phone) h+=`<div class="mc">${ico('<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.4 1.14 2 2 0 012 .84h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>')} ${esc(p.phone)}</div>`;
+  if(p.email) h+=`<div class="mc">${icoSvg('<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>')} ${esc(p.email)}</div>`;
+  if(p.phone) h+=`<div class="mc">${icoSvg('<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-8.39-8.39 19.79 19.79 0 01-3.07-8.63A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>')} ${esc(p.phone)}</div>`;
   if(ex.length){
     h+=`<div class="md"></div><div class="ms">${t('cv_exp')}</div>`;
-    ex.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt">${esc(e.title)}<br><span class="sub">${esc(e.company)}${e.start?' · '+e.start.substring(0,4):''}</span></div></div>`;});
+    ex.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.title)}<br><span class="sub">${esc(e.company)}${e.start?' · '+e.start.substring(0,4):''}</span></div></div>`;});
   }
   if(ed.length){
     h+=`<div class="md"></div><div class="ms">${t('cv_edu')}</div>`;
-    ed.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt">${esc(e.degree)}<br><span class="sub">${esc(e.school)}</span></div></div>`;});
+    ed.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.degree)}<br><span class="sub">${esc(e.school)}</span></div></div>`;});
   }
   if((sk.tech||[]).length){
     h+=`<div class="md"></div><div class="ms">${t('cv_sk')}</div><div class="mchips">`;
@@ -1030,8 +1195,9 @@ function renderMini(d){
 function clearSession(){sessionStorage.removeItem('craftcv_data');}
 
 /* ══ INIT ══ */
-(function init(){
+(async function init(){
   try{cvData=JSON.parse(sessionStorage.getItem('craftcv_data')||'null');}catch(e){cvData=null;}
+
   const l=(cvData&&cvData.lang)||localStorage.getItem('craftcv_lang')||'en';
   setLang(l);
 
@@ -1043,7 +1209,7 @@ function clearSession(){sessionStorage.removeItem('craftcv_data');}
     return;
   }
 
-  // Pre-fill filename with user's name
+  // Pre-fill filename
   const p=cvData.personal||{};
   const fname=`${p.firstName||'My'}_${p.lastName||'CV'}`.replace(/\s+/g,'_');
   document.getElementById('fname').value=fname+'_CV';
@@ -1056,6 +1222,9 @@ function clearSession(){sessionStorage.removeItem('craftcv_data');}
 
   loadCfg();
   renderMini(cvData);
+
+  // Load fonts asynchronously — PDF button works with fallback if this fails
+  await loadFonts();
 })();
 </script>
 </body>
