@@ -7,12 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-
-<!-- jsPDF UMD — vector text PDF, no screenshot -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- EmailJS browser SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -21,12 +17,9 @@
   --sage:#3B6D11;--sage-light:#EAF3DE;--sage-dark:#27500A;
   --amber:#BA7517;--amber-light:#FAEEDA;
   --coral:#993C1D;--coral-light:#FAECE7;
-  --white:#FFFFFF;
+  --white:#FFF;
   --border:rgba(26,23,20,.11);--border-mid:rgba(26,23,20,.18);--border-strong:rgba(26,23,20,.26);
-  --r:10px;--r-lg:16px;
-  --ff:'DM Sans',system-ui,sans-serif;
-  --ffd:'DM Serif Display',Georgia,serif;
-  --ease:.22s ease;
+  --r:10px;--r-lg:16px;--ff:'DM Sans',system-ui,sans-serif;--ffd:'DM Serif Display',Georgia,serif;--ease:.22s ease;
 }
 html{scroll-behavior:smooth}
 body{font-family:var(--ff);background:var(--cream);color:var(--ink);min-height:100vh;overflow-x:hidden}
@@ -35,22 +28,43 @@ body{font-family:var(--ff);background:var(--cream);color:var(--ink);min-height:1
 nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:.85rem 2rem;background:rgba(245,240,232,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);gap:1rem}
 .logo{font-family:var(--ffd);font-size:1.35rem;color:var(--ink);text-decoration:none}
 .logo span{color:var(--sage)}
-.nav-steps{display:flex;align-items:center;gap:5px;background:var(--white);border:1px solid var(--border-mid);border-radius:999px;padding:4px 5px;flex:1;max-width:330px;margin:0 auto}
+.nav-mid{display:flex;align-items:center;gap:5px;background:var(--white);border:1px solid var(--border-mid);border-radius:999px;padding:4px 5px;flex:1;max-width:330px;margin:0 auto}
 .ns{flex:1;text-align:center;font-size:.71rem;padding:5px 9px;border-radius:999px;color:var(--ink-faint);white-space:nowrap}
 .ns.done{color:var(--sage)}.ns.active{background:var(--ink);color:var(--cream);font-weight:500}
 .nav-r{display:flex;align-items:center;gap:.75rem}
 .lt{display:flex;background:var(--white);border:1px solid var(--border-strong);border-radius:999px;padding:3px;gap:2px}
-.lb{font-size:.7rem;font-weight:500;padding:3px 10px;border-radius:999px;border:none;background:transparent;color:var(--ink-light);cursor:pointer;transition:all var(--ease);font-family:var(--ff)}
+.lb{font-size:.7rem;font-weight:500;padding:3px 10px;border-radius:999px;border:none;background:transparent;color:var(--ink-light);cursor:pointer;font-family:var(--ff);transition:all var(--ease)}
 .lb.active{background:var(--ink);color:var(--cream)}
+.btn-back-nav{font-size:.78rem;color:var(--ink-light);text-decoration:none;display:flex;align-items:center;gap:4px;transition:color var(--ease);white-space:nowrap}
+.btn-back-nav:hover{color:var(--sage)}
 
-/* PAGE GRID */
+/* PAGE */
 .page{max-width:980px;margin:0 auto;padding:5.5rem 2rem 4rem;display:grid;grid-template-columns:1fr 350px;gap:2.5rem;align-items:start}
-
-/* TYPE */
 .eyebrow{font-size:.63rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--sage);margin-bottom:.4rem}
 .page-title{font-family:var(--ffd);font-size:clamp(1.9rem,3.8vw,2.6rem);line-height:1.1;letter-spacing:-.02em;color:var(--ink);margin-bottom:.65rem}
 .page-title em{font-style:italic;color:var(--sage)}
 .page-sub{font-size:.92rem;color:var(--ink-light);font-weight:300;line-height:1.75;max-width:420px;margin-bottom:2rem}
+
+/* INLINE SUCCESS BANNER — replaces the blocking full-screen overlay */
+.success-banner{display:none;align-items:flex-start;gap:14px;background:var(--sage-light);border:1px solid rgba(59,109,17,.25);border-radius:var(--r-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem;animation:fd .3s ease both}
+.success-banner.show{display:flex}
+@keyframes fd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.sb-icon{width:36px;height:36px;border-radius:50%;background:var(--sage);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-icon svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.sb-body{flex:1}
+.sb-title{font-family:var(--ffd);font-size:1.05rem;color:var(--sage-dark);margin-bottom:3px}
+.sb-sub{font-size:.78rem;color:var(--ink-light);line-height:1.6;margin-bottom:.75rem}
+.sb-actions{display:flex;gap:.6rem;flex-wrap:wrap}
+.btn-dl{display:inline-flex;align-items:center;gap:6px;font-family:var(--ff);font-size:.82rem;font-weight:500;padding:8px 18px;border-radius:999px;border:none;background:var(--ink);color:var(--cream);cursor:pointer;transition:all var(--ease);text-decoration:none}
+.btn-dl:hover{background:var(--ink-mid);transform:translateY(-1px)}
+.btn-dl svg{width:13px;height:13px;stroke:currentColor;fill:none}
+.btn-ghost{display:inline-flex;align-items:center;gap:6px;font-family:var(--ff);font-size:.82rem;font-weight:400;padding:8px 16px;border-radius:999px;border:1.5px solid var(--border-strong);background:transparent;color:var(--ink-mid);cursor:pointer;transition:all var(--ease);text-decoration:none}
+.btn-ghost:hover{background:var(--cream-dark)}
+
+/* EMAIL SUCCESS BADGE */
+.ebadge{display:none;font-size:.77rem;padding:7px 14px;border-radius:var(--r);margin-top:.6rem}
+.ebadge.ok{display:block;background:var(--sage-light);color:var(--sage-dark);border:1px solid rgba(59,109,17,.2)}
+.ebadge.fail{display:block;background:var(--amber-light);color:var(--amber);border:1px solid rgba(186,117,23,.22)}
 
 /* CARDS */
 .card{background:var(--white);border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;box-shadow:0 4px 24px rgba(26,23,20,.06);margin-bottom:1.2rem}
@@ -59,7 +73,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .ci svg{width:18px;height:18px;stroke:currentColor;fill:none}
 .ci.pdf{background:var(--sage-light);color:var(--sage)}
 .ci.mail{background:var(--amber-light);color:var(--amber)}
-.ci.cfg{background:var(--cream-dark);color:var(--ink-light)}
 .ct{font-family:var(--ffd);font-size:1.08rem;color:var(--ink)}
 .cs{font-size:.76rem;color:var(--ink-light);font-weight:300;margin-top:2px}
 .cb{padding:1.5rem}
@@ -83,26 +96,22 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .fld input.err{border-color:var(--coral)}
 .hint{font-size:.69rem;color:var(--ink-faint);margin-top:2px;line-height:1.5}
 
+/* FONT STATUS */
+.font-status{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:var(--r);font-size:.73rem;margin-bottom:1rem}
+.font-status.loading{background:var(--amber-light);border:1px solid rgba(186,117,23,.22);color:var(--amber)}
+.font-status.ready{background:var(--sage-light);border:1px solid rgba(59,109,17,.2);color:var(--sage-dark)}
+.font-status.fallback{background:var(--cream-dark);border:1px solid var(--border-mid);color:var(--ink-light)}
+.fs-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:currentColor}
+.font-status.loading .fs-dot{animation:pulse 1.2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
 /* GENERATE BUTTON */
 .btn-gen{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;font-family:var(--ff);font-size:1rem;font-weight:500;padding:14px 24px;border-radius:var(--r);border:none;background:var(--ink);color:var(--cream);cursor:pointer;transition:all var(--ease);box-shadow:0 3px 16px rgba(26,23,20,.2);position:relative;overflow:hidden}
-.btn-gen::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.07),transparent);transform:translateX(-100%);transition:transform .55s ease}
-.btn-gen:hover::after{transform:translateX(100%)}
-.btn-gen:hover{background:var(--ink-mid);transform:translateY(-1px);box-shadow:0 6px 22px rgba(26,23,20,.26)}
+.btn-gen:hover{background:var(--ink-mid);transform:translateY(-1px)}
 .btn-gen:disabled{opacity:.55;cursor:not-allowed;pointer-events:none}
 .btn-gen svg{width:18px;height:18px;stroke:currentColor;flex-shrink:0;fill:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin{animation:spin .75s linear infinite}
-
-/* FONT LOADING STATUS */
-.font-status{display:flex;align-items:center;gap:8px;padding:9px 13px;border-radius:var(--r);font-size:.73rem;margin-bottom:1rem;transition:all var(--ease)}
-.font-status.loading{background:var(--amber-light);border:1px solid rgba(186,117,23,.22);color:var(--amber)}
-.font-status.ready{background:var(--sage-light);border:1px solid rgba(59,109,17,.2);color:var(--sage-dark)}
-.font-status.fallback{background:var(--cream-dark);border:1px solid var(--border-mid);color:var(--ink-light)}
-.fs-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.font-status.loading .fs-dot{background:var(--amber);animation:pulse 1.2s infinite}
-.font-status.ready .fs-dot{background:var(--sage)}
-.font-status.fallback .fs-dot{background:var(--ink-faint)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* PROGRESS */
 .pw{display:none;margin-top:1rem}
@@ -122,32 +131,20 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .tt{font-size:.85rem;color:var(--ink-mid)}
 .ef{display:none}
 .ef.show{display:block;animation:fd .25s ease both}
-@keyframes fd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 
-/* EMAIL BTN */
+/* EMAIL BUTTON */
 .btn-em{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;font-family:var(--ff);font-size:.9rem;font-weight:500;padding:11px 20px;border-radius:var(--r);border:1.5px solid rgba(186,117,23,.4);background:var(--amber-light);color:var(--amber);cursor:pointer;transition:all var(--ease);margin-top:.2rem}
 .btn-em:hover{background:#F5E3C5;border-color:var(--amber);transform:translateY(-1px)}
 .btn-em:disabled{opacity:.5;cursor:not-allowed;pointer-events:none}
 .btn-em svg{width:16px;height:16px;stroke:currentColor;fill:none}
 .btn-em.sent{background:var(--sage-light);border-color:var(--sage);color:var(--sage-dark)}
 
-/* NOTICES */
+/* NOTICE */
 .notice{display:flex;align-items:flex-start;gap:9px;padding:10px 13px;border-radius:var(--r);margin-top:.9rem}
-.notice p,.notice{font-size:.72rem;color:var(--ink-light);line-height:1.65;font-weight:300}
+.notice p{font-size:.72rem;color:var(--ink-light);line-height:1.65;font-weight:300}
 .notice p strong{color:var(--ink-mid);font-weight:500}
 .ni{font-size:.82rem;flex-shrink:0;margin-top:1px}
 .n-ink{background:var(--cream-dark);border:1px solid var(--border-mid)}
-.n-amber{background:var(--amber-light);border:1px solid rgba(186,117,23,.22)}
-.n-sage{background:var(--sage-light);border:1px solid rgba(59,109,17,.2)}
-
-/* SETUP STEPS */
-.steps{display:flex;flex-direction:column;gap:10px;margin-top:1rem}
-.step{display:flex;align-items:flex-start;gap:10px}
-.snum{width:22px;height:22px;border-radius:50%;background:var(--ink);color:var(--cream);font-size:.65rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.stxt{font-size:.76rem;color:var(--ink-mid);line-height:1.65}
-.stxt a{color:var(--sage);text-decoration:none;font-weight:500}
-.stxt a:hover{text-decoration:underline}
-.stxt code{background:var(--cream-dark);border:1px solid var(--border-mid);border-radius:4px;padding:1px 5px;font-size:.68rem;font-family:monospace;color:var(--ink-mid)}
 
 /* DISCLAIMER */
 .disc{display:flex;align-items:flex-start;gap:9px;padding:12px 14px;border-radius:var(--r);background:var(--cream-dark);border:1px solid var(--border-mid);margin-top:1.2rem}
@@ -177,25 +174,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .fok{width:16px;height:16px;border-radius:50%;background:var(--sage-light);color:var(--sage);display:flex;align-items:center;justify-content:center;font-size:.55rem;flex-shrink:0}
 .ftxt{font-size:.71rem;color:var(--ink-light)}
 
-/* SUCCESS */
-.success{position:fixed;inset:0;z-index:900;display:none;flex-direction:column;align-items:center;justify-content:center;background:rgba(245,240,232,.97);backdrop-filter:blur(16px);padding:2rem;text-align:center}
-.success.show{display:flex}
-.sr{width:84px;height:84px;border-radius:50%;background:var(--sage-light);border:2px solid rgba(59,109,17,.3);display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem;animation:pop .5s cubic-bezier(.175,.885,.32,1.275) both}
-@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
-.sr svg{width:38px;height:38px;stroke:var(--sage);stroke-width:2.5;fill:none}
-.stitle{font-family:var(--ffd);font-size:clamp(1.9rem,4vw,2.9rem);color:var(--ink);letter-spacing:-.02em;line-height:1.1;margin-bottom:.7rem}
-.stitle em{font-style:italic;color:var(--sage)}
-.ssub{font-size:.96rem;color:var(--ink-light);font-weight:300;max-width:420px;line-height:1.75;margin-bottom:1.8rem}
-.sacts{display:flex;gap:.75rem;flex-wrap:wrap;justify-content:center}
-.btn-dl{display:flex;align-items:center;gap:7px;font-family:var(--ff);font-size:.9rem;font-weight:500;padding:12px 26px;border-radius:999px;border:none;background:var(--ink);color:var(--cream);cursor:pointer;transition:all var(--ease);text-decoration:none;box-shadow:0 3px 14px rgba(26,23,20,.18)}
-.btn-dl:hover{background:var(--ink-mid);transform:translateY(-1px)}
-.btn-dl svg{width:15px;height:15px;stroke:currentColor;fill:none}
-.btn-ghost{display:flex;align-items:center;gap:7px;font-family:var(--ff);font-size:.9rem;font-weight:400;padding:12px 22px;border-radius:999px;border:1.5px solid var(--border-strong);background:transparent;color:var(--ink-mid);cursor:pointer;transition:all var(--ease);text-decoration:none}
-.btn-ghost:hover{background:var(--cream-dark)}
-.ebadge{margin-top:1.25rem;padding:10px 20px;border-radius:var(--r);font-size:.79rem;display:none}
-.ebadge.ok{display:inline-block;background:var(--sage-light);color:var(--sage-dark);border:1px solid rgba(59,109,17,.2)}
-.ebadge.fail{display:inline-block;background:var(--amber-light);color:var(--amber);border:1px solid rgba(186,117,23,.22)}
-
 /* TOAST */
 .toast{position:fixed;top:76px;right:1.5rem;z-index:9999;background:var(--ink);color:var(--cream);padding:11px 18px;border-radius:var(--r);font-size:.82rem;display:flex;align-items:center;gap:8px;transform:translateY(-20px);opacity:0;pointer-events:none;transition:all .3s ease;max-width:320px;box-shadow:0 4px 20px rgba(26,23,20,.2)}
 .toast.show{transform:translateY(0);opacity:1}
@@ -206,16 +184,15 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .nodata h2{font-family:var(--ffd);font-size:1.75rem;color:var(--ink)}
 .nodata p{color:var(--ink-light);font-size:.9rem;max-width:360px}
 .btn-go{display:inline-flex;align-items:center;gap:7px;font-family:var(--ff);font-size:.9rem;font-weight:500;padding:12px 28px;border-radius:999px;border:none;background:var(--ink);color:var(--cream);cursor:pointer;text-decoration:none;transition:all var(--ease);box-shadow:0 4px 16px rgba(26,23,20,.15);margin-top:.5rem}
-.btn-go:hover{transform:translateY(-2px)}
 
 @media(max-width:820px){
   .page{grid-template-columns:1fr;padding:5.5rem 1.25rem 3rem;gap:1.5rem}
   .sc{position:static}
   nav{padding:.8rem 1.25rem}
-  .nav-steps{display:none}
+  .nav-mid{display:none}
 }
 @media(max-width:480px){
-  .sacts{flex-direction:column}
+  .sb-actions{flex-direction:column}
   .btn-dl,.btn-ghost{width:100%;justify-content:center}
 }
 </style>
@@ -224,31 +201,19 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 <div class="toast" id="toast" role="alert" aria-live="polite"><span id="t-icon">ℹ</span><span id="t-msg"></span></div>
 
-<!-- SUCCESS -->
-<div class="success" id="success" role="dialog" aria-modal="true">
-  <div class="sr"><svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-  <h2 class="stitle"><span data-i18n="s1">Your CV is</span> <em data-i18n="s2">ready!</em></h2>
-  <p class="ssub" data-i18n="s3">Your ATS-friendly PDF has been downloaded. Good luck with your application!</p>
-  <div id="ebadge" class="ebadge"></div>
-  <div class="sacts" style="margin-top:1.5rem">
-    <button class="btn-dl" onclick="triggerDownload()">
-      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-      <span data-i18n="s_dl">Download Again</span>
-    </button>
-    <a href="form.html" class="btn-ghost" onclick="clearSession()"><span data-i18n="s_new">Start New CV</span></a>
-    <a href="index.html" class="btn-ghost"><span data-i18n="s_home">← Home</span></a>
-  </div>
-</div>
-
-<!-- NAV -->
 <nav>
   <a href="index.html" class="logo">Craft<span>CV</span></a>
-  <div class="nav-steps">
+  <div class="nav-mid">
     <span class="ns done" data-i18n="n1">Fill Form</span>
     <span class="ns done" data-i18n="n2">Preview</span>
     <span class="ns active" data-i18n="n3">Generate PDF</span>
   </div>
   <div class="nav-r">
+    <!-- Back to preview always visible -->
+    <a href="preview.html" class="btn-back-nav">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span data-i18n="nav_back">Back to Preview</span>
+    </a>
     <div class="lt">
       <button class="lb active" id="btn-en" onclick="setLang('en')">EN</button>
       <button class="lb" id="btn-id" onclick="setLang('id')">ID</button>
@@ -257,27 +222,41 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 </nav>
 
 <div class="page">
+<div><!-- LEFT -->
 
-<!-- ════ LEFT COLUMN ════ -->
-<div>
   <p class="eyebrow" data-i18n="ey">Final Step</p>
   <h1 class="page-title"><span data-i18n="pt1">Generate &</span> <em data-i18n="pt2">download</em><br><span data-i18n="pt3">your CV</span></h1>
-  <p class="page-sub" data-i18n="psub">Your ATS-optimised resume is ready. The PDF uses the same fonts as the preview — EB Garamond body, DM Sans labels — loaded fresh from Google Fonts.</p>
+  <p class="page-sub" data-i18n="psub">Choose your format settings, generate your PDF, and optionally email yourself a copy.</p>
+
+  <!-- ── INLINE SUCCESS BANNER (non-blocking) ── -->
+  <div class="success-banner" id="sb" role="status">
+    <div class="sb-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div class="sb-body">
+      <p class="sb-title" data-i18n="sb_title">CV Downloaded!</p>
+      <p class="sb-sub" data-i18n="sb_sub">Your PDF has been saved. You can download again, start fresh, or go home.</p>
+      <div id="ebadge" class="ebadge"></div>
+      <div class="sb-actions" style="margin-top:.75rem">
+        <button class="btn-dl" onclick="triggerDownload()">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span data-i18n="s_dl">Download Again</span>
+        </button>
+        <a href="form.html" class="btn-ghost" onclick="clearSession()"><span data-i18n="s_new">Start New CV</span></a>
+        <a href="index.html" class="btn-ghost"><span data-i18n="s_home">← Home</span></a>
+      </div>
+    </div>
+  </div>
 
   <!-- PDF CARD -->
   <div class="card">
     <div class="ch">
-      <div class="ci pdf">
-        <svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
-      </div>
+      <div class="ci pdf"><svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg></div>
       <div><p class="ct" data-i18n="pdf_t">Download as PDF</p><p class="cs" data-i18n="pdf_s">EB Garamond + DM Sans · ATS vector text · A4 or Letter</p></div>
     </div>
     <div class="cb">
 
-      <!-- Font loading status indicator -->
       <div class="font-status loading" id="font-status">
         <div class="fs-dot"></div>
-        <span id="font-status-msg" data-i18n="font_loading">Loading fonts (EB Garamond + DM Sans)…</span>
+        <span id="font-status-msg" data-i18n="font_loading">Loading fonts…</span>
       </div>
 
       <div class="og">
@@ -312,19 +291,13 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
         <p class="pl" id="pl" data-i18n="pr1">Building your PDF…</p>
       </div>
 
-      <div class="notice n-ink" style="margin-top:1rem"><span class="ni">💡</span>
-        <p data-i18n="pdf_note">PDF uses <strong>EB Garamond</strong> (body) and <strong>DM Sans</strong> (labels) — the same fonts as the preview. Pure vector text; every word is ATS-readable.</p>
-      </div>
-
     </div>
   </div>
 
   <!-- EMAIL CARD -->
   <div class="card">
     <div class="ch">
-      <div class="ci mail">
-        <svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      </div>
+      <div class="ci mail"><svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
       <div><p class="ct" data-i18n="em_t">Email a Copy</p><p class="cs" data-i18n="em_s">Receive a formatted CV summary in your inbox</p></div>
     </div>
     <div class="cb">
@@ -346,9 +319,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
           <label for="em-note" data-i18n="l_note">Personal Note <span style="font-weight:300;color:var(--ink-faint)" data-i18n="opt">(optional)</span></label>
           <textarea id="em-note" rows="2" placeholder="e.g. Applying to Google SWE — deadline Friday"></textarea>
         </div>
-        <div class="notice n-amber" style="margin-bottom:.9rem"><span class="ni">⚙️</span>
-          <p data-i18n="ejs_req">Email requires your own <strong>free EmailJS credentials</strong>. Follow the setup guide in the card below.</p>
-        </div>
         <button class="btn-em" id="btn-em" onclick="sendEmail()">
           <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
           <span id="em-lbl" data-i18n="btn_em">Send Email Copy</span>
@@ -357,149 +327,89 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     </div>
   </div>
 
-  <!-- EMAILJS CONFIG CARD -->
-  <div class="card" id="cfg-card" style="display:none">
-    <div class="ch">
-      <div class="ci cfg">
-        <svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg>
-      </div>
-      <div><p class="ct" data-i18n="cfg_t">EmailJS Setup Guide</p><p class="cs" data-i18n="cfg_s">Free · 200 emails/month · No backend required</p></div>
-    </div>
-    <div class="cb">
-      <div class="notice n-sage"><span class="ni">🔒</span>
-        <p data-i18n="cfg_priv">EmailJS sends directly from your browser. Your data never touches any server you don't control.</p>
-      </div>
-      <p style="font-size:.79rem;font-weight:500;color:var(--ink-mid);margin:1rem 0 .6rem" data-i18n="guide_h">Step-by-step: get your free credentials</p>
-      <div class="steps">
-        <div class="step"><div class="snum">1</div><div class="stxt">Create a free account at <a href="https://www.emailjs.com" target="_blank" rel="noopener">emailjs.com</a> — no credit card. Free plan = <strong>200 emails/month</strong>.</div></div>
-        <div class="step"><div class="snum">2</div><div class="stxt"><strong>Email Services</strong> → <strong>Add New Service</strong>. Connect Gmail, Outlook, or SMTP. Copy the <code>Service ID</code> (e.g. <code>service_abc1234</code>).</div></div>
-        <div class="step"><div class="snum">3</div><div class="stxt"><strong>Email Templates</strong> → <strong>Create New Template</strong>. Use these variables in the body:<br><br>
-          <code>{{to_name}}</code> — full name &nbsp;|&nbsp; <code>{{cv_full_text}}</code> — CV summary &nbsp;|&nbsp; <code>{{personal_note}}</code> — note<br><br>
-          Set <strong>To Email</strong> → <code>{{to_email}}</code> &nbsp;|&nbsp; <strong>Reply-To</strong> → <code>{{reply_to}}</code><br>
-          Subject suggestion: <code>Your CV Summary — {{to_name}}</code><br>Copy the <code>Template ID</code>.
-        </div></div>
-        <div class="step"><div class="snum">4</div><div class="stxt"><strong>Account</strong> → <strong>General</strong> → copy your <strong>Public Key</strong>.</div></div>
-        <div class="step"><div class="snum">5</div><div class="stxt">Paste all three below and click <strong>Save Credentials</strong>.</div></div>
-      </div>
-      <div style="height:1.25rem"></div>
-      <div class="fld"><label for="ejs-svc" data-i18n="l_svc">Service ID</label><input type="text" id="ejs-svc" placeholder="service_0aqctss" autocomplete="off" spellcheck="false"></div>
-      <div class="fld"><label for="ejs-tpl" data-i18n="l_tpl">Template ID</label><input type="text" id="ejs-tpl" placeholder="template_4m0u7mm" autocomplete="off" spellcheck="false"></div>
-      <div class="fld">
-        <label for="ejs-key" data-i18n="l_key">Public Key</label>
-        <input type="text" id="ejs-key" placeholder="TC1D7FwZYQNzlpZvY" autocomplete="off" spellcheck="false">
-        <span class="hint" data-i18n="h_key">Dashboard → Account → General → Public Key</span>
-      </div>
-      <button class="btn-em" style="margin-top:.4rem" onclick="saveCfg()">
-        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        <span data-i18n="btn_save">Save Credentials</span>
-      </button>
-    </div>
-  </div>
-
   <div class="disc">
     <span style="font-size:.85rem;flex-shrink:0;margin-top:1px">🛡️</span>
-    <p data-i18n="disc"><strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF. Email sent via EmailJS client SDK. CV data lives only in browser <code>sessionStorage</code> — cleared when you close this tab.</p>
+    <p data-i18n="disc"><strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF. Email sent via EmailJS. CV data lives only in browser <code>sessionStorage</code> and clears when you close this tab.</p>
   </div>
-</div>
 
-<!-- ════ RIGHT COLUMN ════ -->
-<div>
+</div><!-- /left -->
+
+<div><!-- RIGHT -->
   <div class="sc">
     <div class="sc-h">
       <p class="sc-t" data-i18n="sc_t">Your CV Summary</p>
       <a href="preview.html" class="sc-b-link">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        <span data-i18n="sc_back">Back to Preview</span>
+        <span data-i18n="sc_back">← Preview</span>
       </a>
     </div>
     <div class="sc-body" id="mini-cv"></div>
     <div class="sc-f">
-      <div class="fok" aria-hidden="true">✓</div>
+      <div class="fok">✓</div>
       <span class="ftxt" data-i18n="sc_foot">ATS-optimised · Ready to generate</span>
     </div>
   </div>
-</div>
+</div><!-- /right -->
 
 </div><!-- /page -->
 
 <script>
-/* ══════════════════════════════════════════
-   TRANSLATIONS
-══════════════════════════════════════════ */
+/* ═══════ EMAILJS CREDENTIALS (hardcoded) ═══════ */
+const EJS_SERVICE  = 'service_0aqctss';
+const EJS_TEMPLATE = 'template_4m0u7mm';
+const EJS_KEY      = 'TC1D7FwZYQNzlpZvY';
+
+/* ═══════ TRANSLATIONS ═══════ */
 const TR={
 en:{
+  n1:'Fill Form',n2:'Preview',n3:'Generate PDF',nav_back:'Back to Preview',
   ey:'Final Step',pt1:'Generate &',pt2:'download',pt3:'your CV',
-  psub:'Your ATS-optimised resume is ready. The PDF uses the same fonts as the preview — EB Garamond body, DM Sans labels — loaded fresh from Google Fonts.',
-  n1:'Fill Form',n2:'Preview',n3:'Generate PDF',
+  psub:'Choose your format settings, generate your PDF, and optionally email yourself a copy.',
   pdf_t:'Download as PDF',pdf_s:'EB Garamond + DM Sans · ATS vector text · A4 or Letter',
   l_fn:'File Name',l_ps:'Paper Size',l_mg:'Side Margins',
   mg1:'Narrow (14 mm)',mg2:'Normal (20 mm)',mg3:'Wide (28 mm)',
-  btn_gen:'Generate & Download PDF',
-  pr1:'Loading fonts…',pr2:'Writing CV sections…',pr3:'Saving file…',
-  pdf_note:'PDF uses <strong>EB Garamond</strong> (body) and <strong>DM Sans</strong> (labels) — same as the preview. Pure vector text; every word is ATS-readable.',
-  font_loading:'Loading fonts (EB Garamond + DM Sans)…',
-  font_ready:'Fonts ready — EB Garamond + DM Sans loaded',
-  font_fallback:'Fonts unavailable — using Times New Roman + Helvetica fallback',
+  btn_gen:'Generate & Download PDF',pr1:'Building your PDF…',pr2:'Writing sections…',pr3:'Saving…',
+  font_loading:'Loading fonts…',font_ready:'Fonts ready ✓',font_fallback:'Using system fonts',
   em_t:'Email a Copy',em_s:'Receive a formatted CV summary in your inbox',
   etog_lbl:'Send me an email copy',
   l_to:'Your Email Address',h_to:'A full CV summary will be sent here.',
   l_note:'Personal Note',opt:'(optional)',
-  ejs_req:'Email requires your own <strong>free EmailJS credentials</strong>. Follow the setup guide in the card below.',
   btn_em:'Send Email Copy',
-  cfg_t:'EmailJS Setup Guide',cfg_s:'Free · 200 emails/month · No backend required',
-  cfg_priv:'EmailJS sends directly from your browser. Your data never touches any server you don\'t control.',
-  guide_h:'Step-by-step: get your free credentials',
-  l_svc:'Service ID',l_tpl:'Template ID',l_key:'Public Key',
-  h_key:'Dashboard → Account → General → Public Key',
-  btn_save:'Save Credentials',
-  disc:'<strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF. Email sent via EmailJS client SDK. CV data lives only in browser <code>sessionStorage</code> — cleared when you close this tab.',
-  sc_t:'Your CV Summary',sc_back:'Back to Preview',sc_foot:'ATS-optimised · Ready to generate',
-  s1:'Your CV is',s2:'ready!',s3:'Your ATS-friendly PDF has been downloaded. Good luck!',
+  disc:'<strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF. Email sent via EmailJS. CV data lives only in browser <code>sessionStorage</code> and clears when you close this tab.',
+  sc_t:'Your CV Summary',sc_back:'← Preview',sc_foot:'ATS-optimised · Ready to generate',
+  sb_title:'CV Downloaded!',sb_sub:'Your PDF has been saved. You can download again, start fresh, or go home.',
   s_dl:'Download Again',s_new:'Start New CV',s_home:'← Home',
-  t_gen:'Building your PDF…',t_done:'PDF downloaded successfully!',t_err:'PDF failed — check browser console.',
-  t_sending:'Sending email…',t_ok:'Email sent!',t_fail:'Email failed — check EmailJS credentials.',
-  t_nomail:'Enter your email address first.',t_nocfg:'Enter your EmailJS Service ID, Template ID, and Public Key.',
-  t_saved:'EmailJS credentials saved.',
-  eb_ok:'✓ Email sent to ',eb_fail:'⚠ Email failed — check EmailJS config.',
+  t_gen:'Building your PDF…',t_done:'PDF downloaded!',t_err:'PDF failed — check console.',
+  t_sending:'Sending email…',t_ok:'Email sent!',t_fail:'Email failed. Please try again.',
+  t_nomail:'Enter your email address first.',
+  eb_ok:'✓ Email sent to ',eb_fail:'⚠ Email could not be sent. Please try again.',
   cv_sum:'Professional Summary',cv_exp:'Work Experience',cv_edu:'Education',
   cv_sk:'Skills',cv_skt:'Technical Skills',cv_sks:'Soft Skills',cv_skl:'Languages',cv_skc:'Certifications',
   cv_ach:'Key Achievements',cv_ref:'References',cv_now:'Present',
   nd_t:'No CV Data Found',nd_d:'Fill in the form first.',nd_go:'← Go to Form',
 },
 id:{
+  n1:'Isi Formulir',n2:'Pratinjau',n3:'Buat PDF',nav_back:'Kembali ke Pratinjau',
   ey:'Langkah Terakhir',pt1:'Buat &',pt2:'unduh',pt3:'CV Anda',
-  psub:'Resume Anda siap diekspor. PDF menggunakan font yang sama dengan pratinjau — EB Garamond untuk isi, DM Sans untuk label — dimuat dari Google Fonts.',
-  n1:'Isi Formulir',n2:'Pratinjau',n3:'Buat PDF',
+  psub:'Pilih pengaturan format, buat PDF Anda, dan opsional kirimkan salinan email.',
   pdf_t:'Unduh sebagai PDF',pdf_s:'EB Garamond + DM Sans · Teks vektor ATS · A4 atau Letter',
   l_fn:'Nama File',l_ps:'Ukuran Kertas',l_mg:'Margin Samping',
   mg1:'Sempit (14 mm)',mg2:'Normal (20 mm)',mg3:'Lebar (28 mm)',
-  btn_gen:'Buat & Unduh PDF',
-  pr1:'Memuat font…',pr2:'Menulis bagian CV…',pr3:'Menyimpan file…',
-  pdf_note:'PDF menggunakan <strong>EB Garamond</strong> (isi) dan <strong>DM Sans</strong> (label) — sama dengan pratinjau.',
-  font_loading:'Memuat font (EB Garamond + DM Sans)…',
-  font_ready:'Font siap — EB Garamond + DM Sans berhasil dimuat',
-  font_fallback:'Font tidak tersedia — menggunakan Times New Roman + Helvetica',
+  btn_gen:'Buat & Unduh PDF',pr1:'Membangun PDF…',pr2:'Menulis bagian…',pr3:'Menyimpan…',
+  font_loading:'Memuat font…',font_ready:'Font siap ✓',font_fallback:'Menggunakan font sistem',
   em_t:'Kirim Salinan Email',em_s:'Terima ringkasan CV di kotak masuk Anda',
   etog_lbl:'Kirimkan salinan email ke saya',
   l_to:'Alamat Email Anda',h_to:'Ringkasan CV lengkap akan dikirim ke sini.',
   l_note:'Catatan Pribadi',opt:'(opsional)',
-  ejs_req:'Email memerlukan <strong>kredensial EmailJS gratis Anda sendiri</strong>. Ikuti panduan di kartu di bawah.',
   btn_em:'Kirim Salinan Email',
-  cfg_t:'Panduan Setup EmailJS',cfg_s:'Gratis · 200 email/bulan · Tanpa backend',
-  cfg_priv:'EmailJS mengirim langsung dari browser Anda. Data Anda tidak menyentuh server yang tidak Anda kendalikan.',
-  guide_h:'Langkah demi langkah: dapatkan kredensial gratis Anda',
-  l_svc:'Service ID',l_tpl:'Template ID',l_key:'Public Key',
-  h_key:'Dashboard → Account → General → Public Key',
-  btn_save:'Simpan Kredensial',
-  disc:'<strong>Proyek portofolio:</strong> Tidak ada data tersimpan di server. PDF dibuat 100% di browser via jsPDF. Email menggunakan EmailJS client SDK. Data CV hanya ada di <code>sessionStorage</code> browser dan dihapus saat tab ditutup.',
-  sc_t:'Ringkasan CV Anda',sc_back:'Kembali ke Pratinjau',sc_foot:'Format ramah ATS · Siap dibuat',
-  s1:'CV Anda',s2:'siap!',s3:'PDF ramah ATS Anda telah diunduh. Semoga sukses!',
+  disc:'<strong>Proyek portofolio:</strong> Tidak ada data tersimpan di server. PDF dibuat 100% di browser. Email dikirim via EmailJS. Data CV hanya ada di <code>sessionStorage</code> browser.',
+  sc_t:'Ringkasan CV Anda',sc_back:'← Pratinjau',sc_foot:'Format ramah ATS · Siap dibuat',
+  sb_title:'CV Diunduh!',sb_sub:'PDF Anda telah disimpan. Anda bisa mengunduh lagi, mulai baru, atau kembali ke beranda.',
   s_dl:'Unduh Lagi',s_new:'Buat CV Baru',s_home:'← Beranda',
-  t_gen:'Membangun PDF Anda…',t_done:'PDF berhasil diunduh!',t_err:'PDF gagal — periksa konsol browser.',
-  t_sending:'Mengirim email…',t_ok:'Email berhasil dikirim!',t_fail:'Email gagal — periksa kredensial EmailJS.',
-  t_nomail:'Masukkan alamat email Anda terlebih dahulu.',t_nocfg:'Masukkan Service ID, Template ID, dan Public Key EmailJS.',
-  t_saved:'Kredensial EmailJS tersimpan.',
-  eb_ok:'✓ Email dikirim ke ',eb_fail:'⚠ Email gagal — periksa konfigurasi EmailJS.',
+  t_gen:'Membangun PDF Anda…',t_done:'PDF berhasil diunduh!',t_err:'PDF gagal — periksa konsol.',
+  t_sending:'Mengirim email…',t_ok:'Email berhasil dikirim!',t_fail:'Email gagal. Silakan coba lagi.',
+  t_nomail:'Masukkan alamat email Anda terlebih dahulu.',
+  eb_ok:'✓ Email dikirim ke ',eb_fail:'⚠ Email tidak dapat dikirim. Silakan coba lagi.',
   cv_sum:'Ringkasan Profesional',cv_exp:'Pengalaman Kerja',cv_edu:'Pendidikan',
   cv_sk:'Keahlian',cv_skt:'Keahlian Teknis',cv_sks:'Soft Skills',cv_skl:'Bahasa',cv_skc:'Sertifikasi',
   cv_ach:'Pencapaian Utama',cv_ref:'Referensi',cv_now:'Sekarang',
@@ -507,18 +417,11 @@ id:{
 }};
 
 let lang=localStorage.getItem('craftcv_lang')||'en';
-let cvData=null;
-let lastBlob=null;
+let cvData=null, lastBlob=null;
 const opts={paper:'a4',mg:20};
+const fonts={garamond:{normal:null,bold:null,italic:null},dmSans:{normal:null,bold:null},loaded:false};
 
-/* ── loaded font state ── */
-const fonts={
-  garamond:{ normal:null, bold:null, italic:null },
-  dmSans:  { normal:null, bold:null },
-  loaded:false, fallback:false
-};
-
-function t(k){return (TR[lang]||TR.en)[k]||TR.en[k]||k;}
+function t(k){return(TR[lang]||TR.en)[k]||TR.en[k]||k;}
 
 function setLang(l){
   lang=l; localStorage.setItem('craftcv_lang',l); document.documentElement.lang=l;
@@ -531,15 +434,13 @@ function setLang(l){
   if(cvData) renderMini(cvData);
 }
 
-/* ══ OPTIONS ══ */
 function pick(btn,group){
   document.querySelectorAll(`[data-g="${group}"]`).forEach(b=>b.classList.remove('sel'));
   btn.classList.add('sel');
   if(group==='paper') opts.paper=btn.dataset.v;
-  if(group==='mg')    opts.mg=parseInt(btn.dataset.v);
+  if(group==='mg') opts.mg=parseInt(btn.dataset.v);
 }
 
-/* ══ TOAST ══ */
 let toastT;
 function toast(msg,type=''){
   const el=document.getElementById('toast');
@@ -549,511 +450,250 @@ function toast(msg,type=''){
   clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),4500);
 }
 
-/* ══ EMAIL TOGGLE ══ */
 function toggleEmail(){
   const on=document.getElementById('etog').checked;
   document.getElementById('ef').classList.toggle('show',on);
-  document.getElementById('cfg-card').style.display=on?'block':'none';
   if(on&&cvData){
     const p=cvData.personal||{};
     document.getElementById('to-em').value=cvData.extras?.copyEmail||p.email||'';
   }
 }
 
-/* ══ EMAILJS CONFIG ══ */
-function saveCfg(){
-  const s=document.getElementById('ejs-svc').value.trim();
-  const tp=document.getElementById('ejs-tpl').value.trim();
-  const k=document.getElementById('ejs-key').value.trim();
-  if(!s||!tp||!k){toast(t('t_nocfg'),'err');return;}
-  sessionStorage.setItem('ejs_cfg',JSON.stringify({s,tp,k}));
-  toast(t('t_saved'),'ok');
-}
-function loadCfg(){
-  try{
-    const c=JSON.parse(sessionStorage.getItem('ejs_cfg')||'{}');
-    if(c.s)  document.getElementById('ejs-svc').value=c.s;
-    if(c.tp) document.getElementById('ejs-tpl').value=c.tp;
-    if(c.k)  document.getElementById('ejs-key').value=c.k;
-  }catch(e){}
-}
-
-/* ══════════════════════════════════════════
-   URL HELPER — always ensure https://
-══════════════════════════════════════════ */
+/* ═══ URL HELPERS ═══ */
 function ensureHttps(url){
   if(!url||!url.trim()) return '';
-  const u=url.trim();
-  if(/^https?:\/\//i.test(u)) return u;
-  return 'https://'+u;
+  return /^https?:\/\//i.test(url.trim())?url.trim():'https://'+url.trim();
 }
+function displayUrl(url){ return ensureHttps(url).replace(/^https?:\/\/(www\.)?/i,''); }
 
-/* Display version strips https:// for readability in CV text */
-function displayUrl(url){
-  return url.replace(/^https?:\/\/(www\.)?/i,'');
-}
-
-/* ══════════════════════════════════════════
-   FONT LOADING — fetch TTF from Google Fonts
-   and register with jsPDF as Base64
-══════════════════════════════════════════ */
-
-/* Google Fonts CSS2 API — returns @font-face rules with actual TTF/woff2 URLs */
+/* ═══ FONT LOADING ═══ */
 const FONT_URLS={
-  garamond_normal : 'https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RUA4V-e6yHgQ.woff2',
-  garamond_bold   : 'https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RkAoV-e6yHgQ.woff2',
-  garamond_italic : 'https://fonts.gstatic.com/s/ebgaramond/v26/SlGSmQSNjdsmc35JDF1K5GR7SDk_qFd5hQ.woff2',
-  dmsans_normal   : 'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmf3ZGMZpg.woff2',
-  dmsans_bold     : 'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmf3ZA0Zpg.woff2',
+  gn:'https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RUA4V-e6yHgQ.woff2',
+  gb:'https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RkAoV-e6yHgQ.woff2',
+  gi:'https://fonts.gstatic.com/s/ebgaramond/v26/SlGSmQSNjdsmc35JDF1K5GR7SDk_qFd5hQ.woff2',
+  dn:'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmf3ZGMZpg.woff2',
+  db:'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmf3ZA0Zpg.woff2',
 };
-
-async function fetchFontBase64(url){
-  const resp = await fetch(url);
-  if(!resp.ok) throw new Error('Font fetch failed: '+url);
-  const buf = await resp.arrayBuffer();
-  // Convert ArrayBuffer → Base64
-  let binary='';
-  const bytes=new Uint8Array(buf);
-  for(let i=0;i<bytes.byteLength;i++) binary+=String.fromCharCode(bytes[i]);
-  return btoa(binary);
+async function fetchB64(url){
+  const r=await fetch(url); if(!r.ok) throw new Error('fetch fail');
+  const buf=await r.arrayBuffer();
+  let s=''; new Uint8Array(buf).forEach(b=>s+=String.fromCharCode(b));
+  return btoa(s);
 }
-
 async function loadFonts(){
-  const statusEl=document.getElementById('font-status');
-  const statusMsg=document.getElementById('font-status-msg');
+  const st=document.getElementById('font-status');
+  const sm=document.getElementById('font-status-msg');
   try{
-    statusEl.className='font-status loading';
-    statusMsg.textContent=t('font_loading');
-
-    const [gNorm, gBold, gItalic, dmNorm, dmBold] = await Promise.all([
-      fetchFontBase64(FONT_URLS.garamond_normal),
-      fetchFontBase64(FONT_URLS.garamond_bold),
-      fetchFontBase64(FONT_URLS.garamond_italic),
-      fetchFontBase64(FONT_URLS.dmsans_normal),
-      fetchFontBase64(FONT_URLS.dmsans_bold),
-    ]);
-
-    fonts.garamond.normal = gNorm;
-    fonts.garamond.bold   = gBold;
-    fonts.garamond.italic = gItalic;
-    fonts.dmSans.normal   = dmNorm;
-    fonts.dmSans.bold     = dmBold;
-    fonts.loaded = true;
-
-    statusEl.className='font-status ready';
-    statusMsg.textContent=t('font_ready');
-  }catch(err){
-    console.warn('Font load failed, using built-in fallback:', err);
-    fonts.fallback=true;
-    statusEl.className='font-status fallback';
-    statusMsg.textContent=t('font_fallback');
+    st.className='font-status loading'; sm.textContent=t('font_loading');
+    const[gn,gb,gi,dn,db]=await Promise.all([fetchB64(FONT_URLS.gn),fetchB64(FONT_URLS.gb),fetchB64(FONT_URLS.gi),fetchB64(FONT_URLS.dn),fetchB64(FONT_URLS.db)]);
+    fonts.garamond={normal:gn,bold:gb,italic:gi}; fonts.dmSans={normal:dn,bold:db}; fonts.loaded=true;
+    st.className='font-status ready'; sm.textContent=t('font_ready');
+  }catch(e){
+    fonts.loaded=false; st.className='font-status fallback'; sm.textContent=t('font_fallback');
   }
 }
-
-/* Register custom fonts into a jsPDF instance */
-function registerFonts(doc){
-  if(fonts.loaded){
-    doc.addFileToVFS('EBGaramond-Regular.woff2', fonts.garamond.normal);
-    doc.addFont('EBGaramond-Regular.woff2','EBGaramond','normal');
-
-    doc.addFileToVFS('EBGaramond-Bold.woff2', fonts.garamond.bold);
-    doc.addFont('EBGaramond-Bold.woff2','EBGaramond','bold');
-
-    doc.addFileToVFS('EBGaramond-Italic.woff2', fonts.garamond.italic);
-    doc.addFont('EBGaramond-Italic.woff2','EBGaramond','italic');
-
-    doc.addFileToVFS('DMSans-Regular.woff2', fonts.dmSans.normal);
-    doc.addFont('DMSans-Regular.woff2','DMSans','normal');
-
-    doc.addFileToVFS('DMSans-Bold.woff2', fonts.dmSans.bold);
-    doc.addFont('DMSans-Bold.woff2','DMSans','bold');
-  }
+function regFonts(doc){
+  if(!fonts.loaded) return;
+  doc.addFileToVFS('EBG-R.woff2',fonts.garamond.normal); doc.addFont('EBG-R.woff2','EBG','normal');
+  doc.addFileToVFS('EBG-B.woff2',fonts.garamond.bold);   doc.addFont('EBG-B.woff2','EBG','bold');
+  doc.addFileToVFS('EBG-I.woff2',fonts.garamond.italic); doc.addFont('EBG-I.woff2','EBG','italic');
+  doc.addFileToVFS('DMS-R.woff2',fonts.dmSans.normal);   doc.addFont('DMS-R.woff2','DMS','normal');
+  doc.addFileToVFS('DMS-B.woff2',fonts.dmSans.bold);     doc.addFont('DMS-B.woff2','DMS','bold');
 }
-
-/* Return the font name to use — custom if loaded, fallback if not */
 function F(type){
-  // type: 'serif-normal' | 'serif-bold' | 'serif-italic' | 'sans-normal' | 'sans-bold'
   if(fonts.loaded){
-    if(type==='serif-normal')  return ['EBGaramond','normal'];
-    if(type==='serif-bold')    return ['EBGaramond','bold'];
-    if(type==='serif-italic')  return ['EBGaramond','italic'];
-    if(type==='sans-normal')   return ['DMSans','normal'];
-    if(type==='sans-bold')     return ['DMSans','bold'];
+    if(type==='sn') return['EBG','normal']; if(type==='sb') return['EBG','bold'];
+    if(type==='si') return['EBG','italic']; if(type==='an') return['DMS','normal'];
+    if(type==='ab') return['DMS','bold'];
   }
-  // Fallback: times (serif) / helvetica (sans)
-  if(type==='serif-normal')  return ['times','normal'];
-  if(type==='serif-bold')    return ['times','bold'];
-  if(type==='serif-italic')  return ['times','italic'];
-  if(type==='sans-normal')   return ['helvetica','normal'];
-  if(type==='sans-bold')     return ['helvetica','bold'];
-  return ['helvetica','normal'];
+  if(type==='sn') return['times','normal']; if(type==='sb') return['times','bold'];
+  if(type==='si') return['times','italic']; if(type==='an') return['helvetica','normal'];
+  return['helvetica','bold'];
 }
 
-/* ══════════════════════════════════════════
-   PDF GENERATION
-   Spacing mirrors preview.html CSS exactly:
-   - Name: 26pt serif bold
-   - Role: 12pt serif italic
-   - Contacts: 9pt sans normal
-   - Section titles: 8.5pt sans bold uppercase
-   - Body text: 10.5pt serif normal
-   - Small text: 10pt / 8.5pt
-   - Line height: 1.55 → ≈ 5.5mm at 10pt
-══════════════════════════════════════════ */
+/* ═══ DATE FORMAT ═══ */
 function fmtM(s){
-  if(!s)return'';
+  if(!s) return'';
   const[y,m]=s.split('-');
   const ME=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const MI=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
   return((lang==='id'?MI:ME)[parseInt(m)-1]||'')+' '+y;
 }
 
-/* pt → mm conversion helper */
-const pt2mm = pt => pt * 0.352778;
+const pt2mm=pt=>pt*0.352778;
 
+/* ═══════════════════════════════════════════════════
+   PDF GENERATION
+═══════════════════════════════════════════════════ */
 function generatePDF(){
   if(!cvData){toast(t('t_err'),'err');return;}
-
-  const btn=document.getElementById('btn-gen');
-  const lbl=document.getElementById('glbl');
-  const ico=document.getElementById('gico');
-  const pw=document.getElementById('pw');
-  const pf=document.getElementById('pf');
-  const pl=document.getElementById('pl');
-
-  btn.disabled=true;
-  lbl.textContent=t('pr1');
+  const btn=document.getElementById('btn-gen'),lbl=document.getElementById('glbl'),ico=document.getElementById('gico');
+  const pw=document.getElementById('pw'),pf=document.getElementById('pf'),pl=document.getElementById('pl');
+  btn.disabled=true; lbl.textContent=t('pr1');
   ico.innerHTML=`<circle cx="12" cy="12" r="9" fill="none" stroke-width="2.5"/><path d="M12 6v6l3 3" fill="none"/>`;
-  ico.classList.add('spin');
-  pw.classList.add('show');
-  pf.style.width='12%';
+  ico.classList.add('spin'); pw.classList.add('show'); pf.style.width='12%';
   toast(t('t_gen'));
 
-  /* Use rAF to let the UI paint before heavy work */
   requestAnimationFrame(()=>setTimeout(()=>{
     try{
       const{jsPDF}=window.jspdf;
       const isA4=opts.paper==='a4';
-      const PW=isA4?210:215.9;
-      const PH=isA4?297:279.4;
-      const MG=opts.mg;
-      const TW=PW-MG*2;
+      const PW=isA4?210:215.9, PH=isA4?297:279.4, MG=opts.mg, TW=PW-MG*2;
       let Y=MG;
-
       const doc=new jsPDF({unit:'mm',format:isA4?'a4':'letter',orientation:'portrait'});
-      registerFonts(doc);
+      regFonts(doc);
 
-      /* ────────────────────────────────────────
-         SPACING CONSTANTS  (mirroring preview.html)
-         All values in mm. pt→mm: 1pt = 0.3528mm
-         preview line-height 1.55 at 10.5pt body
-         → 10.5 × 1.55 × 0.3528 = 5.74mm ≈ 5.7
-      ──────────────────────────────────────── */
-      const LH_BODY   = 5.7;   // 10.5pt × 1.55 — body text line height
-      const LH_SMALL  = 5.1;   // 10pt   × 1.55 — meta/italic line height
-      const LH_TINY   = 4.5;   // 8.5pt  × 1.55 — label/date line height
-      const ITEM_GAP  = 4.0;   // gap between experience/education items
-      const SEC_BEFORE= 7.0;   // space above each section title
-      const SEC_AFTER = 5.0;   // space after section title rule → first item
-      const DESC_INDENT= 3.5;  // bullet indent
+      const LH=5.7, LHS=5.1, LHT=4.5, IGAP=4.0, SB=7.0, SA=5.0, BI=3.5;
 
-      function needPage(need=15){
-        if(Y+need>PH-MG){doc.addPage();Y=MG;}
-      }
+      function needPage(n=15){if(Y+n>PH-MG){doc.addPage();Y=MG;}}
+      function sf(type,sz){const[f,s]=F(type);doc.setFont(f,s);doc.setFontSize(sz);}
+      function rgb(...c){doc.setTextColor(...c);}
 
-      function setF(type,sz){
-        const[family,style]=F(type);
-        doc.setFont(family,style);
-        doc.setFontSize(sz);
-      }
-
-      function drawText(str,x,sz,fontType,rgb,maxW,align){
-        setF(fontType,sz);
-        doc.setTextColor(...(rgb||[17,17,17]));
-        const s=String(str||'');
-        if(maxW){
-          const lines=doc.splitTextToSize(s,maxW);
-          doc.text(lines,x,Y,{align:align||'left'});
-          return lines;
-        }
-        doc.text(s,x,Y,{align:align||'left'});
-        return [s];
-      }
-
-      function sectionTitle(label){
-        needPage(SEC_BEFORE+SEC_AFTER+LH_BODY+4);
-        Y+=SEC_BEFORE;
-        // Rule line above title
-        doc.setDrawColor(17,17,17);
-        doc.setLineWidth(0.4);
-        doc.line(MG,Y,MG+TW,Y);
-        Y+=3.8;
-        setF('sans-bold',8.5);
-        doc.setTextColor(17,17,17);
-        doc.text(label.toUpperCase(),MG,Y);
-        Y+=SEC_AFTER;
+      function secTitle(label){
+        needPage(SB+SA+LH+4); Y+=SB;
+        doc.setDrawColor(17,17,17); doc.setLineWidth(0.4);
+        doc.line(MG,Y,MG+TW,Y); Y+=3.8;
+        sf('ab',8.5); rgb(17,17,17);
+        doc.text(label.toUpperCase(),MG,Y); Y+=SA;
       }
 
       pf.style.width='25%'; pl.textContent=t('pr2');
-
-      const p  = cvData.personal||{};
-      const ex = (cvData.experience||[]).filter(e=>e.title||e.company);
-      const ed = (cvData.education||[]).filter(e=>e.degree||e.school);
-      const sk = cvData.skills||{};
-      const xt = cvData.extras||{};
+      const p=cvData.personal||{}, ex=(cvData.experience||[]).filter(e=>e.title||e.company);
+      const ed=(cvData.education||[]).filter(e=>e.degree||e.school);
+      const sk=cvData.skills||{}, xt=cvData.extras||{};
       const fullName=`${p.firstName||''} ${p.lastName||''}`.trim();
 
-      /* ══ HEADER ══ */
-      // Name — 26pt serif bold, centered
-      setF('serif-bold',26);
-      doc.setTextColor(17,17,17);
-      doc.text(fullName,PW/2,Y+pt2mm(26)*0.75,{align:'center'});
-      Y+=pt2mm(26)*1.15+1;
-
-      // Role — 12pt serif italic, centered
-      if(p.jobTitle){
-        setF('serif-italic',12);
-        doc.setTextColor(68,68,68);
-        doc.text(p.jobTitle,PW/2,Y,{align:'center'});
-        Y+=pt2mm(12)*1.55+1.5;
+      /* HEADER */
+      sf('sb',26); rgb(17,17,17);
+      doc.text(fullName,PW/2,Y+pt2mm(26)*0.75,{align:'center'}); Y+=pt2mm(26)*1.15+1;
+      if(p.jobTitle){sf('si',12);rgb(68,68,68);doc.text(p.jobTitle,PW/2,Y,{align:'center'});Y+=pt2mm(12)*1.55+1.5;}
+      const ctacts=[p.email,p.phone,[p.city,p.country].filter(Boolean).join(', '),
+        p.linkedin?displayUrl(p.linkedin):'',p.website?displayUrl(p.website):'',p.github?displayUrl(p.github):''].filter(Boolean);
+      if(ctacts.length){
+        sf('an',9); rgb(55,55,55);
+        const cl=doc.splitTextToSize(ctacts.join('  |  '),TW);
+        doc.text(cl,PW/2,Y,{align:'center'}); Y+=cl.length*pt2mm(9)*1.45+1.5;
       }
+      Y+=2; doc.setDrawColor(17,17,17); doc.setLineWidth(0.7);
+      doc.line(MG,Y,MG+TW,Y); Y+=5;
 
-      // Contacts — 9pt sans normal, centered, pipe-separated
-      const rawContacts=[
-        p.email,
-        p.phone,
-        [p.city,p.country].filter(Boolean).join(', '),
-        p.linkedin ? displayUrl(ensureHttps(p.linkedin))  : '',
-        p.website  ? displayUrl(ensureHttps(p.website))   : '',
-        p.github   ? displayUrl(ensureHttps(p.github))    : '',
-      ].filter(Boolean);
-
-      if(rawContacts.length){
-        setF('sans-normal',9);
-        doc.setTextColor(55,55,55);
-        const cstr=rawContacts.join('  |  ');
-        const clines=doc.splitTextToSize(cstr,TW);
-        doc.text(clines,PW/2,Y,{align:'center'});
-        Y+=clines.length*pt2mm(9)*1.45+1.5;
-      }
-
-      // Header rule — thick line, matching preview's border-bottom: 2px solid
-      Y+=2;
-      doc.setDrawColor(17,17,17);
-      doc.setLineWidth(0.7);
-      doc.line(MG,Y,MG+TW,Y);
-      Y+=5;
-
-      /* ══ SUMMARY ══ */
+      /* SUMMARY */
       if(cvData.summary&&cvData.summary.trim()){
-        sectionTitle(t('cv_sum'));
-        setF('serif-normal',10.5);
-        doc.setTextColor(34,34,34);
-        const lines=doc.splitTextToSize(cvData.summary.trim(),TW);
-        needPage(lines.length*LH_BODY+ITEM_GAP);
-        doc.text(lines,MG,Y);
-        Y+=lines.length*LH_BODY;
+        secTitle(t('cv_sum')); sf('sn',10.5); rgb(34,34,34);
+        const sl=doc.splitTextToSize(cvData.summary.trim(),TW);
+        needPage(sl.length*LH+IGAP); doc.text(sl,MG,Y); Y+=sl.length*LH;
       }
-
       pf.style.width='50%';
 
-      /* ══ EXPERIENCE ══ */
+      /* EXPERIENCE */
       if(ex.length){
-        sectionTitle(t('cv_exp'));
-        ex.forEach((e,idx)=>{
-          const ds=fmtM(e.start);
-          const de=e.current?t('cv_now'):fmtM(e.end);
+        secTitle(t('cv_exp'));
+        ex.forEach((e,i)=>{
+          const ds=fmtM(e.start), de=e.current?t('cv_now'):fmtM(e.end);
           const dateStr=[ds,de].filter(Boolean).join(' – ');
-          const badge=e.type?` [${e.type}]`:'';
-          needPage(LH_BODY+LH_SMALL+LH_BODY*3+ITEM_GAP);
-
-          // Job title bold — 10.5pt sans bold
-          setF('sans-bold',10.5);
-          doc.setTextColor(17,17,17);
-          doc.text((e.title||'')+badge,MG,Y);
-
-          // Date right-aligned — 8.5pt sans normal
-          if(dateStr){
-            setF('sans-normal',8.5);
-            doc.setTextColor(90,90,90);
-            doc.text(dateStr,MG+TW,Y,{align:'right'});
-          }
-          Y+=LH_SMALL+1;
-
-          // Company · location — 10pt serif italic
+          needPage(LH+LHS+LH*3+IGAP);
+          sf('ab',10.5); rgb(17,17,17);
+          doc.text((e.title||'')+(e.type?` [${e.type}]`:''),MG,Y);
+          if(dateStr){sf('an',8.5);rgb(90,90,90);doc.text(dateStr,MG+TW,Y,{align:'right'});}
+          Y+=LHS+1;
           const meta=[e.company,e.location].filter(Boolean).join(' · ');
-          if(meta){
-            setF('serif-italic',10);
-            doc.setTextColor(80,80,80);
-            doc.text(meta,MG,Y);
-            Y+=LH_SMALL+0.5;
-          }
-
-          // Description — 10pt serif normal, bullets parsed
+          if(meta){sf('si',10);rgb(80,80,80);doc.text(meta,MG,Y);Y+=LHS+0.5;}
           if(e.desc&&e.desc.trim()){
             const raw=e.desc.split('\n').map(l=>l.trim()).filter(Boolean);
-            const hasBullet=raw.some(l=>/^[•\-\*]/.test(l));
-            setF('serif-normal',10);
-            doc.setTextColor(34,34,34);
+            const hb=raw.some(l=>/^[•\-\*]/.test(l));
+            sf('sn',10); rgb(34,34,34);
             raw.forEach(line=>{
-              const clean=hasBullet?line.replace(/^[•\-\*]\s*/,''):line;
-              const pfx=hasBullet?'•  ':'';
-              const indentX=hasBullet?MG+DESC_INDENT:MG;
-              const textW=hasBullet?TW-DESC_INDENT:TW;
-              // Draw bullet separately so it doesn't get wrapped into the indent
-              if(hasBullet){
-                setF('serif-normal',10);
-                doc.setTextColor(34,34,34);
-                doc.text('•',MG,Y);
-              }
-              const wrapped=doc.splitTextToSize(clean,textW);
-              needPage(wrapped.length*LH_SMALL+1);
-              doc.text(wrapped,indentX,Y);
-              Y+=wrapped.length*LH_SMALL;
+              const clean=hb?line.replace(/^[•\-\*]\s*/,''):line;
+              if(hb) doc.text('•',MG,Y);
+              const wr=doc.splitTextToSize(clean,hb?TW-BI:TW);
+              needPage(wr.length*LHS+1); doc.text(wr,hb?MG+BI:MG,Y); Y+=wr.length*LHS;
             });
           }
-          // Gap between items (not after last)
-          if(idx<ex.length-1) Y+=ITEM_GAP;
+          if(i<ex.length-1) Y+=IGAP;
         });
       }
 
-      /* ══ EDUCATION ══ */
+      /* EDUCATION */
       if(ed.length){
-        sectionTitle(t('cv_edu'));
-        ed.forEach((e,idx)=>{
-          needPage(LH_BODY+LH_SMALL*3+ITEM_GAP);
+        secTitle(t('cv_edu'));
+        ed.forEach((e,i)=>{
+          needPage(LH+LHS*3+IGAP);
           const de=e.current?t('cv_now'):e.end;
           const dateStr=[e.start,de].filter(Boolean).join(' – ');
-          const deg=[e.degree,e.field].filter(Boolean).join(' in ');
-
-          // Degree — 10.5pt sans bold
-          setF('sans-bold',10.5);
-          doc.setTextColor(17,17,17);
-          doc.text(deg,MG,Y);
-          if(dateStr){
-            setF('sans-normal',8.5);
-            doc.setTextColor(90,90,90);
-            doc.text(dateStr,MG+TW,Y,{align:'right'});
-          }
-          Y+=LH_SMALL+1;
-
-          // School — 10pt serif italic
+          sf('ab',10.5); rgb(17,17,17);
+          doc.text([e.degree,e.field].filter(Boolean).join(' in '),MG,Y);
+          if(dateStr){sf('an',8.5);rgb(90,90,90);doc.text(dateStr,MG+TW,Y,{align:'right'});}
+          Y+=LHS+1;
           const school=[e.school,e.location].filter(Boolean).join(', ');
-          if(school){
-            setF('serif-italic',10);
-            doc.setTextColor(80,80,80);
-            doc.text(school,MG,Y);
-            Y+=LH_SMALL+0.5;
-          }
-          // GPA — 8.5pt sans normal
-          if(e.gpa){
-            setF('sans-normal',8.5);
-            doc.setTextColor(100,100,100);
-            doc.text('GPA: '+e.gpa,MG,Y);
-            Y+=LH_TINY+0.5;
-          }
-          // Achievements — 9.5pt serif normal
+          if(school){sf('si',10);rgb(80,80,80);doc.text(school,MG,Y);Y+=LHS+0.5;}
+          if(e.gpa){sf('an',8.5);rgb(100,100,100);doc.text('GPA: '+e.gpa,MG,Y);Y+=LHT+0.5;}
           if(e.achievements&&e.achievements.trim()){
-            setF('serif-normal',9.5);
-            doc.setTextColor(60,60,60);
+            sf('sn',9.5);rgb(60,60,60);
             const al=doc.splitTextToSize(e.achievements.trim(),TW);
-            needPage(al.length*LH_SMALL+2);
-            doc.text(al,MG,Y);
-            Y+=al.length*(LH_SMALL-0.5);
+            needPage(al.length*LHS+2); doc.text(al,MG,Y); Y+=al.length*(LHS-0.5);
           }
-          if(idx<ed.length-1) Y+=ITEM_GAP;
+          if(i<ed.length-1) Y+=IGAP;
         });
       }
-
       pf.style.width='75%';
 
-      /* ══ SKILLS ══ */
-      const hasSkills=(sk.tech||[]).length||(sk.soft||[]).length||(sk.languages||[]).length||(sk.certs||[]).length;
-      if(hasSkills){
-        sectionTitle(t('cv_sk'));
-        const groups=[
-          {label:t('cv_skt'),arr:sk.tech||[]},
-          {label:t('cv_sks'),arr:sk.soft||[]},
-          {label:t('cv_skl'),arr:sk.languages||[]},
-          {label:t('cv_skc'),arr:sk.certs||[]},
-        ].filter(g=>g.arr.length);
-
-        groups.forEach(g=>{
-          needPage(LH_TINY+2);
-          // Label bold — 8.5pt sans bold
-          setF('sans-bold',8.5);
-          doc.setTextColor(50,50,50);
-          const labelTxt=g.label.toUpperCase()+':  ';
-          doc.text(labelTxt,MG,Y);
-          const labelW=doc.getTextWidth(labelTxt);
-          // Skills — 8.5pt sans normal
-          setF('sans-normal',8.5);
-          doc.setTextColor(34,34,34);
-          const sstr=g.arr.join('   ·   ');
-          const slines=doc.splitTextToSize(sstr,TW-labelW);
-          // First line on same line as label
-          if(slines[0]) doc.text(slines[0],MG+labelW,Y);
-          Y+=LH_TINY+0.5;
-          // Overflow lines indented to match
-          for(let i=1;i<slines.length;i++){
-            needPage(LH_TINY+1);
-            doc.text(slines[i],MG+labelW,Y);
-            Y+=LH_TINY+0.5;
-          }
+      /* SKILLS */
+      const hasSk=(sk.tech||[]).length||(sk.soft||[]).length||(sk.languages||[]).length||(sk.certs||[]).length;
+      if(hasSk){
+        secTitle(t('cv_sk'));
+        [{label:t('cv_skt'),arr:sk.tech||[]},{label:t('cv_sks'),arr:sk.soft||[]},
+         {label:t('cv_skl'),arr:sk.languages||[]},{label:t('cv_skc'),arr:sk.certs||[]}].filter(g=>g.arr.length)
+        .forEach(g=>{
+          needPage(LHT+2);
+          sf('ab',8.5); rgb(50,50,50);
+          const lbl2=g.label.toUpperCase()+':  ';
+          doc.text(lbl2,MG,Y);
+          const lw=doc.getTextWidth(lbl2);
+          sf('an',8.5); rgb(34,34,34);
+          const sl=doc.splitTextToSize(g.arr.join('   ·   '),TW-lw);
+          if(sl[0]) doc.text(sl[0],MG+lw,Y); Y+=LHT+0.5;
+          for(let i=1;i<sl.length;i++){needPage(LHT+1);doc.text(sl[i],MG+lw,Y);Y+=LHT+0.5;}
         });
       }
 
-      /* ══ KEY ACHIEVEMENTS ══ */
+      /* ACHIEVEMENTS */
       if(xt.achievements&&xt.achievements.trim()){
-        sectionTitle(t('cv_ach'));
+        secTitle(t('cv_ach'));
         const raw=xt.achievements.split('\n').map(l=>l.trim()).filter(Boolean);
-        const hasBullet=raw.some(l=>/^[•\-\*]/.test(l));
-        setF('serif-normal',10);
-        doc.setTextColor(34,34,34);
+        const hb=raw.some(l=>/^[•\-\*]/.test(l));
+        sf('sn',10); rgb(34,34,34);
         raw.forEach(line=>{
-          const clean=hasBullet?line.replace(/^[•\-\*]\s*/,''):line;
-          if(hasBullet) doc.text('•',MG,Y);
-          const wrapped=doc.splitTextToSize(clean,hasBullet?TW-DESC_INDENT:TW);
-          needPage(wrapped.length*LH_SMALL+1);
-          doc.text(wrapped,hasBullet?MG+DESC_INDENT:MG,Y);
-          Y+=wrapped.length*LH_SMALL;
+          const clean=hb?line.replace(/^[•\-\*]\s*/,''):line;
+          if(hb) doc.text('•',MG,Y);
+          const wr=doc.splitTextToSize(clean,hb?TW-BI:TW);
+          needPage(wr.length*LHS+1); doc.text(wr,hb?MG+BI:MG,Y); Y+=wr.length*LHS;
         });
       }
 
-      /* ══ REFERENCES ══ */
+      /* REFERENCES */
       if(xt.references&&xt.references.trim()){
-        sectionTitle(t('cv_ref'));
-        setF('serif-italic',10);
-        doc.setTextColor(90,90,90);
-        const rlines=doc.splitTextToSize(xt.references.trim(),TW);
-        needPage(rlines.length*LH_SMALL+2);
-        doc.text(rlines,MG,Y);
+        secTitle(t('cv_ref')); sf('si',10); rgb(90,90,90);
+        const rl=doc.splitTextToSize(xt.references.trim(),TW);
+        needPage(rl.length*LHS+2); doc.text(rl,MG,Y);
       }
 
       pf.style.width='95%'; pl.textContent=t('pr3');
-
       const fname=(document.getElementById('fname').value.trim()||'My_CV').replace(/\.pdf$/i,'')+'.pdf';
-      doc.save(fname);
-      lastBlob=doc.output('blob');
-
-      pf.style.width='100%';
-      toast(t('t_done'),'ok');
+      doc.save(fname); lastBlob=doc.output('blob');
+      pf.style.width='100%'; toast(t('t_done'),'ok');
 
       setTimeout(()=>{
-        btn.disabled=false;
-        lbl.textContent=t('btn_gen');
+        btn.disabled=false; lbl.textContent=t('btn_gen');
         ico.innerHTML=`<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`;
-        ico.classList.remove('spin');
-        pw.classList.remove('show');
-        pf.style.width='0%';
-        showSuccess();
+        ico.classList.remove('spin'); pw.classList.remove('show'); pf.style.width='0%';
+        // Show inline banner (non-blocking — page stays fully interactive)
+        document.getElementById('sb').classList.add('show');
+        document.getElementById('sb').scrollIntoView({behavior:'smooth',block:'nearest'});
       },700);
 
     }catch(err){
-      console.error('jsPDF error:',err);
-      toast(t('t_err'),'err');
-      const b=document.getElementById('btn-gen');
-      b.disabled=false;
+      console.error(err); toast(t('t_err'),'err');
+      document.getElementById('btn-gen').disabled=false;
       document.getElementById('glbl').textContent=t('btn_gen');
       document.getElementById('gico').classList.remove('spin');
       document.getElementById('pw').classList.remove('show');
@@ -1066,122 +706,102 @@ function triggerDownload(){
   const a=document.createElement('a');
   a.href=URL.createObjectURL(lastBlob);
   a.download=(document.getElementById('fname').value.trim()||'My_CV')+'.pdf';
-  a.click();
-  URL.revokeObjectURL(a.href);
+  a.click(); URL.revokeObjectURL(a.href);
 }
 
-/* ══ SUCCESS ══ */
-function showSuccess(emailSent,addr){
-  document.getElementById('success').classList.add('show');
-  const b=document.getElementById('ebadge');
-  if(emailSent===true){ b.textContent=t('eb_ok')+addr; b.className='ebadge ok'; }
-  else if(emailSent===false){ b.textContent=t('eb_fail'); b.className='ebadge fail'; }
-  else{ b.className='ebadge'; }
-}
-
-/* ══ EMAIL ══ */
+/* ═══════════════════════════════════════════════════
+   EMAIL — split into individual vars to avoid
+   "dynamic variables corrupted" error in EmailJS.
+   Large blobs in one var cause Base64/encoding issues.
+   We send each section as its own param instead.
+═══════════════════════════════════════════════════ */
 async function sendEmail(){
   const toEm=document.getElementById('to-em').value.trim();
   const note=document.getElementById('em-note').value.trim();
-  let cfg={};
-  try{cfg=JSON.parse(sessionStorage.getItem('ejs_cfg')||'{}');}catch(e){}
-  const svc=document.getElementById('ejs-svc').value.trim()||cfg.s;
-  const tpl=document.getElementById('ejs-tpl').value.trim()||cfg.tp;
-  const key=document.getElementById('ejs-key').value.trim()||cfg.k;
   if(!toEm){toast(t('t_nomail'),'err');document.getElementById('to-em').classList.add('err');return;}
-  if(!svc||!tpl||!key){toast(t('t_nocfg'),'warn');return;}
 
-  const btn=document.getElementById('btn-em');
-  const lbl=document.getElementById('em-lbl');
-  btn.disabled=true; lbl.textContent=t('t_sending');
-  toast(t('t_sending'));
+  const btn=document.getElementById('btn-em'), lbl=document.getElementById('em-lbl');
+  btn.disabled=true; lbl.textContent=t('t_sending'); toast(t('t_sending'));
 
-  const p =cvData.personal||{};
+  const p=cvData.personal||{};
   const ex=(cvData.experience||[]).filter(e=>e.title||e.company);
   const ed=(cvData.education||[]).filter(e=>e.degree||e.school);
-  const sk=cvData.skills||{};
-  const xt=cvData.extras||{};
+  const sk=cvData.skills||{}, xt=cvData.extras||{};
   const full=`${p.firstName||''} ${p.lastName||''}`.trim();
 
-  // Build full-text CV summary for email body
-  let body='========== CV SUMMARY ==========\n';
-  body+=`Name     : ${full}\nRole     : ${p.jobTitle||''}\nEmail    : ${p.email||''}\nPhone    : ${p.phone||''}\n`;
-  body+=`Location : ${[p.city,p.country].filter(Boolean).join(', ')}\n`;
-  if(p.linkedin) body+=`LinkedIn : ${ensureHttps(p.linkedin)}\n`;
-  if(p.website)  body+=`Website  : ${ensureHttps(p.website)}\n`;
-  if(p.github)   body+=`GitHub   : ${ensureHttps(p.github)}\n`;
-  if(cvData.summary) body+=`\n--- Professional Summary ---\n${cvData.summary}\n`;
-  if(ex.length){
-    body+='\n--- Work Experience ---\n';
-    ex.forEach(e=>{
-      body+=`\n• ${e.title||''} at ${e.company||''}`;
-      if(e.start) body+=` (${fmtM(e.start)} – ${e.current?t('cv_now'):fmtM(e.end)})`;
-      if(e.type)  body+=` | ${e.type}`;
-      body+='\n';
-      if(e.location) body+=`  Location: ${e.location}\n`;
-      if(e.desc)     body+=`${e.desc.substring(0,500)}${e.desc.length>500?'…':''}\n`;
-    });
-  }
-  if(ed.length){
-    body+='\n--- Education ---\n';
-    ed.forEach(e=>{
-      body+=`• ${[e.degree,e.field].filter(Boolean).join(' in ')} — ${e.school||''}`;
-      if(e.start||e.end) body+=` (${[e.start,e.current?t('cv_now'):e.end].filter(Boolean).join(' – ')})`;
-      if(e.gpa) body+=` | GPA: ${e.gpa}`;
-      body+='\n';
-      if(e.achievements) body+=`  ${e.achievements}\n`;
-    });
-  }
-  if((sk.tech||[]).length)      body+=`\n--- Technical Skills ---\n${sk.tech.join(', ')}\n`;
-  if((sk.soft||[]).length)      body+=`\n--- Soft Skills ---\n${sk.soft.join(', ')}\n`;
-  if((sk.languages||[]).length) body+=`\n--- Languages ---\n${sk.languages.join(', ')}\n`;
-  if((sk.certs||[]).length)     body+=`\n--- Certifications ---\n${sk.certs.join(', ')}\n`;
-  if(xt.achievements)           body+=`\n--- Key Achievements ---\n${xt.achievements}\n`;
-  if(note)                      body+=`\n--- Personal Note ---\n${note}\n`;
-  body+='\n================================\nGenerated by CraftCV (Portfolio Project)\nNo data was stored on any server.\n';
+  /* Build each section as a short, clean string — NO giant blob */
+  const expLines=ex.map(e=>{
+    let s=`${e.title||''}${e.type?' ['+e.type+']':''} @ ${e.company||''}`;
+    if(e.start) s+=` (${fmtM(e.start)} – ${e.current?t('cv_now'):fmtM(e.end)})`;
+    if(e.location) s+=` | ${e.location}`;
+    if(e.desc) s+=`\n${e.desc.substring(0,300)}${e.desc.length>300?'…':''}`;
+    return s;
+  }).join('\n\n');
 
+  const eduLines=ed.map(e=>{
+    let s=`${[e.degree,e.field].filter(Boolean).join(' in ')} — ${e.school||''}`;
+    if(e.start||e.end) s+=` (${[e.start,e.current?t('cv_now'):e.end].filter(Boolean).join(' – ')})`;
+    if(e.gpa) s+=` | GPA: ${e.gpa}`;
+    if(e.achievements) s+=`\n${e.achievements}`;
+    return s;
+  }).join('\n\n');
+
+  /* Template variables — each is short and safe */
   const params={
-    to_email:toEm, to_name:full, reply_to:p.email||toEm,
-    cv_full_text:body, personal_note:note||'', cv_name:full, cv_role:p.jobTitle||'',
+    to_email    : toEm,
+    to_name     : full,
+    reply_to    : p.email||toEm,
+    cv_name     : full,
+    cv_role     : p.jobTitle||'',
+    cv_email    : p.email||'',
+    cv_phone    : p.phone||'',
+    cv_location : [p.city,p.country].filter(Boolean).join(', '),
+    cv_linkedin : p.linkedin?ensureHttps(p.linkedin):'',
+    cv_website  : p.website?ensureHttps(p.website):'',
+    cv_github   : p.github?ensureHttps(p.github):'',
+    cv_summary  : cvData.summary||'',
+    cv_experience: expLines||'',
+    cv_education : eduLines||'',
+    cv_skills_tech  : (sk.tech||[]).join(', ')||'',
+    cv_skills_soft  : (sk.soft||[]).join(', ')||'',
+    cv_skills_lang  : (sk.languages||[]).join(', ')||'',
+    cv_skills_certs : (sk.certs||[]).join(', ')||'',
+    cv_achievements : xt.achievements||'',
+    cv_references   : xt.references||'',
+    personal_note   : note||'',
   };
 
   try{
-    emailjs.init({publicKey:key});
-    await emailjs.send(svc,tpl,params);
+    emailjs.init({publicKey:EJS_KEY});
+    await emailjs.send(EJS_SERVICE, EJS_TEMPLATE, params);
     toast(t('t_ok'),'ok');
     btn.disabled=false; lbl.textContent=t('btn_em'); btn.classList.add('sent');
-    showSuccess(true,toEm);
+    const badge=document.getElementById('ebadge');
+    badge.textContent=t('eb_ok')+toEm; badge.className='ebadge ok';
+    document.getElementById('sb').classList.add('show');
   }catch(err){
     console.error('EmailJS error:',err);
     toast(t('t_fail'),'err');
     btn.disabled=false; lbl.textContent=t('btn_em');
-    showSuccess(false,'');
+    const badge=document.getElementById('ebadge');
+    badge.textContent=t('eb_fail'); badge.className='ebadge fail';
   }
 }
 
-/* ══ MINI CV (right panel) ══ */
+/* ═══ MINI CV (right panel) ═══ */
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
 function renderMini(d){
   const c=document.getElementById('mini-cv');
-  const p=d.personal||{};
-  const ex=(d.experience||[]).filter(e=>e.title||e.company).slice(0,3);
-  const ed=(d.education||[]).filter(e=>e.degree||e.school).slice(0,2);
-  const sk=d.skills||{};
+  const p=d.personal||{}, ex=(d.experience||[]).filter(e=>e.title||e.company).slice(0,3);
+  const ed=(d.education||[]).filter(e=>e.degree||e.school).slice(0,2), sk=d.skills||{};
   const full=`${p.firstName||''} ${p.lastName||''}`.trim();
-  const icoSvg=(path)=>`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
+  const ico=path=>`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
   let h=`<div class="mn">${esc(full)}</div>`;
   if(p.jobTitle) h+=`<div class="mr">${esc(p.jobTitle)}</div>`;
-  if(p.email) h+=`<div class="mc">${icoSvg('<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>')} ${esc(p.email)}</div>`;
-  if(p.phone) h+=`<div class="mc">${icoSvg('<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-8.39-8.39 19.79 19.79 0 01-3.07-8.63A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>')} ${esc(p.phone)}</div>`;
-  if(ex.length){
-    h+=`<div class="md"></div><div class="ms">${t('cv_exp')}</div>`;
-    ex.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.title)}<br><span class="sub">${esc(e.company)}${e.start?' · '+e.start.substring(0,4):''}</span></div></div>`;});
-  }
-  if(ed.length){
-    h+=`<div class="md"></div><div class="ms">${t('cv_edu')}</div>`;
-    ed.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.degree)}<br><span class="sub">${esc(e.school)}</span></div></div>`;});
-  }
+  if(p.email) h+=`<div class="mc">${ico('<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>')} ${esc(p.email)}</div>`;
+  if(p.phone) h+=`<div class="mc">${ico('<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-8.39-8.39 19.79 19.79 0 01-3.07-8.63A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>')} ${esc(p.phone)}</div>`;
+  if(ex.length){h+=`<div class="md"></div><div class="ms">${t('cv_exp')}</div>`;ex.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.title)}<br><span class="sub">${esc(e.company)}${e.start?' · '+e.start.substring(0,4):''}</span></div></div>`;});}
+  if(ed.length){h+=`<div class="md"></div><div class="ms">${t('cv_edu')}</div>`;ed.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.degree)}<br><span class="sub">${esc(e.school)}</span></div></div>`;});}
   if((sk.tech||[]).length){
     h+=`<div class="md"></div><div class="ms">${t('cv_sk')}</div><div class="mchips">`;
     sk.tech.slice(0,6).forEach(s=>{h+=`<span class="mchip">${esc(s)}</span>`;});
@@ -1191,39 +811,22 @@ function renderMini(d){
   c.innerHTML=h;
 }
 
-/* ══ MISC ══ */
 function clearSession(){sessionStorage.removeItem('craftcv_data');}
 
-/* ══ INIT ══ */
+/* ═══ INIT ═══ */
 (async function init(){
   try{cvData=JSON.parse(sessionStorage.getItem('craftcv_data')||'null');}catch(e){cvData=null;}
-
   const l=(cvData&&cvData.lang)||localStorage.getItem('craftcv_lang')||'en';
   setLang(l);
-
   if(!cvData||!(cvData.personal&&cvData.personal.firstName)){
-    const d=document.createElement('div');
-    d.className='nodata';
+    const d=document.createElement('div'); d.className='nodata';
     d.innerHTML=`<h2>${t('nd_t')}</h2><p>${t('nd_d')}</p><a href="form.html" class="btn-go">${t('nd_go')}</a>`;
-    document.body.appendChild(d);
-    return;
+    document.body.appendChild(d); return;
   }
-
-  // Pre-fill filename
   const p=cvData.personal||{};
-  const fname=`${p.firstName||'My'}_${p.lastName||'CV'}`.replace(/\s+/g,'_');
-  document.getElementById('fname').value=fname+'_CV';
-
-  // Restore email toggle if opted-in during form
-  if(cvData.extras&&cvData.extras.sendEmail){
-    document.getElementById('etog').checked=true;
-    toggleEmail();
-  }
-
-  loadCfg();
+  document.getElementById('fname').value=`${p.firstName||'My'}_${p.lastName||'CV'}`.replace(/\s+/g,'_')+'_CV';
+  if(cvData.extras&&cvData.extras.sendEmail){document.getElementById('etog').checked=true;toggleEmail();}
   renderMini(cvData);
-
-  // Load fonts asynchronously — PDF button works with fallback if this fails
   await loadFonts();
 })();
 </script>
