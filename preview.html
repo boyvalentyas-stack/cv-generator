@@ -273,18 +273,6 @@ nav {
 }
 .tip-icon { font-size: 0.8rem; flex-shrink: 0; margin-top: 1px; }
 
-/* ── ZOOM CONTROLS ── */
-.zoom-controls {
-  display: flex; align-items: center; gap: 6px; margin-top: 0.75rem;
-}
-.zoom-btn {
-  width: 28px; height: 28px; border-radius: 6px; border: 1px solid var(--border-mid);
-  background: var(--cream); font-size: 0.9rem; color: var(--ink-mid);
-  cursor: pointer; transition: all var(--transition); display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-body);
-}
-.zoom-btn:hover { background: var(--cream-dark); }
-.zoom-label { font-size: 0.72rem; color: var(--ink-light); flex: 1; text-align: center; }
 
 /* ── TOAST ── */
 .toast {
@@ -405,18 +393,6 @@ nav {
       <div class="checklist" id="checklist"></div>
     </div>
 
-    <!-- ZOOM -->
-    <div class="panel-section">
-      <p class="panel-label" data-i18n="panel_zoom">Document Zoom</p>
-      <div class="zoom-controls">
-        <button class="zoom-btn" onclick="adjustZoom(-10)" aria-label="Zoom out">−</button>
-        <span class="zoom-label" id="zoom-label">100%</span>
-        <button class="zoom-btn" onclick="adjustZoom(10)" aria-label="Zoom in">+</button>
-        <button class="zoom-btn" onclick="resetZoom()" aria-label="Reset zoom" title="Reset" style="font-size:0.65rem;width:auto;padding:0 8px;">
-          <span data-i18n="zoom_reset">Reset</span>
-        </button>
-      </div>
-    </div>
 
     <!-- TIPS -->
     <div class="panel-section">
@@ -466,8 +442,6 @@ const i18n = {
     status_sections: "Sections",
     status_words: "Word Count",
     panel_checklist: "ATS Checklist",
-    panel_zoom: "Document Zoom",
-    zoom_reset: "Reset",
     panel_tips: "Quick Tips",
     tip1: "Use bullet points starting with action verbs (Led, Built, Improved) for experience descriptions.",
     tip2: "Include numbers and metrics wherever possible — they stand out to both ATS and humans.",
@@ -511,8 +485,6 @@ const i18n = {
     status_sections: "Bagian",
     status_words: "Jumlah Kata",
     panel_checklist: "Daftar ATS",
-    panel_zoom: "Zoom Dokumen",
-    zoom_reset: "Reset",
     panel_tips: "Tips Cepat",
     tip1: "Gunakan poin yang dimulai dengan kata kerja aktif (Memimpin, Membangun, Meningkatkan) untuk deskripsi pengalaman.",
     tip2: "Sertakan angka dan metrik kapan pun memungkinkan — keduanya menonjol bagi ATS maupun manusia.",
@@ -550,8 +522,6 @@ const i18n = {
 
 let currentLang = localStorage.getItem('craftcv_lang') || 'en';
 let cvData = null;
-let zoomLevel = 100;
-
 function t(key) { return i18n[currentLang][key] || i18n.en[key] || key; }
 
 /* ════════════════════════════════
@@ -582,22 +552,6 @@ function loadData() {
   } catch(e) { return null; }
 }
 
-/* ════════════════════════════════
-   ZOOM
-════════════════════════════════ */
-function adjustZoom(delta) {
-  zoomLevel = Math.min(150, Math.max(50, zoomLevel + delta));
-  applyZoom();
-}
-function resetZoom() { zoomLevel = 100; applyZoom(); }
-function applyZoom() {
-  document.getElementById('cv-document').style.transform = `scale(${zoomLevel/100})`;
-  document.getElementById('cv-document').style.transformOrigin = 'top center';
-  document.getElementById('zoom-label').textContent = zoomLevel + '%';
-  // adjust viewport height so scrolling still works
-  const doc = document.getElementById('cv-document');
-  doc.parentElement.style.paddingBottom = zoomLevel > 100 ? `${(zoomLevel - 100) * 8}px` : '2.5rem';
-}
 
 /* ════════════════════════════════
    RENDER CV DOCUMENT
