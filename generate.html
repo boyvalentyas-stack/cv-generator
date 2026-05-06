@@ -523,7 +523,19 @@ function fmtM(s){
 const pt2mm=pt=>pt*0.352778;
 
 /* ═══════════════════════════════════════════════════
-   PDF GENERATION
+   PDF GENERATION  —  Professional Layout v2
+   Typography hierarchy:
+     Name          : 24pt serif bold,   ink  #111111
+     Job title     : 12pt serif italic, mid  #444444
+     Contacts      :  9pt sans normal,  mid  #555555
+     Section title :  8pt sans bold,    ink  #111111  ALL-CAPS + rule
+     Item title    : 11pt sans bold,    ink  #111111
+     Date badge    :  8pt sans normal,  dim  #777777
+     Meta (co/loc) : 10pt serif italic, mid  #555555
+     Body text     : 10.5pt serif norm, body #222222  LH 1.55
+     Bullet text   : 10pt serif norm,   body #333333
+     Small label   :  8pt sans bold,    dim  #666666
+     GPA / note    :  9pt sans norm,    dim  #888888
 ═══════════════════════════════════════════════════ */
 function generatePDF(){
   if(!cvData){toast(t('t_err'),'err');return;}
@@ -531,150 +543,290 @@ function generatePDF(){
   const pw=document.getElementById('pw'),pf=document.getElementById('pf'),pl=document.getElementById('pl');
   btn.disabled=true; lbl.textContent=t('pr1');
   ico.innerHTML=`<circle cx="12" cy="12" r="9" fill="none" stroke-width="2.5"/><path d="M12 6v6l3 3" fill="none"/>`;
-  ico.classList.add('spin'); pw.classList.add('show'); pf.style.width='12%';
+  ico.classList.add('spin'); pw.classList.add('show'); pf.style.width='8%';
   toast(t('t_gen'));
 
   requestAnimationFrame(()=>setTimeout(()=>{
     try{
       const{jsPDF}=window.jspdf;
       const isA4=opts.paper==='a4';
-      const PW=isA4?210:215.9, PH=isA4?297:279.4, MG=opts.mg, TW=PW-MG*2;
+      const PW=isA4?210:215.9, PH=isA4?297:279.4;
+      const MG=opts.mg, TW=PW-MG*2;
       let Y=MG;
       const doc=new jsPDF({unit:'mm',format:isA4?'a4':'letter',orientation:'portrait'});
       regFonts(doc);
 
-      const LH=5.7, LHS=5.1, LHT=4.5, IGAP=4.0, SB=7.0, SA=5.0, BI=3.5;
+      /* ─── spacing constants (mm) ─── */
+      const LH_BODY  = 5.8;   // 10.5pt × 1.55 × 0.3528
+      const LH_SM    = 5.2;   // 10pt line height
+      const LH_XS    = 4.4;   // 8-9pt line height
+      const SEC_PRE  = 7.5;   // space before each section
+      const SEC_POST = 4.5;   // space after section rule → first item
+      const ITEM_GAP = 5.0;   // vertical gap between exp/edu items
+      const BULLET_X = 4.0;   // bullet column width
+      const COL2_X   = MG+BULLET_X+1.5; // text start after bullet
 
-      function needPage(n=15){if(Y+n>PH-MG){doc.addPage();Y=MG;}}
+      /* ─── helpers ─── */
+      function np(n=14){if(Y+n>PH-MG){doc.addPage();Y=MG;}}
       function sf(type,sz){const[f,s]=F(type);doc.setFont(f,s);doc.setFontSize(sz);}
-      function rgb(...c){doc.setTextColor(...c);}
+      function cl(r,g,b){doc.setTextColor(r,g,b);}
+      function dl(r,g,b,w){doc.setDrawColor(r,g,b);doc.setLineWidth(w);}
 
-      function secTitle(label){
-        needPage(SB+SA+LH+4); Y+=SB;
-        doc.setDrawColor(17,17,17); doc.setLineWidth(0.4);
-        doc.line(MG,Y,MG+TW,Y); Y+=3.8;
-        sf('ab',8.5); rgb(17,17,17);
-        doc.text(label.toUpperCase(),MG,Y); Y+=SA;
+      /* section title: thin rule above, ALL-CAPS label, accent color */
+      function sec(label){
+        np(SEC_PRE+SEC_POST+LH_BODY+4);
+        Y+=SEC_PRE;
+        dl(180,180,180,0.25); doc.line(MG,Y,MG+TW,Y);  // hairline rule
+        Y+=1.8;
+        sf('ab',8); cl(59,109,17);                       // sage green label
+        doc.text(label.toUpperCase(),MG,Y);
+        // right-align decorative dash line
+        const lw=doc.getTextWidth(label.toUpperCase())+2.5;
+        dl(200,200,200,0.2);
+        doc.line(MG+lw,Y-1,MG+TW,Y-1);
+        Y+=SEC_POST;
       }
 
-      pf.style.width='25%'; pl.textContent=t('pr2');
-      const p=cvData.personal||{}, ex=(cvData.experience||[]).filter(e=>e.title||e.company);
-      const ed=(cvData.education||[]).filter(e=>e.degree||e.school);
-      const sk=cvData.skills||{}, xt=cvData.extras||{};
-      const fullName=`${p.firstName||''} ${p.lastName||''}`.trim();
+      /* draw a lozenge bullet at current Y, returns nothing */
+      function bullet(xPos){
+        cl(59,109,17);
+        doc.circle(xPos+1.2, Y-1.3, 0.9, 'F');
+        cl(34,34,34);
+      }
 
-      /* HEADER */
-      sf('sb',26); rgb(17,17,17);
-      doc.text(fullName,PW/2,Y+pt2mm(26)*0.75,{align:'center'}); Y+=pt2mm(26)*1.15+1;
-      if(p.jobTitle){sf('si',12);rgb(68,68,68);doc.text(p.jobTitle,PW/2,Y,{align:'center'});Y+=pt2mm(12)*1.55+1.5;}
-      const ctacts=[p.email,p.phone,[p.city,p.country].filter(Boolean).join(', '),
-        p.linkedin?displayUrl(p.linkedin):'',p.website?displayUrl(p.website):'',p.github?displayUrl(p.github):''].filter(Boolean);
+      /* draw right-aligned date badge with subtle background */
+      function dateBadge(dateStr){
+        if(!dateStr) return;
+        sf('an',7.5); cl(100,100,100);
+        doc.text(dateStr, MG+TW, Y, {align:'right'});
+      }
+
+      pf.style.width='20%'; pl.textContent=t('pr2');
+
+      const p  = cvData.personal||{};
+      const ex = (cvData.experience||[]).filter(e=>e.title||e.company);
+      const ed = (cvData.education||[]).filter(e=>e.degree||e.school);
+      const sk = cvData.skills||{};
+      const xt = cvData.extras||{};
+      const fullName = `${p.firstName||''} ${p.lastName||''}`.trim();
+
+      /* ════ HEADER ════ */
+      // Name — large, bold, centered
+      sf('sb',24); cl(17,17,17);
+      doc.text(fullName, PW/2, Y+pt2mm(24)*0.78, {align:'center'});
+      Y += pt2mm(24)*1.2 + 1;
+
+      // Job title — italic, muted, centered
+      if(p.jobTitle){
+        sf('si',12); cl(68,68,68);
+        doc.text(p.jobTitle, PW/2, Y, {align:'center'});
+        Y += pt2mm(12)*1.5 + 2.5;
+      }
+
+      // Contacts — single centered line, pipe-separated, 9pt
+      const ctacts=[
+        p.email, p.phone,
+        [p.city,p.country].filter(Boolean).join(', '),
+        p.linkedin ? displayUrl(p.linkedin) : '',
+        p.website  ? displayUrl(p.website)  : '',
+        p.github   ? displayUrl(p.github)   : '',
+      ].filter(Boolean);
       if(ctacts.length){
-        sf('an',9); rgb(55,55,55);
-        const cl=doc.splitTextToSize(ctacts.join('  |  '),TW);
-        doc.text(cl,PW/2,Y,{align:'center'}); Y+=cl.length*pt2mm(9)*1.45+1.5;
+        sf('an',9); cl(80,80,80);
+        const cstr = ctacts.join('   |   ');
+        const cl2  = doc.splitTextToSize(cstr, TW);
+        doc.text(cl2, PW/2, Y, {align:'center'});
+        Y += cl2.length * pt2mm(9)*1.5 + 1.5;
       }
-      Y+=2; doc.setDrawColor(17,17,17); doc.setLineWidth(0.7);
-      doc.line(MG,Y,MG+TW,Y); Y+=5;
 
-      /* SUMMARY */
+      // Header divider — double rule effect
+      Y += 1.5;
+      dl(17,17,17,0.8); doc.line(MG,Y,MG+TW,Y);
+      Y += 1.2;
+      dl(59,109,17,0.3); doc.line(MG,Y,MG+TW,Y);  // thin green accent under
+      Y += 4.5;
+
+      /* ════ PROFESSIONAL SUMMARY ════ */
       if(cvData.summary&&cvData.summary.trim()){
-        secTitle(t('cv_sum')); sf('sn',10.5); rgb(34,34,34);
+        sec(t('cv_sum'));
+        sf('sn',10.5); cl(34,34,34);
         const sl=doc.splitTextToSize(cvData.summary.trim(),TW);
-        needPage(sl.length*LH+IGAP); doc.text(sl,MG,Y); Y+=sl.length*LH;
+        np(sl.length*LH_BODY+2);
+        doc.text(sl,MG,Y);
+        Y+=sl.length*LH_BODY+1;
       }
-      pf.style.width='50%';
 
-      /* EXPERIENCE */
+      pf.style.width='45%';
+
+      /* ════ WORK EXPERIENCE ════ */
       if(ex.length){
-        secTitle(t('cv_exp'));
+        sec(t('cv_exp'));
         ex.forEach((e,i)=>{
           const ds=fmtM(e.start), de=e.current?t('cv_now'):fmtM(e.end);
           const dateStr=[ds,de].filter(Boolean).join(' – ');
-          needPage(LH+LHS+LH*3+IGAP);
-          sf('ab',10.5); rgb(17,17,17);
-          doc.text((e.title||'')+(e.type?` [${e.type}]`:''),MG,Y);
-          if(dateStr){sf('an',8.5);rgb(90,90,90);doc.text(dateStr,MG+TW,Y,{align:'right'});}
-          Y+=LHS+1;
-          const meta=[e.company,e.location].filter(Boolean).join(' · ');
-          if(meta){sf('si',10);rgb(80,80,80);doc.text(meta,MG,Y);Y+=LHS+0.5;}
+          np(LH_BODY+LH_SM*2+LH_SM*3+ITEM_GAP);
+
+          // Row 1: Job title (bold) + date right-aligned
+          sf('ab',11); cl(17,17,17);
+          // truncate title if too long to avoid overlap with date
+          const titleMaxW = dateStr ? TW - doc.getTextWidth(dateStr) - 8 : TW;
+          const titleStr  = (e.title||'');
+          doc.text(titleStr, MG, Y);
+          dateBadge(dateStr);
+          Y += LH_SM + 0.5;
+
+          // Row 2: Employment type tag + company · location
+          const metaParts=[e.company,e.location].filter(Boolean);
+          if(metaParts.length||e.type){
+            // type badge
+            if(e.type){
+              sf('an',7.5); cl(120,120,120);
+              const badge=`[${e.type}]`;
+              doc.text(badge,MG,Y);
+              const bw=doc.getTextWidth(badge)+2.5;
+              sf('si',10); cl(70,70,70);
+              if(metaParts.length) doc.text(metaParts.join(' · '),MG+bw,Y);
+            } else {
+              sf('si',10); cl(70,70,70);
+              doc.text(metaParts.join(' · '),MG,Y);
+            }
+            Y+=LH_SM+0.5;
+          }
+
+          // Description bullets
           if(e.desc&&e.desc.trim()){
             const raw=e.desc.split('\n').map(l=>l.trim()).filter(Boolean);
-            const hb=raw.some(l=>/^[•\-\*]/.test(l));
-            sf('sn',10); rgb(34,34,34);
+            const hasBullet=raw.some(l=>/^[•\-\*]/.test(l));
+            sf('sn',10); cl(51,51,51);
             raw.forEach(line=>{
-              const clean=hb?line.replace(/^[•\-\*]\s*/,''):line;
-              if(hb) doc.text('•',MG,Y);
-              const wr=doc.splitTextToSize(clean,hb?TW-BI:TW);
-              needPage(wr.length*LHS+1); doc.text(wr,hb?MG+BI:MG,Y); Y+=wr.length*LHS;
+              const clean=hasBullet?line.replace(/^[•\-\*]\s*/,''):line;
+              if(hasBullet){
+                bullet(MG);
+                const wr=doc.splitTextToSize(clean,TW-BULLET_X-1.5);
+                np(wr.length*LH_SM+1);
+                doc.text(wr,COL2_X,Y);
+                Y+=wr.length*LH_SM;
+              } else {
+                const wr=doc.splitTextToSize(clean,TW);
+                np(wr.length*LH_SM+1);
+                doc.text(wr,MG,Y);
+                Y+=wr.length*LH_SM;
+              }
             });
           }
-          if(i<ex.length-1) Y+=IGAP;
+          if(i<ex.length-1){Y+=ITEM_GAP;}
         });
       }
 
-      /* EDUCATION */
+      pf.style.width='65%';
+
+      /* ════ EDUCATION ════ */
       if(ed.length){
-        secTitle(t('cv_edu'));
+        sec(t('cv_edu'));
         ed.forEach((e,i)=>{
-          needPage(LH+LHS*3+IGAP);
+          np(LH_BODY+LH_SM*3+ITEM_GAP);
           const de=e.current?t('cv_now'):e.end;
           const dateStr=[e.start,de].filter(Boolean).join(' – ');
-          sf('ab',10.5); rgb(17,17,17);
+
+          // Degree
+          sf('ab',11); cl(17,17,17);
           doc.text([e.degree,e.field].filter(Boolean).join(' in '),MG,Y);
-          if(dateStr){sf('an',8.5);rgb(90,90,90);doc.text(dateStr,MG+TW,Y,{align:'right'});}
-          Y+=LHS+1;
+          dateBadge(dateStr);
+          Y+=LH_SM+0.5;
+
+          // Institution
           const school=[e.school,e.location].filter(Boolean).join(', ');
-          if(school){sf('si',10);rgb(80,80,80);doc.text(school,MG,Y);Y+=LHS+0.5;}
-          if(e.gpa){sf('an',8.5);rgb(100,100,100);doc.text('GPA: '+e.gpa,MG,Y);Y+=LHT+0.5;}
-          if(e.achievements&&e.achievements.trim()){
-            sf('sn',9.5);rgb(60,60,60);
-            const al=doc.splitTextToSize(e.achievements.trim(),TW);
-            needPage(al.length*LHS+2); doc.text(al,MG,Y); Y+=al.length*(LHS-0.5);
+          if(school){sf('si',10);cl(70,70,70);doc.text(school,MG,Y);Y+=LH_SM+0.5;}
+
+          // GPA inline with small label
+          if(e.gpa){
+            sf('ab',8); cl(100,100,100); doc.text('GPA',MG,Y);
+            const gw=doc.getTextWidth('GPA')+1.5;
+            sf('an',8); cl(80,80,80); doc.text(e.gpa,MG+gw,Y);
+            Y+=LH_XS+1;
           }
-          if(i<ed.length-1) Y+=IGAP;
+
+          // Achievements
+          if(e.achievements&&e.achievements.trim()){
+            sf('sn',9.5); cl(80,80,80);
+            const al=doc.splitTextToSize(e.achievements.trim(),TW);
+            np(al.length*LH_SM+1);
+            doc.text(al,MG,Y); Y+=al.length*LH_XS+1;
+          }
+          if(i<ed.length-1) Y+=ITEM_GAP-1;
         });
       }
-      pf.style.width='75%';
 
-      /* SKILLS */
+      pf.style.width='80%';
+
+      /* ════ SKILLS ════ */
       const hasSk=(sk.tech||[]).length||(sk.soft||[]).length||(sk.languages||[]).length||(sk.certs||[]).length;
       if(hasSk){
-        secTitle(t('cv_sk'));
-        [{label:t('cv_skt'),arr:sk.tech||[]},{label:t('cv_sks'),arr:sk.soft||[]},
-         {label:t('cv_skl'),arr:sk.languages||[]},{label:t('cv_skc'),arr:sk.certs||[]}].filter(g=>g.arr.length)
-        .forEach(g=>{
-          needPage(LHT+2);
-          sf('ab',8.5); rgb(50,50,50);
-          const lbl2=g.label.toUpperCase()+':  ';
-          doc.text(lbl2,MG,Y);
-          const lw=doc.getTextWidth(lbl2);
-          sf('an',8.5); rgb(34,34,34);
-          const sl=doc.splitTextToSize(g.arr.join('   ·   '),TW-lw);
-          if(sl[0]) doc.text(sl[0],MG+lw,Y); Y+=LHT+0.5;
-          for(let i=1;i<sl.length;i++){needPage(LHT+1);doc.text(sl[i],MG+lw,Y);Y+=LHT+0.5;}
+        sec(t('cv_sk'));
+        const groups=[
+          {label:t('cv_skt'),arr:sk.tech||[]},
+          {label:t('cv_sks'),arr:sk.soft||[]},
+          {label:t('cv_skl'),arr:sk.languages||[]},
+          {label:t('cv_skc'),arr:sk.certs||[]},
+        ].filter(g=>g.arr.length);
+
+        groups.forEach(g=>{
+          np(LH_XS+2);
+          // Label in sage green bold
+          sf('ab',8.5); cl(59,109,17);
+          const ltext=g.label+': ';
+          doc.text(ltext,MG,Y);
+          const lw=doc.getTextWidth(ltext);
+          // Skills in dark, dot-separated
+          sf('an',9); cl(51,51,51);
+          const sstr=g.arr.join('  ·  ');
+          const slines=doc.splitTextToSize(sstr,TW-lw);
+          if(slines[0]) doc.text(slines[0],MG+lw,Y);
+          Y+=LH_XS+1.2;
+          for(let i=1;i<slines.length;i++){
+            np(LH_XS+1); doc.text(slines[i],MG,Y); Y+=LH_XS+1;
+          }
         });
       }
 
-      /* ACHIEVEMENTS */
+      /* ════ KEY ACHIEVEMENTS ════ */
       if(xt.achievements&&xt.achievements.trim()){
-        secTitle(t('cv_ach'));
+        sec(t('cv_ach'));
         const raw=xt.achievements.split('\n').map(l=>l.trim()).filter(Boolean);
-        const hb=raw.some(l=>/^[•\-\*]/.test(l));
-        sf('sn',10); rgb(34,34,34);
+        const hasBullet=raw.some(l=>/^[•\-\*]/.test(l));
+        sf('sn',10); cl(51,51,51);
         raw.forEach(line=>{
-          const clean=hb?line.replace(/^[•\-\*]\s*/,''):line;
-          if(hb) doc.text('•',MG,Y);
-          const wr=doc.splitTextToSize(clean,hb?TW-BI:TW);
-          needPage(wr.length*LHS+1); doc.text(wr,hb?MG+BI:MG,Y); Y+=wr.length*LHS;
+          const clean=hasBullet?line.replace(/^[•\-\*]\s*/,''):line;
+          if(hasBullet){
+            bullet(MG);
+            const wr=doc.splitTextToSize(clean,TW-BULLET_X-1.5);
+            np(wr.length*LH_SM+1); doc.text(wr,COL2_X,Y); Y+=wr.length*LH_SM;
+          } else {
+            const wr=doc.splitTextToSize(clean,TW);
+            np(wr.length*LH_SM+1); doc.text(wr,MG,Y); Y+=wr.length*LH_SM;
+          }
         });
       }
 
-      /* REFERENCES */
+      /* ════ REFERENCES ════ */
       if(xt.references&&xt.references.trim()){
-        secTitle(t('cv_ref')); sf('si',10); rgb(90,90,90);
+        sec(t('cv_ref'));
+        sf('sn',10); cl(90,90,90);
         const rl=doc.splitTextToSize(xt.references.trim(),TW);
-        needPage(rl.length*LHS+2); doc.text(rl,MG,Y);
+        np(rl.length*LH_SM+2); doc.text(rl,MG,Y);
+      }
+
+      /* ════ FOOTER — page numbers ════ */
+      const totalPages=doc.getNumberOfPages();
+      for(let pg=1;pg<=totalPages;pg++){
+        doc.setPage(pg);
+        sf('an',7.5); cl(180,180,180);
+        if(totalPages>1){
+          doc.text(`${pg} / ${totalPages}`, PW/2, PH-8, {align:'center'});
+        }
+        // subtle bottom accent line
+        dl(59,109,17,0.2);
+        doc.line(MG,PH-12,MG+TW,PH-12);
       }
 
       pf.style.width='95%'; pl.textContent=t('pr3');
@@ -686,7 +838,6 @@ function generatePDF(){
         btn.disabled=false; lbl.textContent=t('btn_gen');
         ico.innerHTML=`<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`;
         ico.classList.remove('spin'); pw.classList.remove('show'); pf.style.width='0%';
-        // Show inline banner (non-blocking — page stays fully interactive)
         document.getElementById('sb').classList.add('show');
         document.getElementById('sb').scrollIntoView({behavior:'smooth',block:'nearest'});
       },700);
