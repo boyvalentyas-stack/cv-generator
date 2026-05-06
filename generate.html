@@ -6,8 +6,9 @@
 <title>CraftCV — Generate Your CV</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -45,7 +46,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .page-title em{font-style:italic;color:var(--sage)}
 .page-sub{font-size:.92rem;color:var(--ink-light);font-weight:300;line-height:1.75;max-width:420px;margin-bottom:2rem}
 
-/* INLINE SUCCESS BANNER — replaces the blocking full-screen overlay */
+/* SUCCESS BANNER */
 .success-banner{display:none;align-items:flex-start;gap:14px;background:var(--sage-light);border:1px solid rgba(59,109,17,.25);border-radius:var(--r-lg);padding:1.25rem 1.5rem;margin-bottom:1.25rem;animation:fd .3s ease both}
 .success-banner.show{display:flex}
 @keyframes fd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
@@ -80,10 +81,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 /* FORM PIECES */
 .og{margin-bottom:1.15rem}.og:last-child{margin-bottom:0}
 .ol{display:block;font-size:.77rem;font-weight:500;color:var(--ink-mid);margin-bottom:6px}
-.or{display:flex;gap:6px;flex-wrap:wrap}
-.pill{padding:6px 14px;border-radius:999px;border:1.5px solid var(--border-mid);background:var(--cream);font-size:.76rem;color:var(--ink-mid);cursor:pointer;transition:all var(--ease);font-family:var(--ff)}
-.pill:hover{border-color:var(--border-strong);color:var(--ink)}
-.pill.sel{background:var(--ink);color:var(--cream);border-color:var(--ink)}
 .fw{position:relative}
 .fi{width:100%;font-family:var(--ff);font-size:.88rem;color:var(--ink);background:var(--cream-dark);border:1.5px solid var(--border-mid);border-radius:var(--r);padding:10px 56px 10px 14px;outline:none;transition:border-color var(--ease),box-shadow var(--ease)}
 .fi:focus{border-color:var(--sage);box-shadow:0 0 0 3px rgba(59,109,17,.1)}
@@ -174,6 +171,49 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 .fok{width:16px;height:16px;border-radius:50%;background:var(--sage-light);color:var(--sage);display:flex;align-items:center;justify-content:center;font-size:.55rem;flex-shrink:0}
 .ftxt{font-size:.71rem;color:var(--ink-light)}
 
+/* PDF RENDER CONTAINER */
+#pdf-render-container{
+  position:absolute;left:-9999px;top:0;
+  width:794px;
+  background:#ffffff;
+}
+
+/* CV INNER STYLES (matches preview.html exactly) */
+.cv-root{
+  font-family:'EB Garamond',Georgia,serif;
+  font-size:10.5pt;line-height:1.55;color:#111;
+  background:#fff;padding:52px 56px;
+}
+.cv-root .cv-header{margin-bottom:20px;border-bottom:2px solid #111;padding-bottom:14px}
+.cv-root .cv-name{font-family:'EB Garamond',Georgia,serif;font-size:26pt;font-weight:600;line-height:1.1;letter-spacing:-.01em;color:#111;margin-bottom:3px}
+.cv-root .cv-role{font-family:'EB Garamond',Georgia,serif;font-size:12pt;font-weight:400;font-style:italic;color:#444;margin-bottom:10px}
+.cv-root .cv-contacts{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:9pt;color:#333;font-family:'DM Sans',sans-serif}
+.cv-root .cv-contact-item{display:inline-flex;align-items:center;gap:4px}
+.cv-root .cv-section{margin-bottom:16px}
+.cv-root .cv-section-title{font-family:'DM Sans',sans-serif;font-size:8.5pt;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#111;border-bottom:1px solid #111;padding-bottom:3px;margin-bottom:10px}
+.cv-root .cv-summary{font-size:10.5pt;color:#222;line-height:1.65;text-align:justify}
+.cv-root .cv-exp-item{margin-bottom:13px}
+.cv-root .cv-exp-title-row{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:2px}
+.cv-root .cv-exp-title{font-family:'DM Sans',sans-serif;font-size:10.5pt;font-weight:600;color:#111}
+.cv-root .cv-exp-badge{display:inline-block;font-family:'DM Sans',sans-serif;font-size:7.5pt;font-weight:500;padding:1px 6px;border:1px solid #999;border-radius:3px;color:#555;margin-left:6px;vertical-align:middle}
+.cv-root .cv-exp-date{font-family:'DM Sans',sans-serif;font-size:8.5pt;color:#555;white-space:nowrap;flex-shrink:0}
+.cv-root .cv-exp-meta{font-size:10pt;color:#444;font-style:italic;margin-bottom:4px}
+.cv-root .cv-exp-desc{font-size:10pt;color:#222;line-height:1.6;white-space:pre-wrap}
+.cv-root .cv-edu-item{margin-bottom:11px}
+.cv-root .cv-edu-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+.cv-root .cv-edu-degree{font-family:'DM Sans',sans-serif;font-size:10.5pt;font-weight:600;color:#111}
+.cv-root .cv-edu-date{font-family:'DM Sans',sans-serif;font-size:8.5pt;color:#555;white-space:nowrap;flex-shrink:0}
+.cv-root .cv-edu-school{font-size:10pt;color:#444;font-style:italic;margin-top:1px}
+.cv-root .cv-edu-gpa{font-family:'DM Sans',sans-serif;font-size:8.5pt;color:#555;margin-top:2px}
+.cv-root .cv-edu-ach{font-size:9.5pt;color:#333;margin-top:3px;white-space:pre-wrap}
+.cv-root .cv-skills-grid{display:flex;flex-wrap:wrap;gap:8px 16px}
+.cv-root .cv-skills-col{min-width:180px;flex:1}
+.cv-root .cv-skill-group-label{font-family:'DM Sans',sans-serif;font-size:8.5pt;font-weight:600;color:#333;text-transform:uppercase;letter-spacing:.06em;margin-bottom:3px}
+.cv-root .cv-skill-chips{display:flex;flex-wrap:wrap;gap:3px}
+.cv-root .cv-skill-chip{font-family:'DM Sans',sans-serif;font-size:8.5pt;color:#222;padding:1px 7px;border:1px solid #ccc;border-radius:3px;background:#f8f8f8}
+.cv-root .cv-achievements{font-size:10pt;color:#222;line-height:1.65;white-space:pre-wrap}
+.cv-root .cv-references{font-size:10pt;color:#555;font-style:italic}
+
 /* TOAST */
 .toast{position:fixed;top:76px;right:1.5rem;z-index:9999;background:var(--ink);color:var(--cream);padding:11px 18px;border-radius:var(--r);font-size:.82rem;display:flex;align-items:center;gap:8px;transform:translateY(-20px);opacity:0;pointer-events:none;transition:all .3s ease;max-width:320px;box-shadow:0 4px 20px rgba(26,23,20,.2)}
 .toast.show{transform:translateY(0);opacity:1}
@@ -201,6 +241,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
 <div class="toast" id="toast" role="alert" aria-live="polite"><span id="t-icon">ℹ</span><span id="t-msg"></span></div>
 
+<!-- Hidden DIV for PDF rendering -->
+<div id="pdf-render-container"></div>
+
 <nav>
   <a href="index.html" class="logo">Craft<span>CV</span></a>
   <div class="nav-mid">
@@ -209,7 +252,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
     <span class="ns active" data-i18n="n3">Generate PDF</span>
   </div>
   <div class="nav-r">
-    <!-- Back to preview always visible -->
     <a href="preview.html" class="btn-back-nav">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
       <span data-i18n="nav_back">Back to Preview</span>
@@ -226,9 +268,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
   <p class="eyebrow" data-i18n="ey">Final Step</p>
   <h1 class="page-title"><span data-i18n="pt1">Generate &</span> <em data-i18n="pt2">download</em><br><span data-i18n="pt3">your CV</span></h1>
-  <p class="page-sub" data-i18n="psub">Choose your format settings, generate your PDF, and optionally email yourself a copy.</p>
+  <p class="page-sub" data-i18n="psub">Choose your file name, generate your ATS-friendly PDF, and optionally email yourself a copy.</p>
 
-  <!-- ── INLINE SUCCESS BANNER (non-blocking) ── -->
+  <!-- SUCCESS BANNER -->
   <div class="success-banner" id="sb" role="status">
     <div class="sb-icon"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
     <div class="sb-body">
@@ -250,7 +292,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
   <div class="card">
     <div class="ch">
       <div class="ci pdf"><svg viewBox="0 0 24 24" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg></div>
-      <div><p class="ct" data-i18n="pdf_t">Download as PDF</p><p class="cs" data-i18n="pdf_s">EB Garamond + DM Sans · ATS vector text · A4 or Letter</p></div>
+      <div><p class="ct" data-i18n="pdf_t">Download as PDF</p><p class="cs" data-i18n="pdf_s">EB Garamond + DM Sans · ATS-optimised · A4</p></div>
     </div>
     <div class="cb">
 
@@ -262,23 +304,6 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
       <div class="og">
         <label class="ol" for="fname" data-i18n="l_fn">File Name</label>
         <div class="fw"><input class="fi" type="text" id="fname" value="My_CV" maxlength="60"><span class="fe">.pdf</span></div>
-      </div>
-
-      <div class="og">
-        <span class="ol" data-i18n="l_ps">Paper Size</span>
-        <div class="or">
-          <button class="pill sel" data-g="paper" data-v="a4" onclick="pick(this,'paper')">A4</button>
-          <button class="pill" data-g="paper" data-v="letter" onclick="pick(this,'paper')">US Letter</button>
-        </div>
-      </div>
-
-      <div class="og">
-        <span class="ol" data-i18n="l_mg">Side Margins</span>
-        <div class="or">
-          <button class="pill" data-g="mg" data-v="14" onclick="pick(this,'mg')" data-i18n="mg1">Narrow (14 mm)</button>
-          <button class="pill sel" data-g="mg" data-v="20" onclick="pick(this,'mg')" data-i18n="mg2">Normal (20 mm)</button>
-          <button class="pill" data-g="mg" data-v="28" onclick="pick(this,'mg')" data-i18n="mg3">Wide (28 mm)</button>
-        </div>
       </div>
 
       <button class="btn-gen" id="btn-gen" onclick="generatePDF()">
@@ -329,7 +354,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 
   <div class="disc">
     <span style="font-size:.85rem;flex-shrink:0;margin-top:1px">🛡️</span>
-    <p data-i18n="disc"><strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF. Email sent via EmailJS. CV data lives only in browser <code>sessionStorage</code> and clears when you close this tab.</p>
+    <p data-i18n="disc"><strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF + html2canvas. Email sent via EmailJS. CV data lives only in browser <code>sessionStorage</code> and clears when you close this tab.</p>
   </div>
 
 </div><!-- /left -->
@@ -354,9 +379,9 @@ nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:cen
 </div><!-- /page -->
 
 <script>
-/* ═══════ EMAILJS CREDENTIALS (hardcoded) ═══════ */
+/* ═══════ EMAILJS CREDENTIALS ═══════ */
 const EJS_SERVICE  = 'service_0aqctss';
-const EJS_TEMPLATE = 'template_4m0u7mm';
+const EJS_TEMPLATE = 'template_hr8z47g';
 const EJS_KEY      = 'TC1D7FwZYQNzlpZvY';
 
 /* ═══════ TRANSLATIONS ═══════ */
@@ -364,18 +389,17 @@ const TR={
 en:{
   n1:'Fill Form',n2:'Preview',n3:'Generate PDF',nav_back:'Back to Preview',
   ey:'Final Step',pt1:'Generate &',pt2:'download',pt3:'your CV',
-  psub:'Choose your format settings, generate your PDF, and optionally email yourself a copy.',
-  pdf_t:'Download as PDF',pdf_s:'EB Garamond + DM Sans · ATS vector text · A4 or Letter',
-  l_fn:'File Name',l_ps:'Paper Size',l_mg:'Side Margins',
-  mg1:'Narrow (14 mm)',mg2:'Normal (20 mm)',mg3:'Wide (28 mm)',
-  btn_gen:'Generate & Download PDF',pr1:'Building your PDF…',pr2:'Writing sections…',pr3:'Saving…',
+  psub:'Choose your file name, generate your ATS-friendly PDF, and optionally email yourself a copy.',
+  pdf_t:'Download as PDF',pdf_s:'EB Garamond + DM Sans · ATS-optimised · A4',
+  l_fn:'File Name',
+  btn_gen:'Generate & Download PDF',pr1:'Building your PDF…',pr2:'Rendering CV…',pr3:'Creating PDF…',
   font_loading:'Loading fonts…',font_ready:'Fonts ready ✓',font_fallback:'Using system fonts',
   em_t:'Email a Copy',em_s:'Receive a formatted CV summary in your inbox',
   etog_lbl:'Send me an email copy',
   l_to:'Your Email Address',h_to:'A full CV summary will be sent here.',
   l_note:'Personal Note',opt:'(optional)',
   btn_em:'Send Email Copy',
-  disc:'<strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF. Email sent via EmailJS. CV data lives only in browser <code>sessionStorage</code> and clears when you close this tab.',
+  disc:'<strong>Portfolio project:</strong> No data stored on any server. PDF built 100% in-browser by jsPDF + html2canvas. Email sent via EmailJS. CV data lives only in browser <code>sessionStorage</code> and clears when you close this tab.',
   sc_t:'Your CV Summary',sc_back:'← Preview',sc_foot:'ATS-optimised · Ready to generate',
   sb_title:'CV Downloaded!',sb_sub:'Your PDF has been saved. You can download again, start fresh, or go home.',
   s_dl:'Download Again',s_new:'Start New CV',s_home:'← Home',
@@ -391,11 +415,10 @@ en:{
 id:{
   n1:'Isi Formulir',n2:'Pratinjau',n3:'Buat PDF',nav_back:'Kembali ke Pratinjau',
   ey:'Langkah Terakhir',pt1:'Buat &',pt2:'unduh',pt3:'CV Anda',
-  psub:'Pilih pengaturan format, buat PDF Anda, dan opsional kirimkan salinan email.',
-  pdf_t:'Unduh sebagai PDF',pdf_s:'EB Garamond + DM Sans · Teks vektor ATS · A4 atau Letter',
-  l_fn:'Nama File',l_ps:'Ukuran Kertas',l_mg:'Margin Samping',
-  mg1:'Sempit (14 mm)',mg2:'Normal (20 mm)',mg3:'Lebar (28 mm)',
-  btn_gen:'Buat & Unduh PDF',pr1:'Membangun PDF…',pr2:'Menulis bagian…',pr3:'Menyimpan…',
+  psub:'Pilih nama file, buat PDF ramah ATS, dan opsional kirim salinan email.',
+  pdf_t:'Unduh sebagai PDF',pdf_s:'EB Garamond + DM Sans · Ramah ATS · A4',
+  l_fn:'Nama File',
+  btn_gen:'Buat & Unduh PDF',pr1:'Membangun PDF…',pr2:'Merender CV…',pr3:'Membuat PDF…',
   font_loading:'Memuat font…',font_ready:'Font siap ✓',font_fallback:'Menggunakan font sistem',
   em_t:'Kirim Salinan Email',em_s:'Terima ringkasan CV di kotak masuk Anda',
   etog_lbl:'Kirimkan salinan email ke saya',
@@ -417,9 +440,7 @@ id:{
 }};
 
 let lang=localStorage.getItem('craftcv_lang')||'en';
-let cvData=null, lastBlob=null;
-const opts={paper:'a4',mg:20};
-const fonts={garamond:{normal:null,bold:null,italic:null},dmSans:{normal:null,bold:null},loaded:false};
+let cvData=null, lastBlob=null, renderedCVImage=null;
 
 function t(k){return(TR[lang]||TR.en)[k]||TR.en[k]||k;}
 
@@ -432,13 +453,6 @@ function setLang(l){
     if((TR[l]||TR.en)[k]!==undefined) el.innerHTML=(TR[l]||TR.en)[k];
   });
   if(cvData) renderMini(cvData);
-}
-
-function pick(btn,group){
-  document.querySelectorAll(`[data-g="${group}"]`).forEach(b=>b.classList.remove('sel'));
-  btn.classList.add('sel');
-  if(group==='paper') opts.paper=btn.dataset.v;
-  if(group==='mg') opts.mg=parseInt(btn.dataset.v);
 }
 
 let toastT;
@@ -461,55 +475,10 @@ function toggleEmail(){
 
 /* ═══ URL HELPERS ═══ */
 function ensureHttps(url){
-  if(!url||!url.trim()) return '';
+  if(!url||!url.trim()) return'';
   return /^https?:\/\//i.test(url.trim())?url.trim():'https://'+url.trim();
 }
 function displayUrl(url){ return ensureHttps(url).replace(/^https?:\/\/(www\.)?/i,''); }
-
-/* ═══ FONT LOADING ═══ */
-const FONT_URLS={
-  gn:'https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RUA4V-e6yHgQ.woff2',
-  gb:'https://fonts.gstatic.com/s/ebgaramond/v26/SlGDmQSNjdsmc35JDF1K5E55YMjF_7DPuGi-6_RkAoV-e6yHgQ.woff2',
-  gi:'https://fonts.gstatic.com/s/ebgaramond/v26/SlGSmQSNjdsmc35JDF1K5GR7SDk_qFd5hQ.woff2',
-  dn:'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmf3ZGMZpg.woff2',
-  db:'https://fonts.gstatic.com/s/dmsans/v14/rP2tp2ywxg089UriI5-g4vlH9VoD8CmcqZG40F9JadbnoEwAkJxhTmf3ZA0Zpg.woff2',
-};
-async function fetchB64(url){
-  const r=await fetch(url); if(!r.ok) throw new Error('fetch fail');
-  const buf=await r.arrayBuffer();
-  let s=''; new Uint8Array(buf).forEach(b=>s+=String.fromCharCode(b));
-  return btoa(s);
-}
-async function loadFonts(){
-  const st=document.getElementById('font-status');
-  const sm=document.getElementById('font-status-msg');
-  try{
-    st.className='font-status loading'; sm.textContent=t('font_loading');
-    const[gn,gb,gi,dn,db]=await Promise.all([fetchB64(FONT_URLS.gn),fetchB64(FONT_URLS.gb),fetchB64(FONT_URLS.gi),fetchB64(FONT_URLS.dn),fetchB64(FONT_URLS.db)]);
-    fonts.garamond={normal:gn,bold:gb,italic:gi}; fonts.dmSans={normal:dn,bold:db}; fonts.loaded=true;
-    st.className='font-status ready'; sm.textContent=t('font_ready');
-  }catch(e){
-    fonts.loaded=false; st.className='font-status fallback'; sm.textContent=t('font_fallback');
-  }
-}
-function regFonts(doc){
-  if(!fonts.loaded) return;
-  doc.addFileToVFS('EBG-R.woff2',fonts.garamond.normal); doc.addFont('EBG-R.woff2','EBG','normal');
-  doc.addFileToVFS('EBG-B.woff2',fonts.garamond.bold);   doc.addFont('EBG-B.woff2','EBG','bold');
-  doc.addFileToVFS('EBG-I.woff2',fonts.garamond.italic); doc.addFont('EBG-I.woff2','EBG','italic');
-  doc.addFileToVFS('DMS-R.woff2',fonts.dmSans.normal);   doc.addFont('DMS-R.woff2','DMS','normal');
-  doc.addFileToVFS('DMS-B.woff2',fonts.dmSans.bold);     doc.addFont('DMS-B.woff2','DMS','bold');
-}
-function F(type){
-  if(fonts.loaded){
-    if(type==='sn') return['EBG','normal']; if(type==='sb') return['EBG','bold'];
-    if(type==='si') return['EBG','italic']; if(type==='an') return['DMS','normal'];
-    if(type==='ab') return['DMS','bold'];
-  }
-  if(type==='sn') return['times','normal']; if(type==='sb') return['times','bold'];
-  if(type==='si') return['times','italic']; if(type==='an') return['helvetica','normal'];
-  return['helvetica','bold'];
-}
 
 /* ═══ DATE FORMAT ═══ */
 function fmtM(s){
@@ -520,336 +489,331 @@ function fmtM(s){
   return((lang==='id'?MI:ME)[parseInt(m)-1]||'')+' '+y;
 }
 
-const pt2mm=pt=>pt*0.352778;
+/* ═══ ESCAPE ═══ */
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-/* ═══════════════════════════════════════════════════
-   PDF GENERATION  —  Professional Layout v2
-   Typography hierarchy:
-     Name          : 24pt serif bold,   ink  #111111
-     Job title     : 12pt serif italic, mid  #444444
-     Contacts      :  9pt sans normal,  mid  #555555
-     Section title :  8pt sans bold,    ink  #111111  ALL-CAPS + rule
-     Item title    : 11pt sans bold,    ink  #111111
-     Date badge    :  8pt sans normal,  dim  #777777
-     Meta (co/loc) : 10pt serif italic, mid  #555555
-     Body text     : 10.5pt serif norm, body #222222  LH 1.55
-     Bullet text   : 10pt serif norm,   body #333333
-     Small label   :  8pt sans bold,    dim  #666666
-     GPA / note    :  9pt sans norm,    dim  #888888
-═══════════════════════════════════════════════════ */
-function generatePDF(){
+/* ═══ FORMAT BULLETS ═══ */
+function formatBullets(text){
+  if(!text) return'';
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  const hasBullets=lines.some(l=>/^[•\-\*]/.test(l));
+  if(hasBullets){
+    const items=lines.map(l=>l.replace(/^[•\-\*]\s*/,''));
+    return items.map(i=>`• ${esc(i)}`).join('\n');
+  }
+  return esc(text);
+}
+
+/* ══════════════════════════════════════
+   BUILD CV HTML (matches preview.html exactly)
+══════════════════════════════════════ */
+function buildCVHTML(d, forEmail){
+  const p=d.personal||{};
+  const exps=(d.experience||[]).filter(e=>e.title||e.company);
+  const edus=(d.education||[]).filter(e=>e.degree||e.school);
+  const sk=d.skills||{};
+  const xt=d.extras||{};
+  const name=`${p.firstName||''} ${p.lastName||''}`.trim();
+
+  const s=forEmail?{
+    root:'font-family:Georgia,serif;font-size:10.5pt;line-height:1.55;color:#111;',
+    header:'margin-bottom:20px;border-bottom:2px solid #111;padding-bottom:14px;',
+    name:'font-family:Georgia,serif;font-size:26pt;font-weight:600;line-height:1.1;letter-spacing:-0.01em;color:#111;margin-bottom:3px;',
+    role:'font-family:Georgia,serif;font-size:12pt;font-weight:400;font-style:italic;color:#444;margin-bottom:10px;',
+    contacts:'font-size:9pt;color:#333;margin-bottom:0;',
+    contactItem:'display:inline-block;margin-right:16px;',
+    section:'margin-bottom:16px;',
+    sectionTitle:'font-family:Arial,sans-serif;font-size:8.5pt;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#111;border-bottom:1px solid #111;padding-bottom:3px;margin-bottom:10px;',
+    summary:'font-size:10.5pt;color:#222;line-height:1.65;text-align:justify;',
+    expItem:'margin-bottom:13px;',
+    expTitleRow:'margin-bottom:2px;',
+    expTitle:'font-family:Arial,sans-serif;font-size:10.5pt;font-weight:600;color:#111;',
+    expBadge:'display:inline-block;font-family:Arial,sans-serif;font-size:7.5pt;font-weight:500;padding:1px 6px;border:1px solid #999;border-radius:3px;color:#555;margin-left:6px;vertical-align:middle;',
+    expDate:'font-family:Arial,sans-serif;font-size:8.5pt;color:#555;',
+    expMeta:'font-size:10pt;color:#444;font-style:italic;margin-bottom:4px;',
+    expDesc:'font-size:10pt;color:#222;line-height:1.6;white-space:pre-wrap;',
+    eduItem:'margin-bottom:11px;',
+    eduDegree:'font-family:Arial,sans-serif;font-size:10.5pt;font-weight:600;color:#111;',
+    eduDate:'font-family:Arial,sans-serif;font-size:8.5pt;color:#555;',
+    eduSchool:'font-size:10pt;color:#444;font-style:italic;margin-top:1px;',
+    eduGpa:'font-family:Arial,sans-serif;font-size:8.5pt;color:#555;margin-top:2px;',
+    eduAch:'font-size:9.5pt;color:#333;margin-top:3px;white-space:pre-wrap;',
+    skillGroupLabel:'font-family:Arial,sans-serif;font-size:8.5pt;font-weight:600;color:#333;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;',
+    skillChip:'font-family:Arial,sans-serif;font-size:8.5pt;color:#222;padding:1px 7px;border:1px solid #ccc;border-radius:3px;background:#f8f8f8;display:inline-block;margin:1px 2px;',
+    achievements:'font-size:10pt;color:#222;line-height:1.65;white-space:pre-wrap;',
+    references:'font-size:10pt;color:#555;font-style:italic;',
+  }:{
+    root:'',header:'',name:'',role:'',contacts:'',contactItem:'',section:'',sectionTitle:'',
+    summary:'',expItem:'',expTitleRow:'',expTitle:'',expBadge:'',expDate:'',expMeta:'',expDesc:'',
+    eduItem:'',eduDegree:'',eduDate:'',eduSchool:'',eduGpa:'',eduAch:'',
+    skillGroupLabel:'',skillChip:'',achievements:'',references:'',
+  };
+
+  const wrap=(tag,style,content)=>{
+    if(forEmail) return `<${tag} style="${style}">${content}</${tag}>`;
+    return content;
+  };
+
+  let h=forEmail?`<div style="${s.root}">`:`<div class="cv-root">`;
+
+  // HEADER
+  h+=forEmail?`<div style="${s.header}">`:`<div class="cv-header">`;
+  h+=forEmail?`<div style="${s.name}">${esc(name)}</div>`:`<div class="cv-name">${esc(name)}</div>`;
+  if(p.jobTitle) h+=forEmail?`<div style="${s.role}">${esc(p.jobTitle)}</div>`:`<div class="cv-role">${esc(p.jobTitle)}</div>`;
+  const contacts=[];
+  if(p.email) contacts.push(forEmail?`<span style="${s.contactItem}">✉ ${esc(p.email)}</span>`:`<span class="cv-contact-item">✉ ${esc(p.email)}</span>`);
+  if(p.phone) contacts.push(forEmail?`<span style="${s.contactItem}">☎ ${esc(p.phone)}</span>`:`<span class="cv-contact-item">☎ ${esc(p.phone)}</span>`);
+  if(p.city||p.country) contacts.push(forEmail?`<span style="${s.contactItem}">📍 ${esc([p.city,p.country].filter(Boolean).join(', '))}</span>`:`<span class="cv-contact-item">📍 ${esc([p.city,p.country].filter(Boolean).join(', '))}</span>`);
+  if(p.linkedin) contacts.push(forEmail?`<span style="${s.contactItem}">🔗 ${esc(displayUrl(p.linkedin))}</span>`:`<span class="cv-contact-item">🔗 ${esc(displayUrl(p.linkedin))}</span>`);
+  if(p.website) contacts.push(forEmail?`<span style="${s.contactItem}">🌐 ${esc(displayUrl(p.website))}</span>`:`<span class="cv-contact-item">🌐 ${esc(displayUrl(p.website))}</span>`);
+  if(p.github) contacts.push(forEmail?`<span style="${s.contactItem}">⌨ ${esc(displayUrl(p.github))}</span>`:`<span class="cv-contact-item">⌨ ${esc(displayUrl(p.github))}</span>`);
+  if(contacts.length) h+=forEmail?`<div style="${s.contacts}">${contacts.join('')}</div>`:`<div class="cv-contacts">${contacts.join('')}</div>`;
+  h+=`</div>`;
+
+  // SUMMARY
+  if(d.summary&&d.summary.trim()){
+    h+=forEmail?`<div style="${s.section}">`:`<div class="cv-section">`;
+    h+=forEmail?`<div style="${s.sectionTitle}">${t('cv_sum')}</div>`:`<div class="cv-section-title">${t('cv_sum')}</div>`;
+    h+=forEmail?`<div style="${s.summary}">${esc(d.summary)}</div>`:`<div class="cv-summary">${esc(d.summary)}</div>`;
+    h+=`</div>`;
+  }
+
+  // EXPERIENCE
+  if(exps.length){
+    h+=forEmail?`<div style="${s.section}">`:`<div class="cv-section">`;
+    h+=forEmail?`<div style="${s.sectionTitle}">${t('cv_exp')}</div>`:`<div class="cv-section-title">${t('cv_exp')}</div>`;
+    exps.forEach(e=>{
+      const ds=fmtM(e.start), de=e.current?t('cv_now'):fmtM(e.end);
+      const dateStr=[ds,de].filter(Boolean).join(' – ');
+      h+=forEmail?`<div style="${s.expItem}">`:`<div class="cv-exp-item">`;
+      h+=forEmail?`<div style="${s.expTitleRow};display:flex;justify-content:space-between;">`:`<div class="cv-exp-title-row">`;
+      h+=forEmail?`<span style="${s.expTitle}">${esc(e.title)}${e.type?` <span style="${s.expBadge}">${esc(e.type)}</span>`:''}</span>`:`<span class="cv-exp-title">${esc(e.title)}${e.type?` <span class="cv-exp-badge">${esc(e.type)}</span>`:''}</span>`;
+      if(dateStr) h+=forEmail?`<span style="${s.expDate}">${esc(dateStr)}</span>`:`<span class="cv-exp-date">${esc(dateStr)}</span>`;
+      h+=`</div>`;
+      const meta=[e.company,e.location].filter(Boolean).join(' · ');
+      if(meta) h+=forEmail?`<div style="${s.expMeta}">${esc(meta)}</div>`:`<div class="cv-exp-meta">${esc(meta)}</div>`;
+      if(e.desc&&e.desc.trim()) h+=forEmail?`<div style="${s.expDesc}">${formatBullets(e.desc)}</div>`:`<div class="cv-exp-desc">${formatBullets(e.desc)}</div>`;
+      h+=`</div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // EDUCATION
+  if(edus.length){
+    h+=forEmail?`<div style="${s.section}">`:`<div class="cv-section">`;
+    h+=forEmail?`<div style="${s.sectionTitle}">${t('cv_edu')}</div>`:`<div class="cv-section-title">${t('cv_edu')}</div>`;
+    edus.forEach(e=>{
+      const de=e.current?t('cv_now'):e.end;
+      const dateStr=[e.start,de].filter(Boolean).join(' – ');
+      const degreeStr=[e.degree,e.field].filter(Boolean).join(' in ');
+      h+=forEmail?`<div style="${s.eduItem}">`:`<div class="cv-edu-item">`;
+      h+=forEmail?`<div style="display:flex;justify-content:space-between;">`:`<div class="cv-edu-header">`;
+      h+=forEmail?`<span style="${s.eduDegree}">${esc(degreeStr)}</span>`:`<span class="cv-edu-degree">${esc(degreeStr)}</span>`;
+      if(dateStr) h+=forEmail?`<span style="${s.eduDate}">${esc(dateStr)}</span>`:`<span class="cv-edu-date">${esc(dateStr)}</span>`;
+      h+=`</div>`;
+      const school=[e.school,e.location].filter(Boolean).join(', ');
+      if(school) h+=forEmail?`<div style="${s.eduSchool}">${esc(school)}</div>`:`<div class="cv-edu-school">${esc(school)}</div>`;
+      if(e.gpa) h+=forEmail?`<div style="${s.eduGpa}">GPA: ${esc(e.gpa)}</div>`:`<div class="cv-edu-gpa">GPA: ${esc(e.gpa)}</div>`;
+      if(e.achievements&&e.achievements.trim()) h+=forEmail?`<div style="${s.eduAch}">${esc(e.achievements)}</div>`:`<div class="cv-edu-ach">${esc(e.achievements)}</div>`;
+      h+=`</div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // SKILLS
+  const hasSkills=(sk.tech||[]).length||(sk.soft||[]).length||(sk.languages||[]).length||(sk.certs||[]).length;
+  if(hasSkills){
+    h+=forEmail?`<div style="${s.section}">`:`<div class="cv-section">`;
+    h+=forEmail?`<div style="${s.sectionTitle}">${t('cv_sk')}</div>`:`<div class="cv-section-title">${t('cv_sk')}</div>`;
+    const skillGroups=[
+      {label:t('cv_skt'),arr:sk.tech||[]},
+      {label:t('cv_sks'),arr:sk.soft||[]},
+      {label:t('cv_skl'),arr:sk.languages||[]},
+      {label:t('cv_skc'),arr:sk.certs||[]}
+    ];
+    skillGroups.filter(g=>g.arr.length).forEach(g=>{
+      h+=forEmail?`<div style="margin-bottom:6px;">`:`<div>`;
+      h+=forEmail?`<div style="${s.skillGroupLabel}">${esc(g.label)}</div>`:`<div class="cv-skill-group-label">${esc(g.label)}</div>`;
+      h+=`<div class="cv-skill-chips"${forEmail?` style="display:flex;flex-wrap:wrap;gap:3px;"`:''}>`;
+      g.arr.forEach(skill=>{
+        h+=forEmail?`<span style="${s.skillChip}">${esc(skill)}</span>`:`<span class="cv-skill-chip">${esc(skill)}</span>`;
+      });
+      h+=`</div></div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // ACHIEVEMENTS
+  if(xt.achievements&&xt.achievements.trim()){
+    h+=forEmail?`<div style="${s.section}">`:`<div class="cv-section">`;
+    h+=forEmail?`<div style="${s.sectionTitle}">${t('cv_ach')}</div>`:`<div class="cv-section-title">${t('cv_ach')}</div>`;
+    h+=forEmail?`<div style="${s.achievements}">${formatBullets(xt.achievements)}</div>`:`<div class="cv-achievements">${formatBullets(xt.achievements)}</div>`;
+    h+=`</div>`;
+  }
+
+  // REFERENCES
+  if(xt.references&&xt.references.trim()){
+    h+=forEmail?`<div style="${s.section}">`:`<div class="cv-section">`;
+    h+=forEmail?`<div style="${s.sectionTitle}">${t('cv_ref')}</div>`:`<div class="cv-section-title">${t('cv_ref')}</div>`;
+    h+=forEmail?`<div style="${s.references}">${esc(xt.references)}</div>`:`<div class="cv-references">${esc(xt.references)}</div>`;
+    h+=`</div>`;
+  }
+
+  h+=`</div>`;
+  return h;
+}
+
+/* ══════════════════════════════════════
+   RENDER CV TO IMAGE (for PDF)
+══════════════════════════════════════ */
+async function renderCVToImage(){
+  const container=document.getElementById('pdf-render-container');
+  const cvHTML=buildCVHTML(cvData, false);
+  container.innerHTML=`
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+    ${cvHTML}
+  `;
+  // Wait for fonts and rendering
+  await new Promise(resolve=>setTimeout(resolve,2000));
+  const cvElement=container.querySelector('.cv-root');
+  const canvas=await html2canvas(cvElement,{
+    scale:3,
+    useCORS:true,
+    backgroundColor:'#ffffff',
+    logging:false
+  });
+  return canvas.toDataURL('image/png');
+}
+
+/* ══════════════════════════════════════
+   PDF GENERATION (FIXED PAGINATION)
+══════════════════════════════════════ */
+async function generatePDF(){
   if(!cvData){toast(t('t_err'),'err');return;}
+
   const btn=document.getElementById('btn-gen'),lbl=document.getElementById('glbl'),ico=document.getElementById('gico');
   const pw=document.getElementById('pw'),pf=document.getElementById('pf'),pl=document.getElementById('pl');
-  btn.disabled=true; lbl.textContent=t('pr1');
+  btn.disabled=true;lbl.textContent=t('pr1');
   ico.innerHTML=`<circle cx="12" cy="12" r="9" fill="none" stroke-width="2.5"/><path d="M12 6v6l3 3" fill="none"/>`;
-  ico.classList.add('spin'); pw.classList.add('show'); pf.style.width='8%';
+  ico.classList.add('spin');pw.classList.add('show');pf.style.width='10%';
   toast(t('t_gen'));
 
-  requestAnimationFrame(()=>setTimeout(()=>{
+  requestAnimationFrame(async()=>{
     try{
-      const{jsPDF}=window.jspdf;
-      const isA4=opts.paper==='a4';
-      const PW=isA4?210:215.9, PH=isA4?297:279.4;
-      const MG=opts.mg, TW=PW-MG*2;
-      let Y=MG;
-      const doc=new jsPDF({unit:'mm',format:isA4?'a4':'letter',orientation:'portrait'});
-      regFonts(doc);
+      pf.style.width='40%';pl.textContent=t('pr2');
 
-      /* ─── spacing constants (mm) ─── */
-      const LH_BODY  = 5.8;   // 10.5pt × 1.55 × 0.3528
-      const LH_SM    = 5.2;   // 10pt line height
-      const LH_XS    = 4.4;   // 8-9pt line height
-      const SEC_PRE  = 7.5;   // space before each section
-      const SEC_POST = 4.5;   // space after section rule → first item
-      const ITEM_GAP = 5.0;   // vertical gap between exp/edu items
-      const BULLET_X = 4.0;   // bullet column width
-      const COL2_X   = MG+BULLET_X+1.5; // text start after bullet
-
-      /* ─── helpers ─── */
-      function np(n=14){if(Y+n>PH-MG){doc.addPage();Y=MG;}}
-      function sf(type,sz){const[f,s]=F(type);doc.setFont(f,s);doc.setFontSize(sz);}
-      function cl(r,g,b){doc.setTextColor(r,g,b);}
-      function dl(r,g,b,w){doc.setDrawColor(r,g,b);doc.setLineWidth(w);}
-
-      /* section title: thin rule above, ALL-CAPS label, accent color */
-      function sec(label){
-        np(SEC_PRE+SEC_POST+LH_BODY+4);
-        Y+=SEC_PRE;
-        dl(180,180,180,0.25); doc.line(MG,Y,MG+TW,Y);  // hairline rule
-        Y+=1.8;
-        sf('ab',8); cl(59,109,17);                       // sage green label
-        doc.text(label.toUpperCase(),MG,Y);
-        // right-align decorative dash line
-        const lw=doc.getTextWidth(label.toUpperCase())+2.5;
-        dl(200,200,200,0.2);
-        doc.line(MG+lw,Y-1,MG+TW,Y-1);
-        Y+=SEC_POST;
+      // Render CV to image (or use cached version)
+      if(!renderedCVImage){
+        renderedCVImage=await renderCVToImage();
       }
 
-      /* draw a lozenge bullet at current Y, returns nothing */
-      function bullet(xPos){
-        cl(59,109,17);
-        doc.circle(xPos+1.2, Y-1.3, 0.9, 'F');
-        cl(34,34,34);
+      pf.style.width='80%';pl.textContent=t('pr3');
+
+      // PDF dimensions (A4 in mm)
+      const {jsPDF}=window.jspdf;
+      const PDF_W=210;   // A4 width in mm
+      const PDF_H=297;   // A4 height in mm
+      const MARGIN=20;   // 20mm margins
+      const CONTENT_W=PDF_W-(MARGIN*2);   // 170mm
+      const CONTENT_H=PDF_H-(MARGIN*2);   // 257mm
+
+      // Load image to get dimensions
+      const img=new Image();
+      img.src=renderedCVImage;
+      await new Promise((resolve,reject)=>{
+        img.onload=resolve;
+        img.onerror=()=>reject(new Error('Failed to load rendered CV image'));
+        // Timeout safety
+        setTimeout(resolve,5000);
+      });
+
+      // Calculate image dimensions in PDF space
+      const imgAspect=img.height/img.width;
+      const imgWidthMM=CONTENT_W;
+      const imgHeightMM=imgWidthMM*imgAspect;
+
+      console.log('Image size:',img.width,'x',img.height);
+      console.log('PDF content area:',CONTENT_W,'x',CONTENT_H,'mm');
+      console.log('Image in PDF:',imgWidthMM,'x',imgHeightMM,'mm');
+
+      // Create PDF document
+      const doc=new jsPDF({unit:'mm',format:'a4',orientation:'portrait'});
+
+      // Pagination: slice the image across multiple A4 pages
+      let remainingHeight=imgHeightMM;
+      let sourceY=0;
+      let pageNum=0;
+
+      while(remainingHeight>0){
+        if(pageNum>0) doc.addPage();
+
+        // How much content fits on this page
+        const sliceHeightMM=Math.min(remainingHeight,CONTENT_H);
+        
+        // Calculate source rectangle in image pixels
+        const sourceHPx=(sliceHeightMM/imgHeightMM)*img.height;
+
+        // Create a temporary canvas for this slice
+        const sliceCanvas=document.createElement('canvas');
+        sliceCanvas.width=img.width;
+        sliceCanvas.height=Math.ceil(sourceHPx);
+        const ctx=sliceCanvas.getContext('2d');
+        
+        // Draw the relevant portion of the source image
+        ctx.drawImage(
+          img,
+          0, sourceY,                    // Source x, y
+          img.width, sourceHPx,          // Source width, height
+          0, 0,                          // Dest x, y
+          img.width, sourceHPx           // Dest width, height
+        );
+        
+        const sliceDataURL=sliceCanvas.toDataURL('image/png');
+
+        // Add slice to current PDF page
+        doc.addImage(
+          sliceDataURL,'PNG',
+          MARGIN, MARGIN,
+          imgWidthMM, sliceHeightMM
+        );
+
+        // Advance to next slice
+        sourceY+=sourceHPx;
+        remainingHeight-=sliceHeightMM;
+        pageNum++;
       }
 
-      /* draw right-aligned date badge with subtle background */
-      function dateBadge(dateStr){
-        if(!dateStr) return;
-        sf('an',7.5); cl(100,100,100);
-        doc.text(dateStr, MG+TW, Y, {align:'right'});
-      }
+      console.log('PDF created with',pageNum,'page(s)');
 
-      pf.style.width='20%'; pl.textContent=t('pr2');
-
-      const p  = cvData.personal||{};
-      const ex = (cvData.experience||[]).filter(e=>e.title||e.company);
-      const ed = (cvData.education||[]).filter(e=>e.degree||e.school);
-      const sk = cvData.skills||{};
-      const xt = cvData.extras||{};
-      const fullName = `${p.firstName||''} ${p.lastName||''}`.trim();
-
-      /* ════ HEADER ════ */
-      // Name — large, bold, centered
-      sf('sb',24); cl(17,17,17);
-      doc.text(fullName, PW/2, Y+pt2mm(24)*0.78, {align:'center'});
-      Y += pt2mm(24)*1.2 + 1;
-
-      // Job title — italic, muted, centered
-      if(p.jobTitle){
-        sf('si',12); cl(68,68,68);
-        doc.text(p.jobTitle, PW/2, Y, {align:'center'});
-        Y += pt2mm(12)*1.5 + 2.5;
-      }
-
-      // Contacts — single centered line, pipe-separated, 9pt
-      const ctacts=[
-        p.email, p.phone,
-        [p.city,p.country].filter(Boolean).join(', '),
-        p.linkedin ? displayUrl(p.linkedin) : '',
-        p.website  ? displayUrl(p.website)  : '',
-        p.github   ? displayUrl(p.github)   : '',
-      ].filter(Boolean);
-      if(ctacts.length){
-        sf('an',9); cl(80,80,80);
-        const cstr = ctacts.join('   |   ');
-        const cl2  = doc.splitTextToSize(cstr, TW);
-        doc.text(cl2, PW/2, Y, {align:'center'});
-        Y += cl2.length * pt2mm(9)*1.5 + 1.5;
-      }
-
-      // Header divider — double rule effect
-      Y += 1.5;
-      dl(17,17,17,0.8); doc.line(MG,Y,MG+TW,Y);
-      Y += 1.2;
-      dl(59,109,17,0.3); doc.line(MG,Y,MG+TW,Y);  // thin green accent under
-      Y += 4.5;
-
-      /* ════ PROFESSIONAL SUMMARY ════ */
-      if(cvData.summary&&cvData.summary.trim()){
-        sec(t('cv_sum'));
-        sf('sn',10.5); cl(34,34,34);
-        const sl=doc.splitTextToSize(cvData.summary.trim(),TW);
-        np(sl.length*LH_BODY+2);
-        doc.text(sl,MG,Y);
-        Y+=sl.length*LH_BODY+1;
-      }
-
-      pf.style.width='45%';
-
-      /* ════ WORK EXPERIENCE ════ */
-      if(ex.length){
-        sec(t('cv_exp'));
-        ex.forEach((e,i)=>{
-          const ds=fmtM(e.start), de=e.current?t('cv_now'):fmtM(e.end);
-          const dateStr=[ds,de].filter(Boolean).join(' – ');
-          np(LH_BODY+LH_SM*2+LH_SM*3+ITEM_GAP);
-
-          // Row 1: Job title (bold) + date right-aligned
-          sf('ab',11); cl(17,17,17);
-          // truncate title if too long to avoid overlap with date
-          const titleMaxW = dateStr ? TW - doc.getTextWidth(dateStr) - 8 : TW;
-          const titleStr  = (e.title||'');
-          doc.text(titleStr, MG, Y);
-          dateBadge(dateStr);
-          Y += LH_SM + 0.5;
-
-          // Row 2: Employment type tag + company · location
-          const metaParts=[e.company,e.location].filter(Boolean);
-          if(metaParts.length||e.type){
-            // type badge
-            if(e.type){
-              sf('an',7.5); cl(120,120,120);
-              const badge=`[${e.type}]`;
-              doc.text(badge,MG,Y);
-              const bw=doc.getTextWidth(badge)+2.5;
-              sf('si',10); cl(70,70,70);
-              if(metaParts.length) doc.text(metaParts.join(' · '),MG+bw,Y);
-            } else {
-              sf('si',10); cl(70,70,70);
-              doc.text(metaParts.join(' · '),MG,Y);
-            }
-            Y+=LH_SM+0.5;
-          }
-
-          // Description bullets
-          if(e.desc&&e.desc.trim()){
-            const raw=e.desc.split('\n').map(l=>l.trim()).filter(Boolean);
-            const hasBullet=raw.some(l=>/^[•\-\*]/.test(l));
-            sf('sn',10); cl(51,51,51);
-            raw.forEach(line=>{
-              const clean=hasBullet?line.replace(/^[•\-\*]\s*/,''):line;
-              if(hasBullet){
-                bullet(MG);
-                const wr=doc.splitTextToSize(clean,TW-BULLET_X-1.5);
-                np(wr.length*LH_SM+1);
-                doc.text(wr,COL2_X,Y);
-                Y+=wr.length*LH_SM;
-              } else {
-                const wr=doc.splitTextToSize(clean,TW);
-                np(wr.length*LH_SM+1);
-                doc.text(wr,MG,Y);
-                Y+=wr.length*LH_SM;
-              }
-            });
-          }
-          if(i<ex.length-1){Y+=ITEM_GAP;}
-        });
-      }
-
-      pf.style.width='65%';
-
-      /* ════ EDUCATION ════ */
-      if(ed.length){
-        sec(t('cv_edu'));
-        ed.forEach((e,i)=>{
-          np(LH_BODY+LH_SM*3+ITEM_GAP);
-          const de=e.current?t('cv_now'):e.end;
-          const dateStr=[e.start,de].filter(Boolean).join(' – ');
-
-          // Degree
-          sf('ab',11); cl(17,17,17);
-          doc.text([e.degree,e.field].filter(Boolean).join(' in '),MG,Y);
-          dateBadge(dateStr);
-          Y+=LH_SM+0.5;
-
-          // Institution
-          const school=[e.school,e.location].filter(Boolean).join(', ');
-          if(school){sf('si',10);cl(70,70,70);doc.text(school,MG,Y);Y+=LH_SM+0.5;}
-
-          // GPA inline with small label
-          if(e.gpa){
-            sf('ab',8); cl(100,100,100); doc.text('GPA',MG,Y);
-            const gw=doc.getTextWidth('GPA')+1.5;
-            sf('an',8); cl(80,80,80); doc.text(e.gpa,MG+gw,Y);
-            Y+=LH_XS+1;
-          }
-
-          // Achievements
-          if(e.achievements&&e.achievements.trim()){
-            sf('sn',9.5); cl(80,80,80);
-            const al=doc.splitTextToSize(e.achievements.trim(),TW);
-            np(al.length*LH_SM+1);
-            doc.text(al,MG,Y); Y+=al.length*LH_XS+1;
-          }
-          if(i<ed.length-1) Y+=ITEM_GAP-1;
-        });
-      }
-
-      pf.style.width='80%';
-
-      /* ════ SKILLS ════ */
-      const hasSk=(sk.tech||[]).length||(sk.soft||[]).length||(sk.languages||[]).length||(sk.certs||[]).length;
-      if(hasSk){
-        sec(t('cv_sk'));
-        const groups=[
-          {label:t('cv_skt'),arr:sk.tech||[]},
-          {label:t('cv_sks'),arr:sk.soft||[]},
-          {label:t('cv_skl'),arr:sk.languages||[]},
-          {label:t('cv_skc'),arr:sk.certs||[]},
-        ].filter(g=>g.arr.length);
-
-        groups.forEach(g=>{
-          np(LH_XS+2);
-          // Label in sage green bold
-          sf('ab',8.5); cl(59,109,17);
-          const ltext=g.label+': ';
-          doc.text(ltext,MG,Y);
-          const lw=doc.getTextWidth(ltext);
-          // Skills in dark, dot-separated
-          sf('an',9); cl(51,51,51);
-          const sstr=g.arr.join('  ·  ');
-          const slines=doc.splitTextToSize(sstr,TW-lw);
-          if(slines[0]) doc.text(slines[0],MG+lw,Y);
-          Y+=LH_XS+1.2;
-          for(let i=1;i<slines.length;i++){
-            np(LH_XS+1); doc.text(slines[i],MG,Y); Y+=LH_XS+1;
-          }
-        });
-      }
-
-      /* ════ KEY ACHIEVEMENTS ════ */
-      if(xt.achievements&&xt.achievements.trim()){
-        sec(t('cv_ach'));
-        const raw=xt.achievements.split('\n').map(l=>l.trim()).filter(Boolean);
-        const hasBullet=raw.some(l=>/^[•\-\*]/.test(l));
-        sf('sn',10); cl(51,51,51);
-        raw.forEach(line=>{
-          const clean=hasBullet?line.replace(/^[•\-\*]\s*/,''):line;
-          if(hasBullet){
-            bullet(MG);
-            const wr=doc.splitTextToSize(clean,TW-BULLET_X-1.5);
-            np(wr.length*LH_SM+1); doc.text(wr,COL2_X,Y); Y+=wr.length*LH_SM;
-          } else {
-            const wr=doc.splitTextToSize(clean,TW);
-            np(wr.length*LH_SM+1); doc.text(wr,MG,Y); Y+=wr.length*LH_SM;
-          }
-        });
-      }
-
-      /* ════ REFERENCES ════ */
-      if(xt.references&&xt.references.trim()){
-        sec(t('cv_ref'));
-        sf('sn',10); cl(90,90,90);
-        const rl=doc.splitTextToSize(xt.references.trim(),TW);
-        np(rl.length*LH_SM+2); doc.text(rl,MG,Y);
-      }
-
-      /* ════ FOOTER — page numbers ════ */
-      const totalPages=doc.getNumberOfPages();
-      for(let pg=1;pg<=totalPages;pg++){
-        doc.setPage(pg);
-        sf('an',7.5); cl(180,180,180);
-        if(totalPages>1){
-          doc.text(`${pg} / ${totalPages}`, PW/2, PH-8, {align:'center'});
-        }
-        // subtle bottom accent line
-        dl(59,109,17,0.2);
-        doc.line(MG,PH-12,MG+TW,PH-12);
-      }
-
-      pf.style.width='95%'; pl.textContent=t('pr3');
+      // Save PDF
+      pf.style.width='95%';
       const fname=(document.getElementById('fname').value.trim()||'My_CV').replace(/\.pdf$/i,'')+'.pdf';
-      doc.save(fname); lastBlob=doc.output('blob');
-      pf.style.width='100%'; toast(t('t_done'),'ok');
+      doc.save(fname);
+      lastBlob=doc.output('blob');
+      pf.style.width='100%';
+      toast(t('t_done'),'ok');
 
+      // Reset UI
       setTimeout(()=>{
-        btn.disabled=false; lbl.textContent=t('btn_gen');
+        btn.disabled=false;lbl.textContent=t('btn_gen');
         ico.innerHTML=`<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`;
-        ico.classList.remove('spin'); pw.classList.remove('show'); pf.style.width='0%';
+        ico.classList.remove('spin');pw.classList.remove('show');pf.style.width='0%';
         document.getElementById('sb').classList.add('show');
         document.getElementById('sb').scrollIntoView({behavior:'smooth',block:'nearest'});
       },700);
 
     }catch(err){
-      console.error(err); toast(t('t_err'),'err');
-      document.getElementById('btn-gen').disabled=false;
-      document.getElementById('glbl').textContent=t('btn_gen');
-      document.getElementById('gico').classList.remove('spin');
-      document.getElementById('pw').classList.remove('show');
+      console.error('PDF generation error:',err);
+      toast(t('t_err'),'err');
+      btn.disabled=false;
+      lbl.textContent=t('btn_gen');
+      ico.innerHTML=`<path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>`;
+      ico.classList.remove('spin');
+      pw.classList.remove('show');
+      // Clear cached image so next attempt re-renders
+      renderedCVImage=null;
     }
-  },60));
+  });
 }
 
 function triggerDownload(){
@@ -857,105 +821,73 @@ function triggerDownload(){
   const a=document.createElement('a');
   a.href=URL.createObjectURL(lastBlob);
   a.download=(document.getElementById('fname').value.trim()||'My_CV')+'.pdf';
-  a.click(); URL.revokeObjectURL(a.href);
+  a.click();URL.revokeObjectURL(a.href);
 }
 
+/* ══════════════════════════════════════
+   SEND EMAIL (styled HTML in body)
+══════════════════════════════════════ */
 async function sendEmail(){
   const toEm=document.getElementById('to-em').value.trim();
   const note=document.getElementById('em-note').value.trim();
   if(!toEm){toast(t('t_nomail'),'err');document.getElementById('to-em').classList.add('err');return;}
 
-  const btn=document.getElementById('btn-em'), lbl=document.getElementById('em-lbl');
-  btn.disabled=true; lbl.textContent=t('t_sending'); toast(t('t_sending'));
+  const btn=document.getElementById('btn-em'),lbl=document.getElementById('em-lbl');
+  btn.disabled=true;lbl.textContent=t('t_sending');toast(t('t_sending'));
 
   const p=cvData.personal||{};
-  const ex=(cvData.experience||[]).filter(e=>e.title||e.company);
-  const ed=(cvData.education||[]).filter(e=>e.degree||e.school);
-  const sk=cvData.skills||{}, xt=cvData.extras||{};
   const full=`${p.firstName||''} ${p.lastName||''}`.trim();
 
-  /* Build one plain-text CV body — matches {{cv_full_text}} in the template */
-  const lines=[];
-  lines.push(`Name     : ${full}`);
-  lines.push(`Role     : ${p.jobTitle||''}`);
-  lines.push(`Email    : ${p.email||''}`);
-  lines.push(`Phone    : ${p.phone||''}`);
-  lines.push(`Location : ${[p.city,p.country].filter(Boolean).join(', ')}`);
-  if(p.linkedin) lines.push(`LinkedIn : ${ensureHttps(p.linkedin)}`);
-  if(p.website)  lines.push(`Website  : ${ensureHttps(p.website)}`);
-  if(p.github)   lines.push(`GitHub   : ${ensureHttps(p.github)}`);
-  if(cvData.summary){ lines.push(''); lines.push('--- Professional Summary ---'); lines.push(cvData.summary.trim()); }
-  if(ex.length){
-    lines.push(''); lines.push('--- Work Experience ---');
-    ex.forEach(e=>{
-      let s=`${e.title||''}${e.type?' ['+e.type+']':''} at ${e.company||''}`;
-      if(e.start) s+=` (${fmtM(e.start)} - ${e.current?t('cv_now'):fmtM(e.end)})`;
-      lines.push(s);
-      if(e.location) lines.push(`Location: ${e.location}`);
-      if(e.desc) lines.push(e.desc.substring(0,400)+(e.desc.length>400?'...':''));
-      lines.push('');
-    });
-  }
-  if(ed.length){
-    lines.push('--- Education ---');
-    ed.forEach(e=>{
-      let s=`${[e.degree,e.field].filter(Boolean).join(' in ')} - ${e.school||''}`;
-      if(e.start||e.end) s+=` (${[e.start,e.current?t('cv_now'):e.end].filter(Boolean).join(' - ')})`;
-      if(e.gpa) s+=` | GPA: ${e.gpa}`;
-      lines.push(s);
-      if(e.achievements) lines.push(e.achievements);
-      lines.push('');
-    });
-  }
-  if((sk.tech||[]).length)      { lines.push(`Technical Skills: ${sk.tech.join(', ')}`); }
-  if((sk.soft||[]).length)      { lines.push(`Soft Skills: ${sk.soft.join(', ')}`); }
-  if((sk.languages||[]).length) { lines.push(`Languages: ${sk.languages.join(', ')}`); }
-  if((sk.certs||[]).length)     { lines.push(`Certifications: ${sk.certs.join(', ')}`); }
-  if(xt.achievements)           { lines.push(''); lines.push('--- Key Achievements ---'); lines.push(xt.achievements.trim()); }
-  if(xt.references)             { lines.push(''); lines.push('--- References ---'); lines.push(xt.references.trim()); }
-  if(note)                      { lines.push(''); lines.push('--- Personal Note ---'); lines.push(note); }
-  lines.push(''); lines.push('Generated by CraftCV — No data stored on any server.');
-
-  /* Exactly 4 params — must match your EmailJS template variables exactly */
-  const params={
-    to_email     : toEm,
-    to_name      : full,
-    cv_role      : p.jobTitle||'(not specified)',
-    cv_full_text : lines.join('\n'),
-    personal_note: note||'(none)',
-  };
-
   try{
+    // Build styled HTML CV for email (with inline styles)
+    const cvHTML=buildCVHTML(cvData, true);
+
+    const params={
+      to_email:toEm,
+      to_name:full,
+      cv_role:p.jobTitle||'(not specified)',
+      cv_full_text:cvHTML, // Styled HTML for email clients
+      personal_note:note||'',
+    };
+
     emailjs.init({publicKey:EJS_KEY});
-    await emailjs.send(EJS_SERVICE, EJS_TEMPLATE, params);
+    await emailjs.send(EJS_SERVICE,EJS_TEMPLATE,params);
     toast(t('t_ok'),'ok');
-    btn.disabled=false; lbl.textContent=t('btn_em'); btn.classList.add('sent');
+    btn.disabled=false;lbl.textContent=t('btn_em');btn.classList.add('sent');
     const badge=document.getElementById('ebadge');
-    badge.textContent=t('eb_ok')+toEm; badge.className='ebadge ok';
+    badge.textContent=t('eb_ok')+toEm;badge.className='ebadge ok';
     document.getElementById('sb').classList.add('show');
   }catch(err){
     console.error('EmailJS error:',err);
     toast(t('t_fail'),'err');
-    btn.disabled=false; lbl.textContent=t('btn_em');
+    btn.disabled=false;lbl.textContent=t('btn_em');
     const badge=document.getElementById('ebadge');
-    badge.textContent=t('eb_fail'); badge.className='ebadge fail';
+    badge.textContent=t('eb_fail');badge.className='ebadge fail';
   }
 }
 
 /* ═══ MINI CV (right panel) ═══ */
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function renderMini(d){
   const c=document.getElementById('mini-cv');
-  const p=d.personal||{}, ex=(d.experience||[]).filter(e=>e.title||e.company).slice(0,3);
-  const ed=(d.education||[]).filter(e=>e.degree||e.school).slice(0,2), sk=d.skills||{};
+  const p=d.personal||{},ex=(d.experience||[]).filter(e=>e.title||e.company).slice(0,3);
+  const ed=(d.education||[]).filter(e=>e.degree||e.school).slice(0,2),sk=d.skills||{};
   const full=`${p.firstName||''} ${p.lastName||''}`.trim();
-  const ico=path=>`<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${path}</svg>`;
   let h=`<div class="mn">${esc(full)}</div>`;
   if(p.jobTitle) h+=`<div class="mr">${esc(p.jobTitle)}</div>`;
-  if(p.email) h+=`<div class="mc">${ico('<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>')} ${esc(p.email)}</div>`;
-  if(p.phone) h+=`<div class="mc">${ico('<path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-8.39-8.39 19.79 19.79 0 01-3.07-8.63A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/>')} ${esc(p.phone)}</div>`;
-  if(ex.length){h+=`<div class="md"></div><div class="ms">${t('cv_exp')}</div>`;ex.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.title)}<br><span class="sub">${esc(e.company)}${e.start?' · '+e.start.substring(0,4):''}</span></div></div>`;});}
-  if(ed.length){h+=`<div class="md"></div><div class="ms">${t('cv_edu')}</div>`;ed.forEach(e=>{h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.degree)}<br><span class="sub">${esc(e.school)}</span></div></div>`;});}
+  if(p.email) h+=`<div class="mc">✉ ${esc(p.email)}</div>`;
+  if(p.phone) h+=`<div class="mc">☎ ${esc(p.phone)}</div>`;
+  if(ex.length){
+    h+=`<div class="md"></div><div class="ms">${t('cv_exp')}</div>`;
+    ex.forEach(e=>{
+      h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.title)}<br><span class="sub">${esc(e.company)}${e.start?' · '+e.start.substring(0,4):''}</span></div></div>`;
+    });
+  }
+  if(ed.length){
+    h+=`<div class="md"></div><div class="ms">${t('cv_edu')}</div>`;
+    ed.forEach(e=>{
+      h+=`<div class="me"><div class="md2"></div><div class="mt2">${esc(e.degree)}<br><span class="sub">${esc(e.school)}</span></div></div>`;
+    });
+  }
   if((sk.tech||[]).length){
     h+=`<div class="md"></div><div class="ms">${t('cv_sk')}</div><div class="mchips">`;
     sk.tech.slice(0,6).forEach(s=>{h+=`<span class="mchip">${esc(s)}</span>`;});
@@ -973,15 +905,14 @@ function clearSession(){sessionStorage.removeItem('craftcv_data');}
   const l=(cvData&&cvData.lang)||localStorage.getItem('craftcv_lang')||'en';
   setLang(l);
   if(!cvData||!(cvData.personal&&cvData.personal.firstName)){
-    const d=document.createElement('div'); d.className='nodata';
+    const d=document.createElement('div');d.className='nodata';
     d.innerHTML=`<h2>${t('nd_t')}</h2><p>${t('nd_d')}</p><a href="form.html" class="btn-go">${t('nd_go')}</a>`;
-    document.body.appendChild(d); return;
+    document.body.appendChild(d);return;
   }
   const p=cvData.personal||{};
   document.getElementById('fname').value=`${p.firstName||'My'}_${p.lastName||'CV'}`.replace(/\s+/g,'_')+'_CV';
   if(cvData.extras&&cvData.extras.sendEmail){document.getElementById('etog').checked=true;toggleEmail();}
   renderMini(cvData);
-  await loadFonts();
 })();
 </script>
 </body>
