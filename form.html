@@ -1174,9 +1174,9 @@ function addExperience(data = {}) {
         <div class="field col-span-2">
           <div class="field-top">
             <label for="exp-desc-${id}">${t('label_exp_desc')}</label>
-            <span class="char-count" id="exp-desc-count-${id}">0 / 800</span>
+            <span class="char-count" id="exp-desc-count-${id}">0 / 8000</span>
           </div>
-          <textarea id="exp-desc-${id}" rows="5" placeholder="• Designed end-to-end checkout flows for 20M+ users&#10;• Led a team of 4 designers across web and mobile platforms&#10;• Increased conversion rate by 18% through data-driven UX improvements" data-maxlen="800" style="min-height:120px;" oninput="updateCharCount(this,'exp-desc-count-${id}',800)">${data.desc||''}</textarea>
+          <textarea id="exp-desc-${id}" rows="5" placeholder="• Designed end-to-end checkout flows for 20M+ users&#10;• Led a team of 4 designers across web and mobile platforms&#10;• Increased conversion rate by 18% through data-driven UX improvements" data-maxlen="8000" style="min-height:120px;" oninput="updateCharCount(this,'exp-desc-count-${id}',8000)">${data.desc||''}</textarea>
           <span class="field-hint">${t('hint_exp_desc')}</span>
         </div>
       </div>
